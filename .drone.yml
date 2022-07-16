@@ -23,7 +23,7 @@ steps:
       repo: "registry.dev.onetask.ai/${DRONE_REPO}"
       tags: ["${DRONE_COMMIT_SHA}", "${DRONE_COMMIT_BRANCH}"]
       cache_from:
-        - "registry.dev.onetask.ai/${DRONE_REPO}:main"
+        - "registry.dev.onetask.ai/${DRONE_REPO}:dev"
         - "registry.dev.onetask.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}"
   - name: trigger update
     image: appleboy/drone-ssh
@@ -68,7 +68,7 @@ steps:
       repo: "registry.dev.onetask.ai/${DRONE_REPO}"
       tags: ["${DRONE_COMMIT_SHA}_arm64", "${DRONE_COMMIT_BRANCH}_arm64"]
       cache_from:
-        - "registry.dev.onetask.ai/${DRONE_REPO}:main_arm64"
+        - "registry.dev.onetask.ai/${DRONE_REPO}:dev_arm64"
         - "registry.dev.onetask.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}_arm64"
 
 trigger:
