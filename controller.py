@@ -184,7 +184,7 @@ def run_encoding(
         )
         iso2_code = project.get_blank_tokenizer_from_project(request.project_id)
         try:
-            embedder = get_embedder(embedding_type, request.config_string, iso2_code)
+            embedder = get_embedder(request.project_id, embedding_type, request.config_string, iso2_code)
         except OSError:
             embedding.update_embedding_state_failed(
                 request.project_id,
