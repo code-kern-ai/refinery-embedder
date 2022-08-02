@@ -8,6 +8,7 @@ from submodules.model.business_objects import (
     record,
     tokenization,
     notification,
+    organization,
 )
 import torch
 import traceback
@@ -27,7 +28,6 @@ from util.embedders import get_embedder
 from util.notification import send_project_update
 import os
 import pandas as pd
-from submodules.model.business_objects import embedding, general, organization
 from submodules.s3 import controller as s3
 
 logging.basicConfig(level=logging.INFO)
@@ -184,7 +184,9 @@ def run_encoding(
         )
         iso2_code = project.get_blank_tokenizer_from_project(request.project_id)
         try:
-            embedder = get_embedder(request.project_id, embedding_type, request.config_string, iso2_code)
+            embedder = get_embedder(
+                request.project_id, embedding_type, request.config_string, iso2_code
+            )
         except OSError:
             embedding.update_embedding_state_failed(
                 request.project_id,
@@ -372,10 +374,16 @@ def run_encoding(
             request.project_id,
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.FINISHED.value}",
         )
+        notification_msg = (
+            f"Finished encoding {attribute_name} using model {request.config_string}."
+        )
+        if len(embedder.get_warnings()):
+            notification_msg += " Warnings: " + embedder.get_warnings()
+
         notification.create(
             request.project_id,
             request.user_id,
-            f"Finished encoding {attribute_name} using model {request.config_string}.",
+            notification_msg,
             "SUCCESS",
             enums.NotificationType.EMBEDDING_CREATION_DONE.value,
             True,
