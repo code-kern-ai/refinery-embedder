@@ -378,7 +378,7 @@ def run_encoding(
             f"Finished encoding {attribute_name} using model {request.config_string}."
         )
         if len(embedder.get_warnings()):
-            notification_msg += " Warnings: " + embedder.get_warnings()
+            notification_msg += " Warnings: " + embedder.get_warnings()[-1]
 
         notification.create(
             request.project_id,
