@@ -25,7 +25,7 @@ from typing import Any, Dict, Iterator, List
 from util import daemon, request_util
 from util.decorator import param_throttle
 from util.embedders import get_embedder
-from util.notification import send_project_update
+from util.notification import send_project_update, embedding_warning_templates
 import os
 import pandas as pd
 from submodules.s3 import controller as s3
@@ -321,11 +321,31 @@ def run_encoding(
                 initial_count,
             )
     except Exception:
-        if len(embedder.get_warnings()):
+        for warning_type, idx_list in embedder.get_warnings().items():
+            # use last record with warning as example
+            example_record_id = record_ids[idx_list[-1]]
+
+            primary_keys = [
+                pk.name for pk in attribute.get_primary_keys(request.project_id)
+            ]
+            if primary_keys:
+                example_record_data = record.get(
+                    request.project_id, example_record_id
+                ).data
+                example_record_msg = "with primary key: " + ", ".join(
+                    [str(example_record_data[p_key]) for p_key in primary_keys]
+                )
+            else:
+                example_record_msg = " with record id: " + str(example_record_id)
+
+            warning_msg = embedding_warning_templates[warning_type].format(
+                record_number=len(idx_list), example_record_msg=example_record_msg
+            )
+
             notification.create(
                 request.project_id,
                 request.user_id,
-                embedder.get_warnings()[-1],
+                warning_msg,
                 enums.Notification.WARNING.value,
                 enums.NotificationType.EMBEDDING_CREATION_WARNING.value,
                 True,
@@ -359,11 +379,31 @@ def run_encoding(
         return 500
 
     if embedding.get(request.project_id, embedding_id):
-        if len(embedder.get_warnings()):
+        for warning_type, idx_list in embedder.get_warnings().items():
+            # use last record with warning as example
+            example_record_id = record_ids[idx_list[-1]]
+
+            primary_keys = [
+                pk.name for pk in attribute.get_primary_keys(request.project_id)
+            ]
+            if primary_keys:
+                example_record_data = record.get(
+                    request.project_id, example_record_id
+                ).data
+                example_record_msg = "with primary key: " + ", ".join(
+                    [str(example_record_data[p_key]) for p_key in primary_keys]
+                )
+            else:
+                example_record_msg = " with record id: " + str(example_record_id)
+
+            warning_msg = embedding_warning_templates[warning_type].format(
+                record_number=len(idx_list), example_record_msg=example_record_msg
+            )
+
             notification.create(
                 request.project_id,
                 request.user_id,
-                embedder.get_warnings()[-1],
+                warning_msg,
                 enums.Notification.WARNING.value,
                 enums.NotificationType.EMBEDDING_CREATION_WARNING.value,
                 True,

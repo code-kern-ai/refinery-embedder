@@ -1,7 +1,22 @@
 import requests
 import os
 
+from embedders.enums import WarningType
+
 from submodules.model.business_objects import project
+
+embedding_warning_templates = {
+    WarningType.DOCUMENT_IS_SPLITTED.value: (
+        "For {record_number} records, the text length exceeds the model's max input"
+        " length. For these records, the texts are splitted and the parts are processed"
+        " individually. For example, record {example_record_msg}."
+    ),
+    WarningType.TOKEN_MISMATCHING.value: (
+        "For {record_number} records, the number of embeddings does not match the "
+        "number of spacy tokens. Please contact support.For example, record "
+        "{example_record_msg}."
+    ),
+}
 
 
 def send_project_update(project_id: str, message: str, is_global: bool = False) -> None:
