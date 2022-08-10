@@ -133,7 +133,7 @@ def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int
                         request.project_id,
                         request.user_id,
                         message,
-                        "ERROR",
+                        enums.Notification.ERROR.value,
                         enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
                         True,
                     )
@@ -141,11 +141,6 @@ def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int
                         request.project_id,
                         f"notification_created:{request.user_id}",
                         True,
-                    )
-                    embedding.update_embedding_state_failed(
-                        request.project_id,
-                        embedding_id,
-                        with_commit=True,
                     )
                     doc_ock.post_embedding_failed(
                         request.user_id, request.config_string
@@ -175,7 +170,7 @@ def run_encoding(
             request.project_id,
             request.user_id,
             f"Initializing model {request.config_string}. This can take a few minutes.",
-            "INFO",
+            enums.Notification.INFO.value,
             enums.NotificationType.EMBEDDING_CREATION_STARTED.value,
             True,
         )
@@ -203,7 +198,7 @@ def run_encoding(
                 request.project_id,
                 request.user_id,
                 message,
-                "ERROR",
+                enums.Notification.ERROR.value,
                 enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
                 True,
             )
@@ -228,7 +223,7 @@ def run_encoding(
                 request.project_id,
                 request.user_id,
                 message,
-                "ERROR",
+                enums.Notification.ERROR.value,
                 enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
                 True,
             )
@@ -242,7 +237,7 @@ def run_encoding(
             request.project_id,
             request.user_id,
             f"Could not load model {request.config_string}. Please contact the support.",
-            "ERROR",
+            enums.Notification.ERROR.value,
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
         )
@@ -285,7 +280,7 @@ def run_encoding(
             request.project_id,
             request.user_id,
             f"Started encoding {attribute_name} using model {request.config_string}.",
-            "INFO",
+            enums.Notification.INFO.value,
             enums.NotificationType.EMBEDDING_CREATION_STARTED.value,
             True,
         )
@@ -326,6 +321,19 @@ def run_encoding(
                 initial_count,
             )
     except Exception:
+        if len(embedder.get_warnings()):
+            notification.create(
+                request.project_id,
+                request.user_id,
+                embedder.get_warnings()[-1],
+                enums.Notification.WARNING.value,
+                enums.NotificationType.EMBEDDING_CREATION_WARNING.value,
+                True,
+            )
+            send_project_update(
+                request.project_id, f"notification_created:{request.user_id}", True
+            )
+
         embedding.update_embedding_state_failed(
             request.project_id,
             embedding_id,
@@ -339,7 +347,7 @@ def run_encoding(
             request.project_id,
             request.user_id,
             "Error at runtime. Please contact support.",
-            "ERROR",
+            enums.Notification.ERROR.value,
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
         )
@@ -347,19 +355,23 @@ def run_encoding(
             request.project_id, f"notification_created:{request.user_id}", True
         )
         print(traceback.format_exc(), flush=True)
-        embedding.update_embedding_state_failed(
-            request.project_id,
-            embedding_id,
-            with_commit=True,
-        )
-        send_project_update(
-            request.project_id,
-            f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
-        )
         doc_ock.post_embedding_failed(request.user_id, request.config_string)
         return 500
 
     if embedding.get(request.project_id, embedding_id):
+        if len(embedder.get_warnings()):
+            notification.create(
+                request.project_id,
+                request.user_id,
+                embedder.get_warnings()[-1],
+                enums.Notification.WARNING.value,
+                enums.NotificationType.EMBEDDING_CREATION_WARNING.value,
+                True,
+            )
+            send_project_update(
+                request.project_id, f"notification_created:{request.user_id}", True
+            )
+
         if embedding_type == "classification":
             request_util.post_embedding_to_neural_search(
                 request.project_id, embedding_id
@@ -374,17 +386,11 @@ def run_encoding(
             request.project_id,
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.FINISHED.value}",
         )
-        notification_msg = (
-            f"Finished encoding {attribute_name} using model {request.config_string}."
-        )
-        if len(embedder.get_warnings()):
-            notification_msg += " Warnings: " + embedder.get_warnings()[-1]
-
         notification.create(
             request.project_id,
             request.user_id,
-            notification_msg,
-            "SUCCESS",
+            f"Finished encoding {attribute_name} using model {request.config_string}.",
+            enums.Notification.SUCCESS.value,
             enums.NotificationType.EMBEDDING_CREATION_DONE.value,
             True,
         )
