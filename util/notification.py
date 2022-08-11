@@ -13,7 +13,7 @@ embedding_warning_templates = {
     ),
     WarningType.TOKEN_MISMATCHING.value: (
         "For {record_number} records, the number of embeddings does not match the "
-        "number of spacy tokens. Please contact support.For example, record "
+        "number of spacy tokens. Please contact support. For example, record "
         "{example_record_msg}."
     ),
 }
