@@ -8,6 +8,7 @@ from submodules.model.business_objects import (
     record,
     tokenization,
     notification,
+    organization,
 )
 import torch
 import traceback
@@ -24,10 +25,9 @@ from typing import Any, Dict, Iterator, List
 from util import daemon, request_util
 from util.decorator import param_throttle
 from util.embedders import get_embedder
-from util.notification import send_project_update
+from util.notification import send_project_update, embedding_warning_templates
 import os
 import pandas as pd
-from submodules.model.business_objects import embedding, general, organization
 from submodules.s3 import controller as s3
 
 logging.basicConfig(level=logging.INFO)
@@ -133,7 +133,7 @@ def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int
                         request.project_id,
                         request.user_id,
                         message,
-                        "ERROR",
+                        enums.Notification.ERROR.value,
                         enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
                         True,
                     )
@@ -141,11 +141,6 @@ def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int
                         request.project_id,
                         f"notification_created:{request.user_id}",
                         True,
-                    )
-                    embedding.update_embedding_state_failed(
-                        request.project_id,
-                        embedding_id,
-                        with_commit=True,
                     )
                     doc_ock.post_embedding_failed(
                         request.user_id, request.config_string
@@ -175,7 +170,7 @@ def run_encoding(
             request.project_id,
             request.user_id,
             f"Initializing model {request.config_string}. This can take a few minutes.",
-            "INFO",
+            enums.Notification.INFO.value,
             enums.NotificationType.EMBEDDING_CREATION_STARTED.value,
             True,
         )
@@ -184,7 +179,9 @@ def run_encoding(
         )
         iso2_code = project.get_blank_tokenizer_from_project(request.project_id)
         try:
-            embedder = get_embedder(embedding_type, request.config_string, iso2_code)
+            embedder = get_embedder(
+                request.project_id, embedding_type, request.config_string, iso2_code
+            )
         except OSError:
             embedding.update_embedding_state_failed(
                 request.project_id,
@@ -201,7 +198,7 @@ def run_encoding(
                 request.project_id,
                 request.user_id,
                 message,
-                "ERROR",
+                enums.Notification.ERROR.value,
                 enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
                 True,
             )
@@ -226,7 +223,7 @@ def run_encoding(
                 request.project_id,
                 request.user_id,
                 message,
-                "ERROR",
+                enums.Notification.ERROR.value,
                 enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
                 True,
             )
@@ -240,7 +237,7 @@ def run_encoding(
             request.project_id,
             request.user_id,
             f"Could not load model {request.config_string}. Please contact the support.",
-            "ERROR",
+            enums.Notification.ERROR.value,
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
         )
@@ -283,7 +280,7 @@ def run_encoding(
             request.project_id,
             request.user_id,
             f"Started encoding {attribute_name} using model {request.config_string}.",
-            "INFO",
+            enums.Notification.INFO.value,
             enums.NotificationType.EMBEDDING_CREATION_STARTED.value,
             True,
         )
@@ -324,6 +321,39 @@ def run_encoding(
                 initial_count,
             )
     except Exception:
+        for warning_type, idx_list in embedder.get_warnings().items():
+            # use last record with warning as example
+            example_record_id = record_ids[idx_list[-1]]
+
+            primary_keys = [
+                pk.name for pk in attribute.get_primary_keys(request.project_id)
+            ]
+            if primary_keys:
+                example_record_data = record.get(
+                    request.project_id, example_record_id
+                ).data
+                example_record_msg = "with primary key: " + ", ".join(
+                    [str(example_record_data[p_key]) for p_key in primary_keys]
+                )
+            else:
+                example_record_msg = " with record id: " + str(example_record_id)
+
+            warning_msg = embedding_warning_templates[warning_type].format(
+                record_number=len(idx_list), example_record_msg=example_record_msg
+            )
+
+            notification.create(
+                request.project_id,
+                request.user_id,
+                warning_msg,
+                enums.Notification.WARNING.value,
+                enums.NotificationType.EMBEDDING_CREATION_WARNING.value,
+                True,
+            )
+            send_project_update(
+                request.project_id, f"notification_created:{request.user_id}", True
+            )
+
         embedding.update_embedding_state_failed(
             request.project_id,
             embedding_id,
@@ -337,7 +367,7 @@ def run_encoding(
             request.project_id,
             request.user_id,
             "Error at runtime. Please contact support.",
-            "ERROR",
+            enums.Notification.ERROR.value,
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
         )
@@ -345,19 +375,43 @@ def run_encoding(
             request.project_id, f"notification_created:{request.user_id}", True
         )
         print(traceback.format_exc(), flush=True)
-        embedding.update_embedding_state_failed(
-            request.project_id,
-            embedding_id,
-            with_commit=True,
-        )
-        send_project_update(
-            request.project_id,
-            f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
-        )
         doc_ock.post_embedding_failed(request.user_id, request.config_string)
         return 500
 
     if embedding.get(request.project_id, embedding_id):
+        for warning_type, idx_list in embedder.get_warnings().items():
+            # use last record with warning as example
+            example_record_id = record_ids[idx_list[-1]]
+
+            primary_keys = [
+                pk.name for pk in attribute.get_primary_keys(request.project_id)
+            ]
+            if primary_keys:
+                example_record_data = record.get(
+                    request.project_id, example_record_id
+                ).data
+                example_record_msg = "with primary key: " + ", ".join(
+                    [str(example_record_data[p_key]) for p_key in primary_keys]
+                )
+            else:
+                example_record_msg = " with record id: " + str(example_record_id)
+
+            warning_msg = embedding_warning_templates[warning_type].format(
+                record_number=len(idx_list), example_record_msg=example_record_msg
+            )
+
+            notification.create(
+                request.project_id,
+                request.user_id,
+                warning_msg,
+                enums.Notification.WARNING.value,
+                enums.NotificationType.EMBEDDING_CREATION_WARNING.value,
+                True,
+            )
+            send_project_update(
+                request.project_id, f"notification_created:{request.user_id}", True
+            )
+
         if embedding_type == "classification":
             request_util.post_embedding_to_neural_search(
                 request.project_id, embedding_id
@@ -376,7 +430,7 @@ def run_encoding(
             request.project_id,
             request.user_id,
             f"Finished encoding {attribute_name} using model {request.config_string}.",
-            "SUCCESS",
+            enums.Notification.SUCCESS.value,
             enums.NotificationType.EMBEDDING_CREATION_DONE.value,
             True,
         )
