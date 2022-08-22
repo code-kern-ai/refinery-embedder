@@ -5,18 +5,19 @@ from embedders.classification.count_based import (
 )
 from embedders.classification.contextual import TransformerSentenceEmbedder
 from embedders.extraction.count_based import BagOfCharsTokenEmbedder
-from embedders.extraction.contextual import (
-    SkipGramTokenEmbedder,
-    TransformerTokenEmbedder,
-)
+from embedders.extraction.contextual import TransformerTokenEmbedder
 from embedders.classification.reduce import PCASentenceReducer
 from embedders.extraction.reduce import PCATokenReducer
 from embedders import Transformer
 
 from submodules.model.business_objects import record
 
+
 def get_embedder(
-    project_id: str, embedding_type: str, config_string: str, language_code: str,
+    project_id: str,
+    embedding_type: str,
+    config_string: str,
+    language_code: str,
 ) -> Transformer:
     if embedding_type == "classification":
         batch_size = 128
@@ -26,18 +27,16 @@ def get_embedder(
         elif config_string == "bag-of-words":
             embedder = BagOfWordsSentenceEmbedder(batch_size=batch_size)
         elif config_string == "tf-idf":
-            embedder = TfidfSentenceEmbedder(batch_size=batch_size),
-        elif config_string == "word2vec":
-            return None
+            embedder = TfidfSentenceEmbedder(batch_size=batch_size)
         else:
             embedder = TransformerSentenceEmbedder(
-                    config_string=config_string, batch_size=batch_size
-                )
+                config_string=config_string, batch_size=batch_size
+            )
 
         if record.count(project_id) < n_components:
             return embedder
         else:
-            return PCASentenceReducer(embedder, n_components = n_components)
+            return PCASentenceReducer(embedder, n_components=n_components)
 
     else:  # extraction
         batch_size = 32
@@ -52,12 +51,6 @@ def get_embedder(
             return None
         if config_string == "tf-idf":
             return None
-        if config_string == "word2vec":
-            return SkipGramTokenEmbedder(
-                language_code=language_code,
-                precomputed_docs=True,
-                batch_size=batch_size,
-            )
         else:
             return PCATokenReducer(
                 TransformerTokenEmbedder(
