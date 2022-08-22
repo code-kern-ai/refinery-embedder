@@ -90,11 +90,6 @@ def recommendations(
             "tokenizers": ["all"],
             "applicability": {"attribute": True, "token": False},
         },
-        # TODO: w2v currently doesn't work yet, @Johannes needs to fix this
-        # {
-        #     "config_string": "word2vec",
-        #     "description": "SkipGram based word representations (token-granularity only)",
-        # },
     ]
 
     return recommends, 200
