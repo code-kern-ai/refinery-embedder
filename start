@@ -1,6 +1,8 @@
 #!/bin/bash
 trap "echo -ne '\nstopping container...' && docker stop refinery-embedder > /dev/null 2>&1 && echo -ne '\t\t [done]\n'" EXIT
 
+source check_config_service
+
 HOST_IP=$(docker network inspect bridge --format='{{json .IPAM.Config}}' | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | tail -1)
 
 echo -ne 'stopping old container...'
@@ -20,6 +22,7 @@ docker run -d --rm \
 -e S3_SECRET_KEY=r6ywtR33!DMlaL*SUUdy \
 -e POSTGRES=postgresql://postgres:onetask@graphql-postgres:5432 \
 -e DOC_OCK=http://refinery-doc-ock:80 \
+-e MODEL_PROVIDER=http://refinery-model-provider:80 \
 -e WS_NOTIFY_ENDPOINT="http://refinery-websocket:8080" \
 -e NEURAL_SEARCH=http://refinery-neural-search:80 \
 --mount type=bind,source="$(pwd)"/,target=/app \
