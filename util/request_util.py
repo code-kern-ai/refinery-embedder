@@ -20,9 +20,10 @@ def delete_embedding_from_neural_search(embedding_id: str) -> None:
     requests.put(url, params=params)
 
 
-def get_model_path(model_name: str, revision: str = None) -> str:
+def get_model_path(project_id: str, model_name: str, revision: str = None) -> str:
     url = f"{MODEL_PROVIDER_BASE_URI}/model_path"
     params = {
+        "project_id": project_id,
         "model_name": model_name,
         "revision": revision,
     }
