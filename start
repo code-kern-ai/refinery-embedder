@@ -13,6 +13,20 @@ echo -ne 'building container...'
 docker build -t refinery-embedder-dev -f dev.Dockerfile .
 echo -ne '\t\t [done]\n'
 
+MODEL_DIR=${PWD%/*}/dev-setup/model-data/
+if [ ! -d "$MODEL_DIR" ] 
+then
+    MODEL_DIR=${PWD%/*/*}/dev-setup/model-data/
+    if [ ! -d "$MODEL_DIR" ] 
+    then
+        # to include volume for local development, use the dev-setup model data folder:  
+        # alternative use manual logic with
+        # -v /path/to/dev-setup/model-data:/models \
+        echo "Can't find model data directory: $MODEL_DIR -> stopping" 
+        exit 1
+    fi
+fi
+
 echo -ne 'starting...'
 docker run -d --rm \
 --name refinery-embedder \
@@ -27,11 +41,10 @@ docker run -d --rm \
 -e NEURAL_SEARCH=http://refinery-neural-search:80 \
 --mount type=bind,source="$(pwd)"/,target=/app \
 -v /var/run/docker.sock:/var/run/docker.sock \
+-v "$MODEL_DIR":/models \
 --network dev-setup_default \
 refinery-embedder-dev > /dev/null 2>&1
 echo -ne '\t\t\t [done]\n'
 
-# to include volume for local development, add to docker run command:  
-# -v /path/to/dev-setup/model-data:/models \
 
 docker logs -f refinery-embedder
