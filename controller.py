@@ -183,9 +183,7 @@ def run_encoding(
             if not __is_embedders_internal_model(
                 request.config_string
             ) and get_config_value("is_managed"):
-                config_string = request_util.get_model_path(
-                    request.project_id, request.config_string
-                )
+                config_string = request_util.get_model_path(request.config_string)
             else:
                 config_string = request.config_string
 

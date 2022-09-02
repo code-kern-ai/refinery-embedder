@@ -31,4 +31,7 @@ docker run -d --rm \
 refinery-embedder-dev > /dev/null 2>&1
 echo -ne '\t\t\t [done]\n'
 
+# to include volume for local development, add to docker run command:  
+# -v /path/to/dev-setup/model-data:/models \
+
 docker logs -f refinery-embedder
