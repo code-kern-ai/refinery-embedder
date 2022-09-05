@@ -214,6 +214,30 @@ def run_encoding(
                 request.project_id, f"notification_created:{request.user_id}", True
             )
             return 422
+        except ValueError:
+            embedding.update_embedding_state_failed(
+                request.project_id,
+                embedding_id,
+                with_commit=True,
+            )
+            send_project_update(
+                request.project_id,
+                f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
+            )
+            doc_ock.post_embedding_failed(request.user_id, request.config_string)
+            message = f"Model {request.config_string} was deleted during the creation process."
+            notification.create(
+                request.project_id,
+                request.user_id,
+                message,
+                enums.Notification.ERROR.value,
+                enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
+                True,
+            )
+            send_project_update(
+                request.project_id, f"notification_created:{request.user_id}", True
+            )
+            return 422
 
         if not embedder:
             embedding.update_embedding_state_failed(
