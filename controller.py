@@ -23,6 +23,7 @@ from embedders import Transformer
 from typing import Any, Dict, Iterator, List
 
 from util import daemon, request_util
+from util.config_handler import get_config_value
 from util.decorator import param_throttle
 from util.embedders import get_embedder
 from util.notification import send_project_update, embedding_warning_templates
@@ -179,8 +180,15 @@ def run_encoding(
         )
         iso2_code = project.get_blank_tokenizer_from_project(request.project_id)
         try:
+            if not __is_embedders_internal_model(
+                request.config_string
+            ) and get_config_value("is_managed"):
+                config_string = request_util.get_model_path(request.config_string)
+            else:
+                config_string = request.config_string
+
             embedder = get_embedder(
-                request.project_id, embedding_type, request.config_string, iso2_code
+                request.project_id, embedding_type, config_string, iso2_code
             )
         except OSError:
             embedding.update_embedding_state_failed(
@@ -194,6 +202,30 @@ def run_encoding(
             )
             doc_ock.post_embedding_failed(request.user_id, request.config_string)
             message = f"Model {request.config_string} is not supported. Please contact the support."
+            notification.create(
+                request.project_id,
+                request.user_id,
+                message,
+                enums.Notification.ERROR.value,
+                enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
+                True,
+            )
+            send_project_update(
+                request.project_id, f"notification_created:{request.user_id}", True
+            )
+            return 422
+        except ValueError:
+            embedding.update_embedding_state_failed(
+                request.project_id,
+                embedding_id,
+                with_commit=True,
+            )
+            send_project_update(
+                request.project_id,
+                f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
+            )
+            doc_ock.post_embedding_failed(request.user_id, request.config_string)
+            message = f"Model {request.config_string} was deleted during the creation process."
             notification.create(
                 request.project_id,
                 request.user_id,
@@ -503,3 +535,7 @@ def upload_embedding_as_file(
         sql_df.to_csv(file_name, mode="a", index=False)
     s3.upload_object(org_id, s3_file_name, file_name)
     os.remove(file_name)
+
+
+def __is_embedders_internal_model(model_name: str):
+    return model_name in ["bag-of-characters", "bag-of-words", "tf-idf"]
