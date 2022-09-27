@@ -95,6 +95,7 @@ def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int
     attribute_data_type = attribute_item.data_type
     embedding_item = embedding.create(
         request.project_id,
+        request.attribute_id,
         f"{attribute_name}-{embedding_type}-{request.config_string}",
         type=__infer_enum_value(embedding_type),
         with_commit=True,
