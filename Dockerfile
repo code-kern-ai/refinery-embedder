@@ -1,6 +1,10 @@
-FROM python:3.9
+FROM python:3.9-slim
 
 WORKDIR /program
+
+RUN apt update 
+RUN apt install -y gcc
+RUN apt install -y g++
 
 COPY requirements.txt .
 
