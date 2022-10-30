@@ -23,11 +23,14 @@ from embedders import Transformer
 from typing import Any, Dict, Iterator, List
 
 from util import daemon, request_util, serialization
+from util.serialization import MODEL_FOLDER
 from util.config_handler import get_config_value
 from util.decorator import param_throttle
 from util.embedders import get_embedder
+import embedders
 from util.notification import send_project_update, embedding_warning_templates
 import os
+import json
 import pandas as pd
 from submodules.s3 import controller as s3
 
@@ -86,6 +89,30 @@ def start_encoding_thread(request: data_type.Request, embedding_type: str) -> in
     daemon.run(prepare_run_encoding, request, embedding_type)
     return 200
 
+def encode_one_record(project_id: str, embedding_id: str, record_id: str):
+    dir_path = os.path.join(MODEL_FOLDER, f"embedder--{embedding_id}")
+
+    with open(os.path.join(dir_path,"config.json"), "r") as f:
+        config = json.load(f)
+    attribute_id = config["attribute_id"]
+    config_string = config["config_string"]
+    embedding_type = config["embedding_type"]
+    store_pca_reduced = config["store_pca_reduced"]
+
+    attribute_item = attribute.get(project_id, attribute_id)
+    attribute_name = attribute_item.name
+
+    record_item = record.get(project_id, record_id)
+
+    iso2_language_code = project.get_blank_tokenizer_from_project(project_id)
+
+    embedder, _ = get_embedder(project_id, embedding_type, config_string, iso2_language_code)
+    if store_pca_reduced:
+        embedder: embedders.PCAReducer = embedder
+        embedder.load_pca_weights(os.path.join(dir_path, "pca_weights"))
+
+    data = [record_item.data[attribute_name]]
+    return embedder.transform(data)
 
 def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int:
 
@@ -476,6 +503,7 @@ def run_encoding(
 
     serialization.make_dir(
         request.project_id, 
+        request.attribute_id,
         embedding_id, 
         request.config_string, 
         embedder, 

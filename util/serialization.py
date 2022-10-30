@@ -7,6 +7,7 @@ MODEL_FOLDER = "/models"
 
 def make_dir(
     project_id, 
+    attribute_id,
     embedding_id, 
     embdder_config_string, 
     embedder, 
@@ -18,6 +19,7 @@ def make_dir(
     store_pca_reduced = check_reduce_via_pca(embedding_type, embedder.__class__, project_id, n_components)
     embedder_config = {
         "project_id": project_id,
+        "attribute_id": attribute_id,
         "embedding_id": embedding_id,
         "embedding_type": embedding_type,
         "config_string": embdder_config_string,

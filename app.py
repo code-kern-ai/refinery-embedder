@@ -100,6 +100,15 @@ def encode_classification(request: data_type.Request) -> Tuple[int, str]:
     # session logic for threads in side
     return controller.start_encoding_thread(request, "classification"), ""
 
+@app.post("/encode/{project_id}/{embedding_id}/{record_id}")
+def encode_record(
+    project_id: str,
+    embedding_id: str,
+    record_id: str,
+) -> Tuple[int, str]:
+    # session logic for threads in side
+    return controller.encode_one_record(project_id, embedding_id, record_id), ""
+
 
 @app.post("/extraction/encode")
 def encode_extraction(request: data_type.Request) -> Tuple[int, str]:
