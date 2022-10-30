@@ -46,7 +46,7 @@ cymem==2.0.7
     #   preshed
     #   spacy
     #   thinc
-embedders==0.0.18
+embedders==0.0.19
     # via -r requirements/requirements.in
 fastapi==0.85.1
     # via -r requirements/torch-cpu-requirements.txt

@@ -22,7 +22,7 @@ from data import data_type, doc_ock
 from embedders import Transformer
 from typing import Any, Dict, Iterator, List
 
-from util import daemon, request_util
+from util import daemon, request_util, serialization
 from util.config_handler import get_config_value
 from util.decorator import param_throttle
 from util.embedders import get_embedder
@@ -188,7 +188,7 @@ def run_encoding(
             else:
                 config_string = request.config_string
 
-            embedder = get_embedder(
+            embedder, n_components = get_embedder(
                 request.project_id, embedding_type, config_string, iso2_code
             )
         except OSError:
@@ -473,6 +473,16 @@ def run_encoding(
         doc_ock.post_embedding_finished(request.user_id, request.config_string)
     general.commit()
     general.remove_and_refresh_session(session_token)
+
+    serialization.make_dir(
+        request.project_id, 
+        embedding_id, 
+        request.config_string, 
+        embedder, 
+        embedding_type, 
+        n_components
+    )
+
     return 200
 
 
