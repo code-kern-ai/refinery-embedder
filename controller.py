@@ -36,6 +36,40 @@ from submodules.s3 import controller as s3
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+from threading import Timer
+
+def debounce(wait):
+    """ Decorator that will postpone a functions
+        execution until after wait seconds
+        have elapsed since the last time it was invoked. """
+    def decorator(fn):
+        def debounced(*args, **kwargs):
+            def call_it():
+                fn(*args, **kwargs)
+            try:
+                debounced.t.cancel()
+            except(AttributeError):
+                pass
+            debounced.t = Timer(wait, call_it)
+            debounced.t.start()
+        return debounced
+    return decorator
+
+__CACHE = {}
+
+@debounce(600) # wait for 10 minutes before removing the embedder from cache
+def remove_embedding_from_cache(embedder_string: str):
+    del __CACHE[embedder_string]
+
+def load_from_cache_or_disk(project_id, embedding_type, config_string, iso2_language_code):
+    embedder_string = f"{embedding_type}--{embedding_type}--{config_string}--{iso2_language_code}"
+    if embedder_string in __CACHE:
+        embedder = __CACHE[embedder_string]
+    else:
+        embedder = get_embedder(project_id, embedding_type, config_string, iso2_language_code)
+        __CACHE[embedder_string] = embedder
+    remove_embedding_from_cache(embedder_string)
+    return embedder
 
 
 def generate_batches(
@@ -106,7 +140,7 @@ def encode_one_record(project_id: str, embedding_id: str, record_id: str):
 
     iso2_language_code = project.get_blank_tokenizer_from_project(project_id)
 
-    embedder, _ = get_embedder(project_id, embedding_type, config_string, iso2_language_code)
+    embedder, _ = load_from_cache_or_disk(project_id, embedding_type, config_string, iso2_language_code)
     if store_pca_reduced:
         embedder: embedders.PCAReducer = embedder
         embedder.load_pca_weights(os.path.join(dir_path, "pca_weights"))
