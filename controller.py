@@ -113,8 +113,11 @@ def encode_one_record(project_id: str, embedding_id: str, record_id: str):
 
     data = [record_item.data[attribute_name]]
     embedding = embedder.transform(data)
-    upload_single_embedding_as_file(project_id, record_id, embedding, True)
+    upload_single_embedding_as_file(project_id, record_id, embedding_id, embedding, True)
     return embedding
+
+def delete_record_on_minio(project_id, embedding_id, record_id):
+    delete_single_embedding_file(project_id, record_id, embedding_id)
 
 def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int:
 
@@ -551,10 +554,10 @@ def __infer_enum_value(embedding_type: str) -> str:
 
 
 def upload_single_embedding_as_file(
-    project_id: str, record_id: str, embedding: List, force_recreate: bool = True
+    project_id: str, record_id: str, embedding_id: str, embedding: List, force_recreate: bool = True
 ):
     org_id = organization.get_id_by_project_id(project_id)
-    file_name = f"single_embedding_tensor_{record_id}.csv.bz2"
+    file_name = f"single_embedding_tensor_{record_id}_{embedding_id}.csv.bz2"
     s3_file_name = project_id + "/" + file_name
     exists = s3.object_exists(org_id, s3_file_name)
     if force_recreate and exists:
@@ -564,6 +567,13 @@ def upload_single_embedding_as_file(
     pd.DataFrame({"data": embedding}).to_csv(file_name, mode="a", index=False)
     s3.upload_object(org_id, s3_file_name, file_name)
     os.remove(file_name)
+
+
+def delete_single_embedding_file(project_id: str, record_id: str, embedding_id: str):
+    org_id = organization.get_id_by_project_id(project_id)
+    file_name = f"single_embedding_tensor_{record_id}_{embedding_id}.csv.bz2"
+    s3_file_name = project_id + "/" + file_name
+    s3.delete_object(org_id, s3_file_name)
 
 
 def upload_embedding_as_file(

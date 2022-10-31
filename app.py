@@ -123,6 +123,13 @@ def delete_embedding(project_id: str, embedding_id: str) -> Tuple[int, str]:
     general.remove_and_refresh_session(session_token)
     return return_value, ""
 
+@app.delete("/delete/{project_id}/{embedding_id}/{record_id}")
+def delete_embedding_for_record(project_id: str, embedding_id: str, record_id: str) -> Tuple[int, str]:
+    session_token = general.get_ctx_token()
+    return_value = controller.delete_record_on_minio(project_id, embedding_id, record_id)
+    general.remove_and_refresh_session(session_token)
+    return return_value, ""
+
 
 @app.post("/upload_tensor_data/{project_id}/{embedding_id}")
 def upload_tensor_data(project_id: str, embedding_id: str) -> Tuple[int, str]:
