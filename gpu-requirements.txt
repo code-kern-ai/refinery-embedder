@@ -220,8 +220,10 @@ torch==1.12.1
     #   embedders
     #   sentence-transformers
     #   torchvision
-torchvision==0.14.0
-    # via sentence-transformers
+torchvision==0.13.1
+    # via
+    #   -r requirements/gpu-requirements.in
+    #   sentence-transformers
 tqdm==4.64.1
     # via
     #   -r requirements/torch-cuda-requirements.txt

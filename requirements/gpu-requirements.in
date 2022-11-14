@@ -1,3 +1,4 @@
 -r torch-cuda-requirements.txt
 embedders==0.0.18
 spacy==3.4.2
+torchvision==0.13.1 # define version for torchvision to avoid dependency conflict
