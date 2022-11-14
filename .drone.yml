@@ -128,9 +128,8 @@ steps:
           - "registry.dev.onetask.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}_gpu"
 
 trigger:
-  branch:
-    - dev
-    - beta-v2
+  # branch:
+  #   - dev
   event:
     - push
 

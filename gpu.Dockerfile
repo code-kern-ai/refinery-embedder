@@ -1,17 +1,10 @@
-FROM nvidia/cuda:11.4.0-base-ubuntu20.04
-CMD nvidia-smi
-
-#set up environment
-RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y curl
-RUN apt-get install unzip
-RUN apt-get -y install python3.9
-RUN apt-get -y install python3-pip
+FROM registry.dev.onetask.ai/code-kern-ai/refinery-parent-images:dev-torch-cuda
 
 WORKDIR /program
 
-COPY requirements.txt .
+COPY gpu-requirements.txt .
 
-RUN python3.9 -m pip install -r requirements.txt
+RUN python3.9 -m pip install --no-cache-dir -r gpu-requirements.txt
 
 COPY / .
 
