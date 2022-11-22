@@ -122,10 +122,9 @@ steps:
         from_secret: docker_password
       dockerfile: gpu.Dockerfile
       repo: "registry.dev.onetask.ai/${DRONE_REPO}"
-      tags: ["${DRONE_COMMIT_SHA}_gpu", "${DRONE_COMMIT_BRANCH}_gpu"]
+      tags: ["${DRONE_COMMIT_SHA}-gpu", "${DRONE_COMMIT_BRANCH}-gpu"]
       cache_from:
-          - "registry.dev.onetask.ai/${DRONE_REPO}:gpu"
-          - "registry.dev.onetask.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}_gpu"
+          - "registry.dev.onetask.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}-gpu"
 
 trigger:
   branch:
