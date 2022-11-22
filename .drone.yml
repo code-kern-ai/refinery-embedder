@@ -122,15 +122,13 @@ steps:
         from_secret: docker_password
       dockerfile: gpu.Dockerfile
       repo: "registry.dev.onetask.ai/${DRONE_REPO}"
-      tags: ["${DRONE_COMMIT_SHA}_gpu", "${DRONE_COMMIT_BRANCH}_gpu"]
+      tags: ["${DRONE_COMMIT_SHA}-gpu", "${DRONE_COMMIT_BRANCH}-gpu"]
       cache_from:
-          - "registry.dev.onetask.ai/${DRONE_REPO}:gpu"
-          - "registry.dev.onetask.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}_gpu"
+          - "registry.dev.onetask.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}-gpu"
 
 trigger:
   branch:
     - dev
-    - beta-v2
   event:
     - push
 
@@ -158,6 +156,36 @@ steps:
         from_secret: dockerhub_password
       repo: "kernai/${DRONE_REPO_NAME}"
       tag: "${DRONE_TAG}-drone-amd64"
+
+trigger:
+  event:
+    - tag
+
+---
+kind: pipeline
+type: docker
+name: amd64-gpu-dockerhub
+
+platform:
+  arch: amd64
+
+steps:
+  - name: submodules
+    image: alpine/git
+    commands:
+      - git submodule init
+      - 'git config --global url."https://github.com/".insteadOf git@github.com:'
+      - "git submodule update --recursive --remote"
+  - name: build and publish
+    image: plugins/docker
+    settings:
+      username:
+        from_secret: dockerhub_username
+      password:
+        from_secret: dockerhub_password
+      dockerfile: gpu.Dockerfile
+      repo: "kernai/${DRONE_REPO_NAME}"
+      tag: "${DRONE_TAG}-gpu"
 
 trigger:
   event:
