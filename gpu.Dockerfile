@@ -1,4 +1,4 @@
-FROM registry.dev.onetask.ai/code-kern-ai/refinery-parent-images:dev-torch-cuda
+FROM kernai/refinery-parent-images:v1.6.0-torch-cuda
 
 WORKDIR /program
 
