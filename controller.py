@@ -10,6 +10,7 @@ from submodules.model.business_objects import (
     notification,
     organization,
 )
+import pickle
 import torch
 import traceback
 from requests.exceptions import HTTPError
@@ -449,6 +450,14 @@ def run_encoding(
             request_util.post_embedding_to_neural_search(
                 request.project_id, embedding_id
             )
+            pickle_path = os.path.join(
+                "/inference", request.project_id, f"embedder-{embedding_id}.pkl"
+            )
+            if not os.path.exists(pickle_path):
+                os.makedirs(os.path.dirname(pickle_path), exist_ok=True)
+                with open(pickle_path, "wb") as f:
+                    pickle.dump(embedder, f)
+
         upload_embedding_as_file(request.project_id, embedding_id)
         embedding.update_embedding_state_finished(
             request.project_id,

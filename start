@@ -27,6 +27,20 @@ then
     fi
 fi
 
+INFERENCE_DIR=${PWD%/*}/dev-setup/inference/
+if [ ! -d "$_DIR" ] 
+then
+    INFERENCE_DIR=${PWD%/*/*}/dev-setup/inference/
+    if [ ! -d "$INFERENCE_DIR" ] 
+    then
+        # to include volume for local development, use the dev-setup model data folder:  
+        # alternative use manual logic with
+        # -v /path/to/dev-setup/model-data:/models \
+        echo "Can't find model data directory: $INFERENCE_DIR -> stopping" 
+        exit 1
+    fi
+fi
+
 echo -ne 'starting...'
 docker run -d --rm \
 --name refinery-embedder \
@@ -42,6 +56,7 @@ docker run -d --rm \
 --mount type=bind,source="$(pwd)"/,target=/app \
 -v /var/run/docker.sock:/var/run/docker.sock \
 -v "$MODEL_DIR":/models \
+-v "$INFERENCE_DIR":/inference \
 --network dev-setup_default \
 refinery-embedder-dev > /dev/null 2>&1
 echo -ne '\t\t\t [done]\n'
