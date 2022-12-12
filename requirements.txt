@@ -14,7 +14,7 @@ blis==0.7.9
     # via thinc
 boto3==1.25.0
     # via -r requirements/torch-cpu-requirements.txt
-botocore==1.28.0
+botocore==1.28.5
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   boto3
@@ -24,7 +24,7 @@ catalogue==2.0.8
     #   spacy
     #   srsly
     #   thinc
-certifi==2022.9.24
+certifi==2022.12.7
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   minio
@@ -50,7 +50,7 @@ embedders==0.0.18
     # via -r requirements/requirements.in
 fastapi==0.85.1
     # via -r requirements/torch-cpu-requirements.txt
-filelock==3.8.0
+filelock==3.8.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
@@ -59,7 +59,7 @@ h11==0.14.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   uvicorn
-huggingface-hub==0.10.1
+huggingface-hub==0.11.1
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   sentence-transformers
@@ -106,7 +106,7 @@ numpy==1.23.4
     #   thinc
     #   torchvision
     #   transformers
-packaging==21.3
+packaging==22.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
@@ -131,16 +131,12 @@ pydantic==1.10.2
     #   fastapi
     #   spacy
     #   thinc
-pyparsing==3.0.9
-    # via
-    #   -r requirements/torch-cpu-requirements.txt
-    #   packaging
 python-dateutil==2.8.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   botocore
     #   pandas
-pytz==2022.5
+pytz==2022.6
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   pandas
@@ -149,7 +145,7 @@ pyyaml==6.0
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
     #   transformers
-regex==2022.9.13
+regex==2022.10.31
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   nltk
@@ -210,7 +206,7 @@ thinc==8.1.5
     # via spacy
 threadpoolctl==3.1.0
     # via scikit-learn
-tokenizers==0.13.1
+tokenizers==0.13.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   transformers
@@ -248,7 +244,7 @@ typing-extensions==4.4.0
     #   starlette
     #   torch
     #   torchvision
-urllib3==1.26.12
+urllib3==1.26.13
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   botocore
