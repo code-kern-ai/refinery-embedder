@@ -496,12 +496,9 @@ def delete_embedding(project_id: str, embedding_id: str) -> int:
     org_id = organization.get_id_by_project_id(project_id)
     s3.delete_object(org_id, project_id + "/" + object_name)
     request_util.delete_embedding_from_neural_search(embedding_id)
-    if get_config_value("is_managed"):
-        pickle_path = os.path.join(
-            "/inference", project_id, f"embedder-{embedding_id}.pkl"
-        )
-        if os.path.exists(pickle_path):
-            os.remove(pickle_path)
+    pickle_path = os.path.join("/inference", project_id, f"embedder-{embedding_id}.pkl")
+    if os.path.exists(pickle_path):
+        os.remove(pickle_path)
     return 200
 
 
