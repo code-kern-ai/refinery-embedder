@@ -210,7 +210,7 @@ tokenizers==0.13.2
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   transformers
-torch==1.12.1
+torch==1.13.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   embedders

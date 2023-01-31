@@ -50,7 +50,7 @@ embedders==0.0.18
     # via -r requirements/requirements.in
 fastapi==0.85.1
     # via -r requirements/torch-cpu-requirements.txt
-filelock==3.9.0
+filelock==3.8.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
@@ -59,7 +59,7 @@ h11==0.14.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   uvicorn
-huggingface-hub==0.12.0
+huggingface-hub==0.11.1
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   sentence-transformers
@@ -106,7 +106,7 @@ numpy==1.23.4
     #   thinc
     #   torchvision
     #   transformers
-packaging==23.0
+packaging==22.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
@@ -136,7 +136,7 @@ python-dateutil==2.8.2
     #   -r requirements/torch-cpu-requirements.txt
     #   botocore
     #   pandas
-pytz==2022.7.1
+pytz==2022.6
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   pandas
@@ -244,7 +244,7 @@ typing-extensions==4.4.0
     #   starlette
     #   torch
     #   torchvision
-urllib3==1.26.14
+urllib3==1.26.13
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   botocore
