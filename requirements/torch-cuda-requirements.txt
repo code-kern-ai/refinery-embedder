@@ -88,7 +88,7 @@ starlette==0.20.4
     # via fastapi
 tokenizers==0.13.2
     # via transformers
-torch==1.12.1
+torch==1.13.1
     # via -r requirements/torch-cuda-requirements.in
 tqdm==4.64.1
     # via
