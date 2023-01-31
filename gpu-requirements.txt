@@ -216,7 +216,7 @@ torch==1.13.1
     #   embedders
     #   sentence-transformers
     #   torchvision
-torchvision==0.13.1
+torchvision==0.14.1
     # via
     #   -r requirements/gpu-requirements.in
     #   sentence-transformers

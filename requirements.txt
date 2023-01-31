@@ -216,8 +216,10 @@ torch==1.13.1
     #   embedders
     #   sentence-transformers
     #   torchvision
-torchvision==0.13.1
-    # via sentence-transformers
+torchvision==0.14.1
+    # via
+    #   -r requirements/requirements.in
+    #   sentence-transformers
 tqdm==4.64.1
     # via
     #   -r requirements/torch-cpu-requirements.txt
