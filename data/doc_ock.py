@@ -49,9 +49,13 @@ def _post_event(user_id: str, config_string: str, state: str) -> Any:
         "State": state,
         "Host": os.getenv("S3_ENDPOINT"),
     }
+
     response = requests.post(url, json=data)
-    if response.status_code == 200:
-        result, _ = response.json()
-        return result
-    else:
+
+    if response.status_code != 200:
         raise Exception("Could not send data to Doc Ock")
+
+    if response.headers.get("content-type") == "application/json":
+        return response.json()
+    else:
+        return response.text
