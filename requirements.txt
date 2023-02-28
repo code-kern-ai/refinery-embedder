@@ -82,8 +82,10 @@ jmespath==1.0.1
     #   botocore
 joblib==1.2.0
     # via
+    #   -r requirements/torch-cpu-requirements.txt
     #   nltk
     #   scikit-learn
+    #   scikit-optimize
 langcodes==3.3.0
     # via spacy
 markupsafe==2.1.1
@@ -104,6 +106,7 @@ numpy==1.23.4
     #   embedders
     #   pandas
     #   scikit-learn
+    #   scikit-optimize
     #   scipy
     #   sentence-transformers
     #   spacy
@@ -128,6 +131,10 @@ preshed==3.0.8
     #   thinc
 psycopg2-binary==2.9.4
     # via -r requirements/torch-cpu-requirements.txt
+pyaml==21.10.1
+    # via
+    #   -r requirements/torch-cpu-requirements.txt
+    #   scikit-optimize
 pydantic==1.10.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
@@ -148,6 +155,7 @@ pyyaml==6.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
+    #   pyaml
     #   transformers
 regex==2022.10.31
     # via
@@ -165,13 +173,19 @@ s3transfer==0.6.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   boto3
-scikit-learn==1.1.2
+scikit-learn==1.2.1
     # via
+    #   -r requirements/torch-cpu-requirements.txt
     #   embedders
+    #   scikit-optimize
     #   sentence-transformers
-scipy==1.9.3
+scikit-optimize==0.9.0
+    # via -r requirements/torch-cpu-requirements.txt
+scipy==1.10.1
     # via
+    #   -r requirements/torch-cpu-requirements.txt
     #   scikit-learn
+    #   scikit-optimize
     #   sentence-transformers
 sentence-transformers==2.2.2
     # via embedders
@@ -209,7 +223,9 @@ starlette==0.25.0
 thinc==8.1.5
     # via spacy
 threadpoolctl==3.1.0
-    # via scikit-learn
+    # via
+    #   -r requirements/torch-cpu-requirements.txt
+    #   scikit-learn
 tokenizers==0.13.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
