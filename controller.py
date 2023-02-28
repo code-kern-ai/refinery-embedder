@@ -10,6 +10,7 @@ from submodules.model.business_objects import (
     notification,
     organization,
 )
+from fastapi import status
 import pickle
 import torch
 import traceback
@@ -85,7 +86,7 @@ def get_docbins(
 def start_encoding_thread(request: data_type.Request, embedding_type: str) -> int:
     doc_ock.post_embedding_creation(request.user_id, request.config_string)
     daemon.run(prepare_run_encoding, request, embedding_type)
-    return 200
+    return status.HTTP_200_OK
 
 
 def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int:
@@ -215,7 +216,7 @@ def run_encoding(
             send_project_update(
                 request.project_id, f"notification_created:{request.user_id}", True
             )
-            return 422
+            return status.HTTP_422_UNPROCESSABLE_ENTITY
         except ValueError:
             embedding.update_embedding_state_failed(
                 request.project_id,
@@ -239,7 +240,7 @@ def run_encoding(
             send_project_update(
                 request.project_id, f"notification_created:{request.user_id}", True
             )
-            return 422
+            return status.HTTP_422_UNPROCESSABLE_ENTITY
 
         if not embedder:
             embedding.update_embedding_state_failed(
@@ -288,7 +289,7 @@ def run_encoding(
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
         )
         doc_ock.post_embedding_failed(request.user_id, request.config_string)
-        return 422
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
 
     try:
         record_ids, attribute_values_raw = record.get_attribute_data(
@@ -410,7 +411,7 @@ def run_encoding(
         )
         print(traceback.format_exc(), flush=True)
         doc_ock.post_embedding_failed(request.user_id, request.config_string)
-        return 500
+        return status.HTTP_500_INTERNAL_SERVER_ERROR
 
     if embedding.get(request.project_id, embedding_id):
         for warning_type, idx_list in embedder.get_warnings().items():
@@ -484,7 +485,7 @@ def run_encoding(
         doc_ock.post_embedding_finished(request.user_id, request.config_string)
     general.commit()
     general.remove_and_refresh_session(session_token)
-    return 200
+    return status.HTTP_200_OK
 
 
 def delete_embedding(project_id: str, embedding_id: str) -> int:
@@ -494,12 +495,12 @@ def delete_embedding(project_id: str, embedding_id: str) -> int:
     object_name = f"embedding_tensors_{embedding_id}.csv.bz2"
 
     org_id = organization.get_id_by_project_id(project_id)
-    s3.delete_object(org_id, project_id + "/" + object_name)
+    s3.delete_object(org_id, f"{project_id}/{object_name}")
     request_util.delete_embedding_from_neural_search(embedding_id)
     pickle_path = os.path.join("/inference", project_id, f"embedder-{embedding_id}.pkl")
     if os.path.exists(pickle_path):
         os.remove(pickle_path)
-    return 200
+    return status.HTTP_200_OK
 
 
 @param_throttle(seconds=5)

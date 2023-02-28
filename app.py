@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from fastapi import FastAPI
+from fastapi import FastAPI, responses, status
 import controller
 from data import data_type
 from typing import List, Dict, Tuple
@@ -25,7 +25,7 @@ else:
 @app.get("/classification/recommend/{data_type}")
 def recommendations(
     data_type: str,
-) -> Tuple[List[Dict[str, str]], int]:
+) -> responses.JSONResponse:
     recommends = [
         ### English ###
         {
@@ -92,39 +92,44 @@ def recommendations(
         },
     ]
 
-    return recommends, 200
+    return responses.JSONResponse(status_code=status.HTTP_200_OK, content=recommends)
 
 
 @app.post("/classification/encode")
-def encode_classification(request: data_type.Request) -> Tuple[int, str]:
+def encode_classification(request: data_type.Request) -> responses.PlainTextResponse:
     # session logic for threads in side
-    return controller.start_encoding_thread(request, "classification"), ""
+    status_code = controller.start_encoding_thread(request, "classification")
+
+    return responses.PlainTextResponse(status_code=status_code)
 
 
 @app.post("/extraction/encode")
-def encode_extraction(request: data_type.Request) -> Tuple[int, str]:
+def encode_extraction(request: data_type.Request) -> responses.PlainTextResponse:
     # session logic for threads in side
-    return controller.start_encoding_thread(request, "extraction"), ""
+    status_code = controller.start_encoding_thread(request, "extraction")
+    return responses.PlainTextResponse(status_code=status_code)
 
 
 @app.delete("/delete/{project_id}/{embedding_id}")
-def delete_embedding(project_id: str, embedding_id: str) -> Tuple[int, str]:
+def delete_embedding(project_id: str, embedding_id: str) -> responses.PlainTextResponse:
     session_token = general.get_ctx_token()
-    return_value = controller.delete_embedding(project_id, embedding_id)
+    status_code = controller.delete_embedding(project_id, embedding_id)
     general.remove_and_refresh_session(session_token)
-    return return_value, ""
+    return responses.PlainTextResponse(status_code=status_code)
 
 
 @app.post("/upload_tensor_data/{project_id}/{embedding_id}")
-def upload_tensor_data(project_id: str, embedding_id: str) -> Tuple[int, str]:
+def upload_tensor_data(
+    project_id: str, embedding_id: str
+) -> responses.PlainTextResponse:
     session_token = general.get_ctx_token()
     controller.upload_embedding_as_file(project_id, embedding_id)
     request_util.post_embedding_to_neural_search(project_id, embedding_id)
     general.remove_and_refresh_session(session_token)
-    return 200, ""
+    return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
 
 
 @app.put("/config_changed")
-def config_changed() -> int:
+def config_changed() -> responses.PlainTextResponse:
     config_handler.refresh_config()
-    return 200
+    return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
