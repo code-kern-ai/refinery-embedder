@@ -137,8 +137,12 @@ def config_changed() -> responses.PlainTextResponse:
 
 @app.get("/healthcheck")
 def healthcheck() -> responses.PlainTextResponse:
-    headers = {"APP": "OK"}
+    text = ""
     database_test = general.test_database_connection()
     if not database_test.get("success"):
-        headers["DATABASE"] = database_test.get("error")
-    return responses.PlainTextResponse("OK", headers=headers)
+        error_name = database_test.get("error")
+        text += f"database_error:{error_name}:"
+
+    if not text:
+        text = "OK"
+    return responses.PlainTextResponse(text)
