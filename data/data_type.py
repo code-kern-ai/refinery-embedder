@@ -6,3 +6,4 @@ class Request(BaseModel):
     attribute_id: str
     user_id: str
     config_string: str
+    platform: str

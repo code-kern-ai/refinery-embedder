@@ -3,7 +3,7 @@ from embedders.classification.count_based import (
     BagOfWordsSentenceEmbedder,
     TfidfSentenceEmbedder,
 )
-from embedders.classification.contextual import TransformerSentenceEmbedder
+from embedders.classification.contextual import OpenAISentenceEmbedder, HuggingFaceSentenceEmbedder, CohereSentenceEmbedder
 from embedders.extraction.count_based import BagOfCharsTokenEmbedder
 from embedders.extraction.contextual import TransformerTokenEmbedder
 from embedders.classification.reduce import PCASentenceReducer
@@ -18,19 +18,34 @@ def get_embedder(
     embedding_type: str,
     config_string: str,
     language_code: str,
+    platform: str,
 ) -> Transformer:
     if embedding_type == "classification":
         batch_size = 128
         n_components = 64
-        if config_string == "bag-of-characters":
-            return BagOfCharsSentenceEmbedder(batch_size=batch_size)
-        elif config_string == "bag-of-words":
-            embedder = BagOfWordsSentenceEmbedder(batch_size=batch_size)
-        elif config_string == "tf-idf":
-            embedder = TfidfSentenceEmbedder(batch_size=batch_size)
-        else:
-            embedder = TransformerSentenceEmbedder(
+        if platform == "python":
+            if config_string == "bag-of-characters":
+                return BagOfCharsSentenceEmbedder(batch_size=batch_size)
+            elif config_string == "bag-of-words":
+                embedder = BagOfWordsSentenceEmbedder(batch_size=batch_size)
+            elif config_string == "tf-idf":
+                embedder = TfidfSentenceEmbedder(batch_size=batch_size)
+        elif platform == "openai":
+            config_string_elements = config_string.split("+")
+            openai_model = config_string_elements[0]
+            openai_api_key = "+".join(config_string_elements[1:])
+            embedder = OpenAISentenceEmbedder(
+                openai_api_key=openai_api_key,
+                model_name=openai_model,
+                batch_size=batch_size,
+            )
+        elif platform == "huggingface":
+            embedder = HuggingFaceSentenceEmbedder(
                 config_string=config_string, batch_size=batch_size
+            )
+        elif platform == "cohere":
+            embedder = CohereSentenceEmbedder(
+                cohere_api_key=config_string, batch_size=batch_size
             )
 
         if record.count(project_id) < n_components:

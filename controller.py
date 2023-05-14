@@ -95,10 +95,11 @@ def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int
     attribute_item = attribute.get(request.project_id, request.attribute_id)
     attribute_name = attribute_item.name
     attribute_data_type = attribute_item.data_type
+    platform = request.platform
     embedding_item = embedding.create(
         request.project_id,
         request.attribute_id,
-        f"{attribute_name}-{embedding_type}-{request.config_string}",
+        f"{attribute_name}-{embedding_type}-{request.config_string}-{platform}",
         type=__infer_enum_value(embedding_type),
         with_commit=True,
     )
@@ -152,7 +153,7 @@ def prepare_run_encoding(request: data_type.Request, embedding_type: str) -> int
                     raise Exception(message)
     general.remove_and_refresh_session(session_token)
     return run_encoding(
-        request, embedding_id, embedding_type, attribute_name, attribute_data_type
+        request, embedding_id, embedding_type, attribute_name, attribute_data_type, platform
     )
 
 
@@ -162,6 +163,7 @@ def run_encoding(
     embedding_type: str,
     attribute_name: str,
     attribute_data_type: str,
+    platform: str,
 ) -> int:
     session_token = general.get_ctx_token()
     initial_count = record.count(request.project_id)
@@ -183,15 +185,18 @@ def run_encoding(
         )
         iso2_code = project.get_blank_tokenizer_from_project(request.project_id)
         try:
-            if not __is_embedders_internal_model(
-                request.config_string
-            ) and get_config_value("is_managed"):
-                config_string = request_util.get_model_path(request.config_string)
+            if platform == "huggingface":
+                if not __is_embedders_internal_model(
+                    request.config_string
+                ) and get_config_value("is_managed"):
+                    config_string = request_util.get_model_path(request.config_string)
+                    if type(config_string) == dict:
+                        config_string = request.config_string
             else:
                 config_string = request.config_string
 
             embedder = get_embedder(
-                request.project_id, embedding_type, config_string, iso2_code
+                request.project_id, embedding_type, config_string, iso2_code, platform
             )
         except OSError:
             embedding.update_embedding_state_failed(
@@ -452,7 +457,7 @@ def run_encoding(
                 request.project_id, embedding_id
             )
 
-        if get_config_value("is_managed"):
+        if get_config_value("is_managed") and platform == "huggingface":
             pickle_path = os.path.join(
                 "/inference", request.project_id, f"embedder-{embedding_id}.pkl"
             )
