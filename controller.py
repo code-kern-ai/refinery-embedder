@@ -457,7 +457,7 @@ def run_encoding(
                 request.project_id, embedding_id
             )
 
-        if get_config_value("is_managed") and platform == "huggingface":
+        if get_config_value("is_managed"):
             pickle_path = os.path.join(
                 "/inference", request.project_id, f"embedder-{embedding_id}.pkl"
             )
