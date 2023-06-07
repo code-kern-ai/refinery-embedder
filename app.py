@@ -92,7 +92,7 @@ def recommendations(
         },
         {
             "config_string": "text-embedding-ada-002",
-            "description": "Cheapest and most commong used openai transformer",
+            "description": "Cheapest and most common used openai transformer",
             "tokenizers": ["all"],
             "applicability": {"attribute": True, "token": True},
         },
