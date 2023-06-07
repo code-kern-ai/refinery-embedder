@@ -90,6 +90,12 @@ def recommendations(
             "tokenizers": ["all"],
             "applicability": {"attribute": True, "token": False},
         },
+        {
+            "config_string": "text-embedding-ada-002",
+            "description": "Cheapest and most commong used openai transformer",
+            "tokenizers": ["all"],
+            "applicability": {"attribute": True, "token": True},
+        },
     ]
 
     return responses.JSONResponse(status_code=status.HTTP_200_OK, content=recommends)
