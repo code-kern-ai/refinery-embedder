@@ -1,3 +1,4 @@
+from typing import Optional
 from embedders.classification.count_based import (
     BagOfCharsSentenceEmbedder,
     BagOfWordsSentenceEmbedder,
@@ -9,6 +10,7 @@ from embedders.extraction.contextual import TransformerTokenEmbedder
 from embedders.classification.reduce import PCASentenceReducer
 from embedders.extraction.reduce import PCATokenReducer
 from embedders import Transformer
+from submodules.model import enums
 
 from submodules.model.business_objects import record
 
@@ -16,36 +18,34 @@ from submodules.model.business_objects import record
 def get_embedder(
     project_id: str,
     embedding_type: str,
-    config_string: str,
     language_code: str,
     platform: str,
+    model: Optional[str] = None,
+    api_token: Optional[str] = None,
 ) -> Transformer:
-    if embedding_type == "classification":
+    if embedding_type == enums.EmbeddingType.ON_ATTRIBUTE.value:
         batch_size = 128
         n_components = 64
         if platform == "python":
-            if config_string == "bag-of-characters":
+            if model == "bag-of-characters":
                 return BagOfCharsSentenceEmbedder(batch_size=batch_size)
-            elif config_string == "bag-of-words":
+            elif model == "bag-of-words":
                 embedder = BagOfWordsSentenceEmbedder(batch_size=batch_size)
-            elif config_string == "tf-idf":
+            elif model == "tf-idf":
                 embedder = TfidfSentenceEmbedder(batch_size=batch_size)
         elif platform == "openai":
-            config_string_elements = config_string.split("+")
-            openai_model = config_string_elements[0]
-            openai_api_key = "+".join(config_string_elements[1:])
             embedder = OpenAISentenceEmbedder(
-                openai_api_key=openai_api_key,
-                model_name=openai_model,
+                openai_api_key=api_token,
+                model_name=model,
                 batch_size=batch_size,
             )
         elif platform == "huggingface":
             embedder = HuggingFaceSentenceEmbedder(
-                config_string=config_string, batch_size=batch_size
+                config_string=model, batch_size=batch_size
             )
         elif platform == "cohere":
             embedder = CohereSentenceEmbedder(
-                cohere_api_key=config_string, batch_size=batch_size
+                cohere_api_key=api_token, batch_size=batch_size
             )
 
         if record.count(project_id) < n_components:
@@ -56,20 +56,20 @@ def get_embedder(
     else:  # extraction
         batch_size = 32
         n_components = 16
-        if config_string == "bag-of-characters":
+        if model == "bag-of-characters":
             return BagOfCharsTokenEmbedder(
                 language_code=language_code,
                 precomputed_docs=True,
                 batch_size=batch_size,
             )
-        if config_string == "bag-of-words":
+        if model == "bag-of-words":
             return None
-        if config_string == "tf-idf":
+        if model == "tf-idf":
             return None
         else:
             return PCATokenReducer(
                 TransformerTokenEmbedder(
-                    config_string=config_string,
+                    config_string=model,
                     language_code=language_code,
                     precomputed_docs=True,
                     batch_size=batch_size,

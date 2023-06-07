@@ -95,18 +95,9 @@ def recommendations(
     return responses.JSONResponse(status_code=status.HTTP_200_OK, content=recommends)
 
 
-@app.post("/classification/encode")
-def encode_classification(request: data_type.Request) -> responses.PlainTextResponse:
-    # session logic for threads in side
-    status_code = controller.start_encoding_thread(request, "classification")
-
-    return responses.PlainTextResponse(status_code=status_code)
-
-
-@app.post("/extraction/encode")
-def encode_extraction(request: data_type.Request) -> responses.PlainTextResponse:
-    # session logic for threads in side
-    status_code = controller.start_encoding_thread(request, "extraction")
+@app.post("/embed")
+def embed(request: data_type.EmbeddingRequest) -> responses.PlainTextResponse:
+    status_code = controller.manage_encoding_thread(request.project_id, request.embedding_id)
     return responses.PlainTextResponse(status_code=status_code)
 
 
