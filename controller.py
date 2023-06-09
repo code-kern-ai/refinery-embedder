@@ -105,7 +105,6 @@ def prepare_run_encoding(project_id: str, embedding_id: str) -> int:
         project_id,
         f"embedding:{embedding_id}:state:{enums.EmbeddingState.INITIALIZING.value}",
     )
-
     if embedding_type == enums.EmbeddingType.ON_TOKEN.value:
 
         progress = tokenization.get_doc_bin_progress(project_id)
@@ -494,11 +493,7 @@ def run_encoding(
 
 
 def delete_embedding(project_id: str, embedding_id: str) -> int:
-    embedding.delete(project_id, embedding_id)
-    embedding.delete_tensors(embedding_id)
-    general.commit()
     object_name = f"embedding_tensors_{embedding_id}.csv.bz2"
-
     org_id = organization.get_id_by_project_id(project_id)
     s3.delete_object(org_id, f"{project_id}/{object_name}")
     request_util.delete_embedding_from_neural_search(embedding_id)
