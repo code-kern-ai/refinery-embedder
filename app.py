@@ -33,24 +33,28 @@ def recommendations(
             "description": "Lightweight generic embedding for English texts",
             "tokenizers": ["en_core_web_sm"],
             "applicability": {"attribute": True, "token": True},
+            "platform": "huggingface",
         },
         {
             "config_string": "bert-base-uncased",
             "description": "Generic embedding for English texts",
             "tokenizers": ["en_core_web_sm"],
             "applicability": {"attribute": True, "token": True},
+            "platform": "huggingface",
         },
         {
             "config_string": "roberta-base",
             "description": "Generic embedding for English texts",
             "tokenizers": ["en_core_web_sm"],
             "applicability": {"attribute": True, "token": True},
+            "platform": "huggingface",
         },
         {
             "config_string": "symanto/xlm-roberta-base-snli-mnli-anli-xnli",
             "description": "Few-shot optimimized embedding for English texts",
             "tokenizers": ["en_core_web_sm"],
             "applicability": {"attribute": True, "token": True},
+            "platform": "huggingface",
         },
         ### German ###
         {
@@ -58,18 +62,21 @@ def recommendations(
             "description": "Generic transformer for German texts",
             "tokenizers": ["de_core_news_sm"],
             "applicability": {"attribute": True, "token": True},
+            "platform": "huggingface",
         },
         {
             "config_string": "deepset/gbert-base",
             "description": "Generic transformer for German texts",
             "tokenizers": ["de_core_news_sm"],
             "applicability": {"attribute": True, "token": True},
+            "platform": "huggingface",
         },
         {
             "config_string": "oliverguhr/german-sentiment-bert",
             "description": "Sentiment classification for German texts",
             "tokenizers": ["de_core_news_sm"],
             "applicability": {"attribute": True, "token": True},
+            "platform": "huggingface",
         },
         ### Generic ###
         {
@@ -77,24 +84,28 @@ def recommendations(
             "description": "Simple count of characters",
             "tokenizers": ["all"],
             "applicability": {"attribute": True, "token": True},
+            "platform": "python",
         },
         {
             "config_string": "bag-of-words",
             "description": "Simple count of words; PCA reduced",
             "tokenizers": ["all"],
             "applicability": {"attribute": True, "token": False},
+            "platform": "python",
         },
         {
             "config_string": "tf-idf",
             "description": "Term frequency - inverse document frequency; PCA reduced",
             "tokenizers": ["all"],
             "applicability": {"attribute": True, "token": False},
+            "platform": "python",
         },
         {
             "config_string": "text-embedding-ada-002",
             "description": "Cheapest and most common used openai transformer",
             "tokenizers": ["all"],
             "applicability": {"attribute": True, "token": True},
+            "platform": "openai",
         },
     ]
 
