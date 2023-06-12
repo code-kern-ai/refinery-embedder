@@ -169,120 +169,36 @@ def run_encoding(
     initial_count = record.count(project_id)
     seed_str = embedding_name
     torch.manual_seed(zlib.adler32(bytes(seed_str, "utf-8")))
+    notification.create(
+        project_id,
+        user_id,
+        f"Initializing model {model}. This can take a few minutes.",
+        enums.Notification.INFO.value,
+        enums.NotificationType.EMBEDDING_CREATION_STARTED.value,
+        True,
+    )
+    send_project_update(
+        project_id, f"notification_created:{user_id}", True
+    )
+    iso2_code = project.get_blank_tokenizer_from_project(project_id)
     try:
+        if platform == "huggingface":
+            if not __is_embedders_internal_model(
+                model
+            ) and get_config_value("is_managed"):
+                config_string = request_util.get_model_path(model)
+                if type(config_string) == dict:
+                    config_string = model
+        else:
+            config_string = model
 
-        notification.create(
-            project_id,
-            user_id,
-            f"Initializing model {model}. This can take a few minutes.",
-            enums.Notification.INFO.value,
-            enums.NotificationType.EMBEDDING_CREATION_STARTED.value,
-            True,
+        embedder = get_embedder(
+            project_id, embedding_type, iso2_code, platform, model, api_token
         )
-        send_project_update(
-            project_id, f"notification_created:{user_id}", True
-        )
-        iso2_code = project.get_blank_tokenizer_from_project(project_id)
-        try:
-            if platform == "huggingface":
-                if not __is_embedders_internal_model(
-                    model
-                ) and get_config_value("is_managed"):
-                    config_string = request_util.get_model_path(model)
-                    if type(config_string) == dict:
-                        config_string = model
-            else:
-                config_string = model
-
-            embedder = get_embedder(
-                project_id, embedding_type, iso2_code, platform, model, api_token
-            )
-        except OSError:
-            embedding.update_embedding_state_failed(
-                project_id,
-                embedding_id,
-                with_commit=True,
-            )
-            send_project_update(
-                project_id,
-                f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
-            )
-            doc_ock.post_embedding_failed(user_id, model)
-            message = f"Model {model} is not supported. Please contact the support."
-            notification.create(
-                project_id,
-                user_id,
-                message,
-                enums.Notification.ERROR.value,
-                enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
-                True,
-            )
-            send_project_update(
-                project_id, f"notification_created:{user_id}", True
-            )
-            return status.HTTP_422_UNPROCESSABLE_ENTITY
-        except ValueError:
-            embedding.update_embedding_state_failed(
-                project_id,
-                embedding_id,
-                with_commit=True,
-            )
-            send_project_update(
-                project_id,
-                f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
-            )
-            doc_ock.post_embedding_failed(user_id, model)
-            message = f"Model {model} was deleted during the creation process."
-            notification.create(
-                project_id,
-                user_id,
-                message,
-                enums.Notification.ERROR.value,
-                enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
-                True,
-            )
-            send_project_update(
-                project_id, f"notification_created:{user_id}", True
-            )
-            return status.HTTP_422_UNPROCESSABLE_ENTITY
 
         if not embedder:
-            embedding.update_embedding_state_failed(
-                project_id,
-                embedding_id,
-                with_commit=True,
-            )
-            send_project_update(
-                project_id,
-                f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
-            )
-            doc_ock.post_embedding_failed(user_id, model)
-            message = f"The data type {attribute_data_type} is currently not supported for embeddings. Please contact the support."
-            notification.create(
-                project_id,
-                user_id,
-                message,
-                enums.Notification.ERROR.value,
-                enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
-                True,
-            )
-            send_project_update(
-                project_id, f"notification_created:{user_id}", True
-            )
-            raise Exception(message)
-    except HTTPError:
-        print(traceback.format_exc(), flush=True)
-        notification.create(
-            project_id,
-            user_id,
-            f"Could not load model {model}. Please contact the support.",
-            enums.Notification.ERROR.value,
-            enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
-            True,
-        )
-        send_project_update(
-            project_id, f"notification_created:{user_id}", True
-        )
+            raise Exception(f"The data type {attribute_data_type} is currently not supported for embeddings. Please contact the support.")
+    except Exception as e:
         embedding.update_embedding_state_failed(
             project_id,
             embedding_id,
@@ -293,6 +209,18 @@ def run_encoding(
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
         )
         doc_ock.post_embedding_failed(user_id, model)
+        message = f"Error while getting model - {e}"
+        notification.create(
+            project_id,
+            user_id,
+            message,
+            enums.Notification.ERROR.value,
+            enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
+            True,
+        )
+        send_project_update(
+            project_id, f"notification_created:{user_id}", True
+        )
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
     try:
