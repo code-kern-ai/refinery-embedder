@@ -42,8 +42,8 @@ def post_embedding_failed(user_id: str, config_string: str) -> Any:
     return __post_event_threaded(user_id, config_string, enums.EmbeddingState.FAILED.value)
 
 
-def __post_event_threaded(user_id: str, config_string: str) -> Any:
-    daemon.run(__post_event, user_id, config_string)
+def __post_event_threaded(user_id: str, config_string: str, state: str) -> Any:
+    daemon.run(__post_event, user_id, config_string, state)
 
 def __post_event(user_id: str, config_string: str, state: str) -> Any:
     if not user_id:
