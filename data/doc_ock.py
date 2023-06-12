@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from submodules.model import enums
 from typing import Any
 
+from util import daemon
+
 BASE_URI = os.getenv("DOC_OCK")
 
 
@@ -25,22 +27,25 @@ class Event:
 
 
 def post_embedding_creation(user_id: str, config_string: str) -> Any:
-    return _post_event(user_id, config_string, enums.EmbeddingState.INITIALIZING.value)
+    return __post_event_threaded(user_id, config_string, enums.EmbeddingState.INITIALIZING.value)
 
 
 def post_embedding_encoding(user_id: str, config_string: str) -> Any:
-    return _post_event(user_id, config_string, enums.EmbeddingState.ENCODING.value)
+    return __post_event_threaded(user_id, config_string, enums.EmbeddingState.ENCODING.value)
 
 
 def post_embedding_finished(user_id: str, config_string: str) -> Any:
-    return _post_event(user_id, config_string, enums.EmbeddingState.FINISHED.value)
+    return __post_event_threaded(user_id, config_string, enums.EmbeddingState.FINISHED.value)
 
 
 def post_embedding_failed(user_id: str, config_string: str) -> Any:
-    return _post_event(user_id, config_string, enums.EmbeddingState.FAILED.value)
+    return __post_event_threaded(user_id, config_string, enums.EmbeddingState.FAILED.value)
 
 
-def _post_event(user_id: str, config_string: str, state: str) -> Any:
+def __post_event_threaded(user_id: str, config_string: str) -> Any:
+    daemon.run(__post_event, user_id, config_string)
+
+def __post_event(user_id: str, config_string: str, state: str) -> Any:
     if not user_id:
         return  # migration is without user id (None)
     url = f"{BASE_URI}/track/{user_id}/Create Embedding"

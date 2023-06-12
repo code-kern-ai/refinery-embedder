@@ -88,9 +88,11 @@ def manage_encoding_thread(project_id: str, embedding_id: str) -> int:
     return status.HTTP_200_OK
 
 
-def prepare_run_encoding(project_id: str, embedding_id: str) -> int:
+def prepare_run_encoding(project_id: str, embedding_id: str) -> None:
     session_token = general.get_ctx_token()
     embedding_item = embedding.get(project_id, embedding_id)
+    if not embedding_item:
+        return
     attribute_item = attribute.get(project_id, embedding_item.attribute_id)
     attribute_name = attribute_item.name
     attribute_data_type = attribute_item.data_type
@@ -148,7 +150,7 @@ def prepare_run_encoding(project_id: str, embedding_id: str) -> int:
                     )
                     raise Exception(message)
     general.remove_and_refresh_session(session_token)
-    return run_encoding(
+    run_encoding(
         project_id, user_id, embedding_id, embedding_type, embedding_name, attribute_name, attribute_data_type, platform, model, api_token
     )
 

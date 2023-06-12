@@ -26,24 +26,26 @@ def get_embedder(
     if embedding_type == enums.EmbeddingType.ON_ATTRIBUTE.value:
         batch_size = 128
         n_components = 64
-        if platform == "python":
+        if platform == enums.EmbeddingPlatform.PYTHON.value:
             if model == "bag-of-characters":
                 return BagOfCharsSentenceEmbedder(batch_size=batch_size)
             elif model == "bag-of-words":
                 embedder = BagOfWordsSentenceEmbedder(batch_size=batch_size)
             elif model == "tf-idf":
                 embedder = TfidfSentenceEmbedder(batch_size=batch_size)
-        elif platform == "openai":
+            else:
+                raise Exception(f"Unknown model {model}")
+        elif platform == enums.EmbeddingPlatform.OPENAI.value:
             embedder = OpenAISentenceEmbedder(
                 openai_api_key=api_token,
                 model_name=model,
                 batch_size=batch_size,
             )
-        elif platform == "huggingface":
+        elif platform == enums.EmbeddingPlatform.HUGGINGFACE.value:
             embedder = HuggingFaceSentenceEmbedder(
                 config_string=model, batch_size=batch_size
             )
-        elif platform == "cohere":
+        elif platform == enums.EmbeddingPlatform.COHERE.value:
             embedder = CohereSentenceEmbedder(
                 cohere_api_key=api_token, batch_size=batch_size
             )
