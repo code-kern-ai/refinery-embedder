@@ -49,6 +49,8 @@ def get_embedder(
             embedder = CohereSentenceEmbedder(
                 cohere_api_key=api_token, batch_size=batch_size
             )
+        else:
+            raise Exception(f"Unknown platform {platform}")
 
         if record.count(project_id) < n_components:
             return embedder
