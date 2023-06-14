@@ -199,8 +199,9 @@ def run_encoding(
         )
 
         if not embedder:
-            raise Exception(f"The data type {attribute_data_type} is currently not supported for embeddings. Please contact the support.")
+            raise Exception(f"couldn't find matching embedder for requested embedding with type {embedding_type} model {model} and platform {platform}")
     except Exception as e:
+        print(traceback.format_exc(), flush=True)
         embedding.update_embedding_state_failed(
             project_id,
             embedding_id,
@@ -273,7 +274,7 @@ def run_encoding(
             attribute_values_encoded_batch = pair["embeddings"]
             if not embedding.get(project_id, embedding_id):
                 logger.info(
-                    f"Aborted {attribute_name}-{embedding_type}-{model}"
+                    f"Aborted {embedding_name}"
                 )
                 break
             embedding.create_tensors(
@@ -290,6 +291,7 @@ def run_encoding(
                 initial_count,
             )
     except Exception:
+        print(traceback.format_exc(), flush=True)
         for warning_type, idx_list in embedder.get_warnings().items():
             # use last record with warning as example
             example_record_id = record_ids[idx_list[-1]]
