@@ -1,8 +1,9 @@
+from dataclasses import dataclass
+from typing import Optional
 from pydantic import BaseModel
 
 
-class Request(BaseModel):
+class EmbeddingRequest(BaseModel):
     project_id: str
-    attribute_id: str
-    user_id: str
-    config_string: str
+    embedding_id: str
+

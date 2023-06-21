@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from submodules.model import enums
 from typing import Any
 
+from util import daemon
+
 BASE_URI = os.getenv("DOC_OCK")
 
 
@@ -25,37 +27,43 @@ class Event:
 
 
 def post_embedding_creation(user_id: str, config_string: str) -> Any:
-    return _post_event(user_id, config_string, enums.EmbeddingState.INITIALIZING.value)
+    return __post_event_threaded(user_id, config_string, enums.EmbeddingState.INITIALIZING.value)
 
 
 def post_embedding_encoding(user_id: str, config_string: str) -> Any:
-    return _post_event(user_id, config_string, enums.EmbeddingState.ENCODING.value)
+    return __post_event_threaded(user_id, config_string, enums.EmbeddingState.ENCODING.value)
 
 
 def post_embedding_finished(user_id: str, config_string: str) -> Any:
-    return _post_event(user_id, config_string, enums.EmbeddingState.FINISHED.value)
+    return __post_event_threaded(user_id, config_string, enums.EmbeddingState.FINISHED.value)
 
 
 def post_embedding_failed(user_id: str, config_string: str) -> Any:
-    return _post_event(user_id, config_string, enums.EmbeddingState.FAILED.value)
+    return __post_event_threaded(user_id, config_string, enums.EmbeddingState.FAILED.value)
 
 
-def _post_event(user_id: str, config_string: str, state: str) -> Any:
-    if not user_id:
-        return  # migration is without user id (None)
-    url = f"{BASE_URI}/track/{user_id}/Create Embedding"
-    data = {
-        "ConfigString": config_string,
-        "State": state,
-        "Host": os.getenv("S3_ENDPOINT"),
-    }
+def __post_event_threaded(user_id: str, config_string: str, state: str) -> Any:
+    daemon.run(__post_event, user_id, config_string, state)
 
-    response = requests.post(url, json=data)
+def __post_event(user_id: str, config_string: str, state: str) -> Any:
+    try:
+        if not user_id:
+            return  # migration is without user id (None)
+        url = f"{BASE_URI}/track/{user_id}/Create Embedding"
+        data = {
+            "ConfigString": config_string,
+            "State": state,
+            "Host": os.getenv("S3_ENDPOINT"),
+        }
 
-    if response.status_code != 200:
-        raise Exception("Could not send data to Doc Ock")
+        response = requests.post(url, json=data)
 
-    if response.headers.get("content-type") == "application/json":
-        return response.json()
-    else:
-        return response.text
+        if response.status_code != 200:
+            raise Exception("Could not send data to Doc Ock")
+
+        if response.headers.get("content-type") == "application/json":
+            return response.json()
+        else:
+            return response.text
+    except Exception as e:
+        print("Sending of message failed.", str(e), flush=True)

@@ -1,4 +1,4 @@
 -r torch-cpu-requirements.txt
-embedders==0.0.18
+embedders==0.1.4
 spacy==3.4.2
 torchvision==0.14.1 # define version for torchvision to avoid dependency conflict
