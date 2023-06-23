@@ -98,7 +98,7 @@ tqdm==4.65.0
     # via
     #   huggingface-hub
     #   transformers
-transformers==4.23.1
+transformers==4.30.0
     # via -r torch-cuda-requirements.in
 typing-extensions==4.6.2
     # via
