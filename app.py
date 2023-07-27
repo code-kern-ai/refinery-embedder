@@ -155,3 +155,11 @@ def healthcheck() -> responses.PlainTextResponse:
     if not text:
         text = "OK"
     return responses.PlainTextResponse(text, status_code=status_code)
+
+# TODO: The endpoint is not called anywhere. This should be done after Qdrant is updated to the newest version.
+@app.post("/update_embedding_payload/{project_id}/{embedding_id}")
+def update_embedding_payload(project_id: str, embedding_id: str) -> responses.PlainTextResponse:
+    session_token = general.get_ctx_token()
+    status_code = controller.update_embedding_payload(project_id, embedding_id)
+    general.remove_and_refresh_session(session_token)
+    return responses.PlainTextResponse(status_code=status_code)

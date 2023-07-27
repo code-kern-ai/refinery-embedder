@@ -480,3 +480,7 @@ def upload_embedding_as_file(
 
 def __is_embedders_internal_model(model_name: str):
     return model_name in ["bag-of-characters", "bag-of-words", "tf-idf"]
+
+
+def update_embedding_payload(project_id: str, embedding_id:str) -> None:
+    request_util.update_embedding_payload(project_id, embedding_id)

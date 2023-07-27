@@ -1,4 +1,5 @@
 import os
+from typing import List
 import requests
 
 NEURAL_SEARCH_BASE_URI = os.getenv("NEURAL_SEARCH")
@@ -27,3 +28,12 @@ def get_model_path(model_name: str) -> str:
     }
     response = requests.get(url, params=params)
     return response.json()
+
+
+def update_embedding_payload(project_id: str, embedding_id: str) -> None:
+    url = f"{NEURAL_SEARCH_BASE_URI}/update_embedding_payload"
+    params = {
+        "project_id": project_id,
+        "embedding_id": embedding_id
+    }
+    requests.post(url, params=params)
