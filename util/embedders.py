@@ -4,7 +4,11 @@ from embedders.classification.count_based import (
     BagOfWordsSentenceEmbedder,
     TfidfSentenceEmbedder,
 )
-from embedders.classification.contextual import OpenAISentenceEmbedder, HuggingFaceSentenceEmbedder, CohereSentenceEmbedder
+from embedders.classification.contextual import (
+    OpenAISentenceEmbedder,
+    HuggingFaceSentenceEmbedder,
+    CohereSentenceEmbedder,
+)
 from embedders.extraction.count_based import BagOfCharsTokenEmbedder
 from embedders.extraction.contextual import TransformerTokenEmbedder
 from embedders.classification.reduce import PCASentenceReducer
@@ -22,6 +26,7 @@ def get_embedder(
     platform: str,
     model: Optional[str] = None,
     api_token: Optional[str] = None,
+    additional_data: Optional[str] = None,
 ) -> Transformer:
     if embedding_type == enums.EmbeddingType.ON_ATTRIBUTE.value:
         batch_size = 128
@@ -35,11 +40,17 @@ def get_embedder(
                 embedder = TfidfSentenceEmbedder(batch_size=batch_size)
             else:
                 raise Exception(f"Unknown model {model}")
-        elif platform == enums.EmbeddingPlatform.OPENAI.value:
+        elif (
+            platform == enums.EmbeddingPlatform.OPENAI.value
+            or platform == enums.EmbeddingPlatform.AZURE.value
+        ):
             embedder = OpenAISentenceEmbedder(
                 openai_api_key=api_token,
                 model_name=model,
                 batch_size=batch_size,
+                api_base=additional_data.get("base"),
+                api_type=additional_data.get("type"),
+                api_version=additional_data.get("version"),
             )
         elif platform == enums.EmbeddingPlatform.HUGGINGFACE.value:
             embedder = HuggingFaceSentenceEmbedder(

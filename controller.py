@@ -74,7 +74,7 @@ def get_docbins(
     for record_item in tokenized_records:
         doc_bin_loaded = DocBin().from_bytes(record_item.bytes)
         docs = list(doc_bin_loaded.get_docs(vocab))
-        for (col, doc) in zip(record_item.columns, docs):
+        for col, doc in zip(record_item.columns, docs):
             if col == attribute_name:
                 result[record_item.record_id] = doc
     result_list = []
@@ -99,16 +99,16 @@ def prepare_run_encoding(project_id: str, embedding_id: str) -> None:
     platform = embedding_item.platform
     embedding_id = str(embedding_item.id)
     user_id = embedding_item.created_by
-    embedding_type=embedding_item.type
-    model=embedding_item.model
-    api_token=embedding_item.api_token
-    embedding_name=embedding_item.name
+    embedding_type = embedding_item.type
+    model = embedding_item.model
+    api_token = embedding_item.api_token
+    embedding_name = embedding_item.name
+    additional_data = embedding_item.additional_data
     send_project_update(
         project_id,
         f"embedding:{embedding_id}:state:{enums.EmbeddingState.INITIALIZING.value}",
     )
     if embedding_type == enums.EmbeddingType.ON_TOKEN.value:
-
         progress = tokenization.get_doc_bin_progress(project_id)
         if progress or progress == 0:
             embedding.update_embedding_state_waiting(project_id, embedding_id)
@@ -145,13 +145,21 @@ def prepare_run_encoding(project_id: str, embedding_id: str) -> None:
                         f"notification_created:{user_id}",
                         True,
                     )
-                    doc_ock.post_embedding_failed(
-                        user_id, f"{model}-{platform}"
-                    )
+                    doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
                     raise Exception(message)
     general.remove_and_refresh_session(session_token)
     run_encoding(
-        project_id, user_id, embedding_id, embedding_type, embedding_name, attribute_name, attribute_data_type, platform, model, api_token
+        project_id,
+        user_id,
+        embedding_id,
+        embedding_type,
+        embedding_name,
+        attribute_name,
+        attribute_data_type,
+        platform,
+        model,
+        api_token,
+        additional_data,
     )
 
 
@@ -160,12 +168,13 @@ def run_encoding(
     user_id: str,
     embedding_id: str,
     embedding_type: str,
-    embedding_name:str,
+    embedding_name: str,
     attribute_name: str,
     attribute_data_type: str,
     platform: str,
     model: Optional[str] = None,
     api_token: Optional[str] = None,
+    additional_data: Optional[Any] = None,
 ) -> int:
     session_token = general.get_ctx_token()
     initial_count = record.count(project_id)
@@ -179,15 +188,13 @@ def run_encoding(
         enums.NotificationType.EMBEDDING_CREATION_STARTED.value,
         True,
     )
-    send_project_update(
-        project_id, f"notification_created:{user_id}", True
-    )
+    send_project_update(project_id, f"notification_created:{user_id}", True)
     iso2_code = project.get_blank_tokenizer_from_project(project_id)
     try:
         if platform == "huggingface":
-            if not __is_embedders_internal_model(
-                model
-            ) and get_config_value("is_managed"):
+            if not __is_embedders_internal_model(model) and get_config_value(
+                "is_managed"
+            ):
                 config_string = request_util.get_model_path(model)
                 if type(config_string) == dict:
                     config_string = model
@@ -195,11 +202,19 @@ def run_encoding(
             config_string = model
 
         embedder = get_embedder(
-            project_id, embedding_type, iso2_code, platform, model, api_token
+            project_id,
+            embedding_type,
+            iso2_code,
+            platform,
+            model,
+            api_token,
+            additional_data,
         )
 
         if not embedder:
-            raise Exception(f"couldn't find matching embedder for requested embedding with type {embedding_type} model {model} and platform {platform}")
+            raise Exception(
+                f"couldn't find matching embedder for requested embedding with type {embedding_type} model {model} and platform {platform}"
+            )
     except Exception as e:
         print(traceback.format_exc(), flush=True)
         embedding.update_embedding_state_failed(
@@ -221,9 +236,7 @@ def run_encoding(
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
         )
-        send_project_update(
-            project_id, f"notification_created:{user_id}", True
-        )
+        send_project_update(project_id, f"notification_created:{user_id}", True)
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
     try:
@@ -254,9 +267,7 @@ def run_encoding(
             enums.NotificationType.EMBEDDING_CREATION_STARTED.value,
             True,
         )
-        send_project_update(
-            project_id, f"notification_created:{user_id}", True
-        )
+        send_project_update(project_id, f"notification_created:{user_id}", True)
         embedding.delete_tensors(embedding_id, with_commit=True)
         chunk = 0
         for pair in generate_batches(
@@ -273,9 +284,7 @@ def run_encoding(
             record_ids_batched = pair["record_ids"]
             attribute_values_encoded_batch = pair["embeddings"]
             if not embedding.get(project_id, embedding_id):
-                logger.info(
-                    f"Aborted {embedding_name}"
-                )
+                logger.info(f"Aborted {embedding_name}")
                 break
             embedding.create_tensors(
                 project_id,
@@ -296,13 +305,9 @@ def run_encoding(
             # use last record with warning as example
             example_record_id = record_ids[idx_list[-1]]
 
-            primary_keys = [
-                pk.name for pk in attribute.get_primary_keys(project_id)
-            ]
+            primary_keys = [pk.name for pk in attribute.get_primary_keys(project_id)]
             if primary_keys:
-                example_record_data = record.get(
-                    project_id, example_record_id
-                ).data
+                example_record_data = record.get(project_id, example_record_id).data
                 example_record_msg = "with primary key: " + ", ".join(
                     [str(example_record_data[p_key]) for p_key in primary_keys]
                 )
@@ -321,9 +326,7 @@ def run_encoding(
                 enums.NotificationType.EMBEDDING_CREATION_WARNING.value,
                 True,
             )
-            send_project_update(
-                project_id, f"notification_created:{user_id}", True
-            )
+            send_project_update(project_id, f"notification_created:{user_id}", True)
 
         embedding.update_embedding_state_failed(
             project_id,
@@ -342,9 +345,7 @@ def run_encoding(
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
         )
-        send_project_update(
-            project_id, f"notification_created:{user_id}", True
-        )
+        send_project_update(project_id, f"notification_created:{user_id}", True)
         print(traceback.format_exc(), flush=True)
         doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
         return status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -354,13 +355,9 @@ def run_encoding(
             # use last record with warning as example
             example_record_id = record_ids[idx_list[-1]]
 
-            primary_keys = [
-                pk.name for pk in attribute.get_primary_keys(project_id)
-            ]
+            primary_keys = [pk.name for pk in attribute.get_primary_keys(project_id)]
             if primary_keys:
-                example_record_data = record.get(
-                    project_id, example_record_id
-                ).data
+                example_record_data = record.get(project_id, example_record_id).data
                 example_record_msg = "with primary key: " + ", ".join(
                     [str(example_record_data[p_key]) for p_key in primary_keys]
                 )
@@ -379,14 +376,10 @@ def run_encoding(
                 enums.NotificationType.EMBEDDING_CREATION_WARNING.value,
                 True,
             )
-            send_project_update(
-                project_id, f"notification_created:{user_id}", True
-            )
+            send_project_update(project_id, f"notification_created:{user_id}", True)
 
         if embedding_type == enums.EmbeddingType.ON_ATTRIBUTE.value:
-            request_util.post_embedding_to_neural_search(
-                project_id, embedding_id
-            )
+            request_util.post_embedding_to_neural_search(project_id, embedding_id)
 
         if get_config_value("is_managed"):
             pickle_path = os.path.join(
@@ -415,9 +408,7 @@ def run_encoding(
             enums.NotificationType.EMBEDDING_CREATION_DONE.value,
             True,
         )
-        send_project_update(
-            project_id, f"notification_created:{user_id}", True
-        )
+        send_project_update(project_id, f"notification_created:{user_id}", True)
         doc_ock.post_embedding_finished(user_id, f"{model}-{platform}")
     general.commit()
     general.remove_and_refresh_session(session_token)
