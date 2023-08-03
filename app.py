@@ -107,6 +107,13 @@ def recommendations(
             "applicability": {"attribute": True, "token": True},
             "platform": "openai",
         },
+        {
+            "config_string": "text-embedding-ada-002",
+            "description": "Cheapest and most common used openai transformer",
+            "tokenizers": ["all"],
+            "applicability": {"attribute": True, "token": False},
+            "platform": "azure",
+        },
     ]
 
     return responses.JSONResponse(status_code=status.HTTP_200_OK, content=recommends)
@@ -114,7 +121,9 @@ def recommendations(
 
 @app.post("/embed")
 def embed(request: data_type.EmbeddingRequest) -> responses.PlainTextResponse:
-    status_code = controller.manage_encoding_thread(request.project_id, request.embedding_id)
+    status_code = controller.manage_encoding_thread(
+        request.project_id, request.embedding_id
+    )
     return responses.PlainTextResponse(status_code=status_code)
 
 
