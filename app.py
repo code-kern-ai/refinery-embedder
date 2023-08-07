@@ -107,13 +107,6 @@ def recommendations(
             "applicability": {"attribute": True, "token": True},
             "platform": "openai",
         },
-        {
-            "config_string": "text-embedding-ada-002",
-            "description": "Cheapest and most common used openai transformer",
-            "tokenizers": ["all"],
-            "applicability": {"attribute": True, "token": False},
-            "platform": "azure",
-        },
     ]
 
     return responses.JSONResponse(status_code=status.HTTP_200_OK, content=recommends)

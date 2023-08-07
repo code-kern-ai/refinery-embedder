@@ -44,6 +44,10 @@ def get_embedder(
             platform == enums.EmbeddingPlatform.OPENAI.value
             or platform == enums.EmbeddingPlatform.AZURE.value
         ):
+            if platform == enums.EmbeddingPlatform.AZURE.value:
+                batch_size = 16
+                model = "azure-openai-embeddings"
+
             embedder = OpenAISentenceEmbedder(
                 openai_api_key=api_token,
                 model_name=model,
