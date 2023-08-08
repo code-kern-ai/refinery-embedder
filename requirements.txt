@@ -61,7 +61,7 @@ cymem==2.0.7
     #   preshed
     #   spacy
     #   thinc
-embedders==0.1.4
+embedders==0.1.6
     # via -r requirements/requirements.in
 exceptiongroup==1.1.1
     # via
@@ -82,6 +82,8 @@ fsspec==2023.6.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
+greenlet==2.0.2
+    # via sqlalchemy
 h11==0.14.0
     # via
     #   -r requirements/torch-cpu-requirements.txt

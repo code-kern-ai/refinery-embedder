@@ -114,7 +114,9 @@ def recommendations(
 
 @app.post("/embed")
 def embed(request: data_type.EmbeddingRequest) -> responses.PlainTextResponse:
-    status_code = controller.manage_encoding_thread(request.project_id, request.embedding_id)
+    status_code = controller.manage_encoding_thread(
+        request.project_id, request.embedding_id
+    )
     return responses.PlainTextResponse(status_code=status_code)
 
 
