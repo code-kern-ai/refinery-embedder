@@ -44,8 +44,8 @@ def get_embedder(
             platform == enums.EmbeddingPlatform.OPENAI.value
             or platform == enums.EmbeddingPlatform.AZURE.value
         ):
-            if platform == enums.EmbeddingPlatform.AZURE.value:
-                batch_size = 16
+            if platform == enums.EmbeddingPlatform.AZURE.value:                
+                # azure handles batches on their own but can only work with 16 per batch
                 model = "azure-openai-embeddings"
 
             embedder = OpenAISentenceEmbedder(
