@@ -32,6 +32,7 @@ from util.notification import send_project_update, embedding_warning_templates
 import os
 import pandas as pd
 from submodules.s3 import controller as s3
+import openai
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -299,7 +300,27 @@ def run_encoding(
                 enums.EmbeddingState.ENCODING.value,
                 initial_count,
             )
-    except Exception:
+    except openai.error.APIConnectionError as e:
+        embedding.update_embedding_state_failed(
+            project_id,
+            embedding_id,
+            with_commit=True,
+        )
+        send_project_update(
+            project_id,
+            f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
+        )
+        notification.create(
+            project_id,
+            user_id,
+            str(e),
+            enums.Notification.ERROR.value,
+            enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
+            True,
+        )
+        doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
+        return status.HTTP_500_INTERNAL_SERVER_ERROR
+    except Exception as e:
         print(traceback.format_exc(), flush=True)
         for warning_type, idx_list in embedder.get_warnings().items():
             # use last record with warning as example
