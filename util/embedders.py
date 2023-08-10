@@ -44,10 +44,8 @@ def get_embedder(
             platform == enums.EmbeddingPlatform.OPENAI.value
             or platform == enums.EmbeddingPlatform.AZURE.value
         ):
-            if platform == enums.EmbeddingPlatform.AZURE.value:                
-                # azure handles batches on their own but can only work with 16 per batch
-                model = "azure-openai-embeddings"
-
+            # azure can only handle 16 per request however these are still batched to batch_size in embedders lib
+            # base, type & version are needed only for Azure. Model field is used for model name (OpenAI) or engine (Azure)
             embedder = OpenAISentenceEmbedder(
                 openai_api_key=api_token,
                 model_name=model,
