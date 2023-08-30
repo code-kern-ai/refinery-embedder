@@ -178,7 +178,14 @@ def run_encoding(
     additional_data: Optional[Any] = None,
 ) -> int:
     session_token = general.get_ctx_token()
-    initial_count = record.count(project_id)
+    initial_count = 0
+    if (
+        attribute.get_by_name(project_id, attribute_name).data_type
+        == enums.DataTypes.EMBEDDING_LIST.value
+    ):
+        initial_count = record.count_attribute_list_entries(project_id, attribute_name)
+    else:
+        initial_count = record.count(project_id)
     seed_str = embedding_name
     torch.manual_seed(zlib.adler32(bytes(seed_str, "utf-8")))
     notification.create(
