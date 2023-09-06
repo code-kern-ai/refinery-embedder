@@ -139,6 +139,16 @@ def upload_tensor_data(
     return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
 
 
+@app.post("/re_embed_records/{project_id}")
+def re_embed_record(
+    project_id: str, request: data_type.EmbeddingRebuildRequest
+) -> responses.PlainTextResponse:
+    session_token = general.get_ctx_token()
+    controller.re_embed_records(project_id, request.changes)
+    general.remove_and_refresh_session(session_token)
+    return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
+
+
 @app.put("/config_changed")
 def config_changed() -> responses.PlainTextResponse:
     config_handler.refresh_config()

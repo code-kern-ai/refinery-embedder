@@ -22,7 +22,7 @@ from spacy.tokens import DocBin, Doc
 from spacy.vocab import Vocab
 from data import data_type, doc_ock
 from embedders import Transformer
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 from util import daemon, request_util
 from util.config_handler import get_config_value
@@ -33,6 +33,8 @@ import os
 import pandas as pd
 from submodules.s3 import controller as s3
 import openai
+import gc
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -409,14 +411,14 @@ def run_encoding(
         if embedding_type == enums.EmbeddingType.ON_ATTRIBUTE.value:
             request_util.post_embedding_to_neural_search(project_id, embedding_id)
 
-        if get_config_value("is_managed"):
-            pickle_path = os.path.join(
-                "/inference", project_id, f"embedder-{embedding_id}.pkl"
-            )
-            if not os.path.exists(pickle_path):
-                os.makedirs(os.path.dirname(pickle_path), exist_ok=True)
-                with open(pickle_path, "wb") as f:
-                    pickle.dump(embedder, f)
+        # now always since otherwise record edit wouldn't work for embedded columns
+        pickle_path = os.path.join(
+            "/inference", project_id, f"embedder-{embedding_id}.pkl"
+        )
+        if not os.path.exists(pickle_path):
+            os.makedirs(os.path.dirname(pickle_path), exist_ok=True)
+            with open(pickle_path, "wb") as f:
+                pickle.dump(embedder, f)
 
         upload_embedding_as_file(project_id, embedding_id)
         embedding.update_embedding_state_finished(
@@ -499,3 +501,96 @@ def upload_embedding_as_file(
 
 def __is_embedders_internal_model(model_name: str):
     return model_name in ["bag-of-characters", "bag-of-words", "tf-idf"]
+
+
+def re_embed_records(project_id: str, changes: Dict[str, List[Dict[str, str]]]):
+    for embedding_id in changes:
+        if len(changes[embedding_id]) == 0:
+            continue
+
+        embedding_item = embedding.get(project_id, embedding_id)
+        if not embedding_item:
+            continue
+
+        # convert to int since the request automatically converts it to string
+        if "sub_key" in changes[embedding_id][0]:
+            for d in changes[embedding_id]:
+                d["sub_key"] = int(d["sub_key"])
+
+        embedder = __setup_tmp_embedder(project_id, embedding_id)
+
+        data_to_embed = None
+        record_ids = None  # Either list or set depending on embedding type
+        attribute_name = changes[embedding_id][0]["attribute_name"]
+
+        if embedding_item.type == enums.EmbeddingType.ON_TOKEN.value:
+            # can't have sub_key so records are unique so we can just get them all since order is preserved in get_docbins
+            record_ids = [c["record_id"] for c in changes[embedding_id]]
+            data_to_embed = get_docbins(
+                project_id, record_ids, embedder.nlp.vocab, attribute_name
+            )
+        else:
+            # order is important, data collection request doesn't order so we do it ourselves
+            record_ids = {c["record_id"] for c in changes[embedding_id]}
+            records = record.get_by_record_ids(project_id, record_ids)
+            records = {str(r.id): r for r in records}
+
+            data_to_embed = [
+                records[c["record_id"]].data[attribute_name]
+                if "sub_key" not in c
+                else records[c["record_id"]].data[attribute_name][c["sub_key"]]
+                for c in changes[embedding_id]
+            ]
+
+        new_tensors = embedder.transform(data_to_embed)
+
+        if len(new_tensors) != len(changes[embedding_id]):
+            raise Exception(
+                f"Number of new tensors ({len(new_tensors)}) doesn't match number of changes ({len(changes[embedding_id])})"
+            )
+
+        # delete old
+        if "sub_key" in changes[embedding_id][0]:
+            embedding.delete_by_record_ids_and_sub_keys(
+                project_id,
+                embedding_id,
+                [(c["record_id"], c["sub_key"]) for c in changes[embedding_id]],
+            )
+        else:
+            embedding.delete_by_record_ids(project_id, embedding_id, record_ids)
+        # add new
+        record_ids_batched = [
+            c["record_id"]
+            if "sub_key" not in c
+            else c["record_id"] + "@" + str(c["sub_key"])
+            for c in changes[embedding_id]
+        ]
+
+        embedding.create_tensors(
+            project_id,
+            embedding_id,
+            record_ids_batched,
+            new_tensors,
+            with_commit=True,
+        )
+
+        upload_embedding_as_file(project_id, embedding_id)
+        request_util.delete_embedding_from_neural_search(embedding_id)
+        request_util.post_embedding_to_neural_search(project_id, embedding_id)
+
+        del embedder
+        time.sleep(0.1)
+        gc.collect()
+        time.sleep(0.1)
+
+
+def __setup_tmp_embedder(project_id: str, embedder_id: str) -> Transformer:
+    embedder_path = os.path.join(
+        "/inference", project_id, f"embedder-{embedder_id}.pkl"
+    )
+    if not os.path.exists(embedder_path):
+        raise Exception(f"Embedder {embedder_id} not found")
+    with open(embedder_path, "rb") as f:
+        embedder = pickle.load(f)
+
+    return embedder
