@@ -79,7 +79,7 @@ def get_docbins(
         docs = list(doc_bin_loaded.get_docs(vocab))
         for col, doc in zip(record_item.columns, docs):
             if col == attribute_name:
-                result[record_item.record_id] = doc
+                result[str(record_item.record_id)] = doc
     result_list = []
     for record_id in record_ids_batch:
         result_list.append(result[record_id])
