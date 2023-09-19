@@ -14,15 +14,14 @@ from fastapi import status
 import pickle
 import torch
 import traceback
-from requests.exceptions import HTTPError
 import logging
 import time
 import zlib
 from spacy.tokens import DocBin, Doc
 from spacy.vocab import Vocab
-from data import data_type, doc_ock
+from data import doc_ock
 from embedders import Transformer
-from typing import Any, Dict, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional
 
 from util import daemon, request_util
 from util.config_handler import get_config_value
@@ -329,7 +328,7 @@ def run_encoding(
         )
         doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
         return status.HTTP_500_INTERNAL_SERVER_ERROR
-    except Exception as e:
+    except Exception:
         print(traceback.format_exc(), flush=True)
         for warning_type, idx_list in embedder.get_warnings().items():
             # use last record with warning as example
