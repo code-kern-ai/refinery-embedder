@@ -6,7 +6,7 @@
 #
 --extra-index-url https://download.pytorch.org/whl/cpu
 
-aiohttp==3.8.4
+aiohttp==3.8.5
     # via
     #   cohere
     #   openai
