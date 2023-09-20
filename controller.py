@@ -371,6 +371,7 @@ def run_encoding(
         if (
             error_message
             == "OpenAI API key is invalid. Please provide a valid API key in the constructor of OpenAISentenceEmbedder."
+            or error_message == "Resource not found"
         ):
             if platform == enums.EmbeddingPlatform.OPENAI.value:
                 notification_message = "Access denied due to invalid api key."
