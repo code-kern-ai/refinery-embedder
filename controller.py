@@ -236,11 +236,11 @@ def run_encoding(
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
         )
         doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
-        message = f"Error while getting model - {e}"
+        notification_message = f"Error while getting model - {e}"
         notification.create(
             project_id,
             user_id,
-            message,
+            notification_message,
             enums.Notification.ERROR.value,
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
@@ -329,6 +329,7 @@ def run_encoding(
         doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
         return status.HTTP_500_INTERNAL_SERVER_ERROR
     except Exception as e:
+        error_message = str(e)
         print(traceback.format_exc(), flush=True)
         for warning_type, idx_list in embedder.get_warnings().items():
             # use last record with warning as example
@@ -366,20 +367,22 @@ def run_encoding(
             project_id,
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
         )
-        message = "Error at runtime. Please contact support."
+        notification_message = "Error at runtime. Please contact support."
         if (
-            str(e)
+            error_message
             == "OpenAI API key is invalid. Please provide a valid API key in the constructor of OpenAISentenceEmbedder."
         ):
             if platform == enums.EmbeddingPlatform.OPENAI.value:
-                message = "Access denied due to invalid api key."
+                notification_message = "Access denied due to invalid api key."
             elif platform == enums.EmbeddingPlatform.AZURE.value:
-                message = "Access denied due to invalid subscription key or wrong endpoint data."
-
+                notification_message = "Access denied due to invalid subscription key or wrong endpoint data."
+        elif error_message == "invalid api token":
+            # cohere
+            notification_message = "Access denied due to invalid api token."
         notification.create(
             project_id,
             user_id,
-            message,
+            notification_message,
             enums.Notification.ERROR.value,
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
