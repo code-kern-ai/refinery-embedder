@@ -305,7 +305,7 @@ typing-extensions==4.8.0
     #   starlette
     #   torch
     #   torchvision
-urllib3==1.26.16
+urllib3==1.26.18
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   botocore
