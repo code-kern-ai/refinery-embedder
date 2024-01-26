@@ -21,9 +21,9 @@ else:
         flush=True,
     )
 
+
 @app.middleware("http")
 async def handle_db_session(request: Request, call_next):
-        
     session_token = general.get_ctx_token()
 
     request.state.session_token = session_token
@@ -33,6 +33,7 @@ async def handle_db_session(request: Request, call_next):
         general.remove_and_refresh_session(session_token)
 
     return response
+
 
 @app.get("/classification/recommend/{data_type}")
 def recommendations(
@@ -133,7 +134,7 @@ def embed(request: data_type.EmbeddingRequest) -> responses.PlainTextResponse:
 
 
 @app.delete("/delete/{project_id}/{embedding_id}")
-def delete_embedding(request: Request, project_id: str, embedding_id: str) -> responses.PlainTextResponse:
+def delete_embedding(project_id: str, embedding_id: str) -> responses.PlainTextResponse:
     status_code = controller.delete_embedding(project_id, embedding_id)
     return responses.PlainTextResponse(status_code=status_code)
 
