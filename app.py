@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from fastapi import FastAPI, responses, status
+from fastapi import FastAPI, responses, status, Request
 import controller
 from data import data_type
 from typing import List, Dict, Tuple
@@ -20,6 +20,19 @@ else:
         "--- Running on CPU. If you're facing performance issues, you should consider switching to a CUDA device",
         flush=True,
     )
+
+
+@app.middleware("http")
+async def handle_db_session(request: Request, call_next):
+    session_token = general.get_ctx_token()
+
+    request.state.session_token = session_token
+    try:
+        response = await call_next(request)
+    finally:
+        general.remove_and_refresh_session(session_token)
+
+    return response
 
 
 @app.get("/classification/recommend/{data_type}")
@@ -122,9 +135,7 @@ def embed(request: data_type.EmbeddingRequest) -> responses.PlainTextResponse:
 
 @app.delete("/delete/{project_id}/{embedding_id}")
 def delete_embedding(project_id: str, embedding_id: str) -> responses.PlainTextResponse:
-    session_token = general.get_ctx_token()
     status_code = controller.delete_embedding(project_id, embedding_id)
-    general.remove_and_refresh_session(session_token)
     return responses.PlainTextResponse(status_code=status_code)
 
 
@@ -132,10 +143,8 @@ def delete_embedding(project_id: str, embedding_id: str) -> responses.PlainTextR
 def upload_tensor_data(
     project_id: str, embedding_id: str
 ) -> responses.PlainTextResponse:
-    session_token = general.get_ctx_token()
     controller.upload_embedding_as_file(project_id, embedding_id)
     request_util.post_embedding_to_neural_search(project_id, embedding_id)
-    general.remove_and_refresh_session(session_token)
     return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
 
 
@@ -143,9 +152,7 @@ def upload_tensor_data(
 def re_embed_record(
     project_id: str, request: data_type.EmbeddingRebuildRequest
 ) -> responses.PlainTextResponse:
-    session_token = general.get_ctx_token()
     controller.re_embed_records(project_id, request.changes)
-    general.remove_and_refresh_session(session_token)
     return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
 
 
