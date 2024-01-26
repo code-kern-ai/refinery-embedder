@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from fastapi import FastAPI, responses, status
+from fastapi import FastAPI, responses, status, Request
 import controller
 from data import data_type
 from typing import List, Dict, Tuple
@@ -21,6 +21,51 @@ else:
         flush=True,
     )
 
+@app.middleware("http")
+async def handle_db_session(request: Request, call_next):
+    # if (
+    #     EXTERNAL_API_PREFIX in request.url.path
+    #     and not auth.request_from_sdk_with_user_credentials(request)
+    # ):  # personal access token-based authentication
+    #     return await call_next(request)
+    # elif PREFIX_CONVERTERS_INTERNAL in request.url.path:
+    #     return await call_next(request)
+    # session_token = general.get_ctx_token()
+
+    # request.state.session_token = session_token
+
+    # user_id = None
+    # org_id = None
+    # if request.url.hostname == "localhost" and request.url.port == 7098:
+    #     verified, return_value = auth.check_local_dev(DEV_ORG_ID, DEV_USER_ID)
+    # else:
+    #     verified, return_value = auth.check_access(request)
+    # if not verified:
+    #     general.remove_and_refresh_session(session_token)
+    #     return return_value
+    # user_id, org_id = return_value
+    # request.state.user_id = user_id
+    # request.state.org_id = org_id
+    # request.state.session_token = session_token
+
+    # if PREFIX_PROJECTS in request.url.path:
+    #     most_likely_url_part: str = request.url.path.replace(PREFIX_PROJECTS, "")
+    #     most_likely_url_part = most_likely_url_part.split("/")[1]
+    #     try:
+    #         auth.check_project_access(most_likely_url_part, org_id)
+    #     except Exception as e:
+    #         general.remove_and_refresh_session(session_token)
+    #         raise e
+        
+    session_token = general.get_ctx_token()
+
+    request.state.session_token = session_token
+    try:
+        response = await call_next(request)
+    finally:
+        general.remove_and_refresh_session(session_token)
+
+    return response
 
 @app.get("/classification/recommend/{data_type}")
 def recommendations(
@@ -121,10 +166,8 @@ def embed(request: data_type.EmbeddingRequest) -> responses.PlainTextResponse:
 
 
 @app.delete("/delete/{project_id}/{embedding_id}")
-def delete_embedding(project_id: str, embedding_id: str) -> responses.PlainTextResponse:
-    session_token = general.get_ctx_token()
+def delete_embedding(request: Request, project_id: str, embedding_id: str) -> responses.PlainTextResponse:
     status_code = controller.delete_embedding(project_id, embedding_id)
-    general.remove_and_refresh_session(session_token)
     return responses.PlainTextResponse(status_code=status_code)
 
 
@@ -132,10 +175,8 @@ def delete_embedding(project_id: str, embedding_id: str) -> responses.PlainTextR
 def upload_tensor_data(
     project_id: str, embedding_id: str
 ) -> responses.PlainTextResponse:
-    session_token = general.get_ctx_token()
     controller.upload_embedding_as_file(project_id, embedding_id)
     request_util.post_embedding_to_neural_search(project_id, embedding_id)
-    general.remove_and_refresh_session(session_token)
     return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
 
 
@@ -143,9 +184,7 @@ def upload_tensor_data(
 def re_embed_record(
     project_id: str, request: data_type.EmbeddingRebuildRequest
 ) -> responses.PlainTextResponse:
-    session_token = general.get_ctx_token()
     controller.re_embed_records(project_id, request.changes)
-    general.remove_and_refresh_session(session_token)
     return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
 
 
