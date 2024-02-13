@@ -114,10 +114,24 @@ def recommendations(
             "platform": "python",
         },
         {
-            "config_string": "text-embedding-ada-002",
-            "description": "Cheapest and most common used openai transformer",
+            "config_string": "text-embedding-3-small",
+            "description": "Cheap and reliable transformer",
             "tokenizers": ["all"],
-            "applicability": {"attribute": True, "token": True},
+            "applicability": {"attribute": True, "token": False},
+            "platform": "openai",
+        },
+        {
+            "config_string": "text-embedding-3-large",
+            "description": "Slower and more expensive model with better overall performance",
+            "tokenizers": ["all"],
+            "applicability": {"attribute": True, "token": False},
+            "platform": "openai",
+        },
+        {
+            "config_string": "text-embedding-ada-002",
+            "description": "Most common used openai transformer (outdated)",
+            "tokenizers": ["all"],
+            "applicability": {"attribute": True, "token": False},
             "platform": "openai",
         },
     ]
