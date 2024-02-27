@@ -86,22 +86,22 @@ def get_docbins(
 
 
 def manage_encoding_thread(project_id: str, embedding_id: str) -> int:
-    daemon.run(prepare_run_encoding, project_id, embedding_id)
+    daemon.run(prepare_run_encoding_thread, project_id, embedding_id)
     return status.HTTP_200_OK
 
 
 def prepare_run_encoding_thread(project_id: str, embedding_id: str) -> None:
     session_token = general.get_ctx_token()
+    t = None
     try:
-        t = prepare_run_encoding(project_id, embedding_id)
+        t = __prepare_run_encoding(project_id, embedding_id)
     finally:
         general.remove_and_refresh_session(session_token)
-
     if t:
         run_encoding(*t)
 
 
-def prepare_run_encoding(project_id: str, embedding_id: str) -> None:
+def __prepare_run_encoding(project_id: str, embedding_id: str) -> None:
     embedding_item = embedding.get(project_id, embedding_id)
     if not embedding_item:
         return
@@ -187,6 +187,7 @@ def run_encoding(
     api_token: Optional[str] = None,
     additional_data: Optional[Any] = None,
 ) -> int:
+    print("run_encoding", project_id, flush=True)
     session_token = general.get_ctx_token()
     initial_count = 0
     if (
