@@ -37,7 +37,7 @@ def get_embedder(
             elif model == "bag-of-words":
                 embedder = BagOfWordsSentenceEmbedder(batch_size=batch_size)
             elif model == "tf-idf":
-                embedder = TfidfSentenceEmbedder(batch_size=batch_size)
+                embedder = TfidfSentenceEmbedder(batch_size=batch_size, min_df=0)
             else:
                 raise Exception(f"Unknown model {model}")
         elif (
