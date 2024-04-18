@@ -6,7 +6,7 @@
 #
 --extra-index-url https://download.pytorch.org/whl/cpu
 
-aiohttp==3.9.3
+aiohttp==3.9.4
     # via
     #   cohere
     #   openai
@@ -82,7 +82,9 @@ fsspec==2024.3.1
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
 greenlet==3.0.3
-    # via -r requirements/torch-cpu-requirements.txt
+    # via
+    #   -r requirements/torch-cpu-requirements.txt
+    #   sqlalchemy
 h11==0.14.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
@@ -268,13 +270,13 @@ tokenizers==0.15.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   transformers
-torch==1.13.1
+torch==1.13.1+cpu
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   embedders
     #   sentence-transformers
     #   torchvision
-torchvision==0.14.1
+torchvision==0.14.1+cpu
     # via
     #   -r requirements/requirements.in
     #   sentence-transformers
