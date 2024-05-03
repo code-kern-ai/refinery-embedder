@@ -122,7 +122,7 @@ tokenizers==0.15.2
     # via transformers
 torch==1.13.1
     # via -r torch-cpu-requirements.in
-tqdm==4.66.2
+tqdm==4.66.3
     # via
     #   huggingface-hub
     #   transformers
