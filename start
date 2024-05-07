@@ -46,9 +46,9 @@ docker run -d --rm \
 --name refinery-embedder \
 -p 7058:80 \
 -e S3_ENDPOINT_LOCAL=object-storage:9000 \
--e S3_ACCESS_KEY=onetask \
+-e S3_ACCESS_KEY=kern \
 -e S3_SECRET_KEY=r6ywtR33!DMlaL*SUUdy \
--e POSTGRES=postgresql://postgres:onetask@graphql-postgres:5432 \
+-e POSTGRES=postgresql://postgres:kern@graphql-postgres:5432 \
 -e DOC_OCK=http://refinery-doc-ock:80 \
 -e MODEL_PROVIDER=http://refinery-model-provider:80 \
 -e WS_NOTIFY_ENDPOINT="http://refinery-websocket:8080" \
