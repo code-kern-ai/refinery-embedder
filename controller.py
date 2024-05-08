@@ -86,12 +86,22 @@ def get_docbins(
 
 
 def manage_encoding_thread(project_id: str, embedding_id: str) -> int:
-    daemon.run(prepare_run_encoding, project_id, embedding_id)
+    daemon.run(prepare_run, project_id, embedding_id)
     return status.HTTP_200_OK
 
 
-def prepare_run_encoding(project_id: str, embedding_id: str) -> None:
+def prepare_run(project_id: str, embedding_id: str) -> None:
     session_token = general.get_ctx_token()
+    t = None
+    try:
+        t = __prepare_encoding(project_id, embedding_id)
+    finally:
+        general.remove_and_refresh_session(session_token)
+    if t:
+        run_encoding(*t)
+
+
+def __prepare_encoding(project_id: str, embedding_id: str) -> None:
     embedding_item = embedding.get(project_id, embedding_id)
     if not embedding_item:
         return
@@ -149,8 +159,7 @@ def prepare_run_encoding(project_id: str, embedding_id: str) -> None:
                     )
                     doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
                     raise Exception(message)
-    general.remove_and_refresh_session(session_token)
-    run_encoding(
+    return (
         project_id,
         user_id,
         embedding_id,
@@ -205,7 +214,7 @@ def run_encoding(
                 "is_managed"
             ):
                 config_string = request_util.get_model_path(model)
-                if type(config_string) == dict:
+                if isinstance(config_string, dict):
                     config_string = model
         else:
             config_string = model
@@ -236,11 +245,11 @@ def run_encoding(
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
         )
         doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
-        message = f"Error while getting model - {e}"
+        notification_message = f"Error while getting model - {e}"
         notification.create(
             project_id,
             user_id,
-            message,
+            notification_message,
             enums.Notification.ERROR.value,
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
@@ -328,7 +337,8 @@ def run_encoding(
         )
         doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
         return status.HTTP_500_INTERNAL_SERVER_ERROR
-    except Exception:
+    except Exception as e:
+        error_message = str(e)
         print(traceback.format_exc(), flush=True)
         for warning_type, idx_list in embedder.get_warnings().items():
             # use last record with warning as example
@@ -366,16 +376,28 @@ def run_encoding(
             project_id,
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
         )
+        notification_message = "Error at runtime. Please contact support."
+        if (
+            error_message
+            == "OpenAI API key is invalid. Please provide a valid API key in the constructor of OpenAISentenceEmbedder."
+            or error_message == "Resource not found"
+        ):
+            if platform == enums.EmbeddingPlatform.OPENAI.value:
+                notification_message = "Access denied due to invalid api key."
+            elif platform == enums.EmbeddingPlatform.AZURE.value:
+                notification_message = "Access denied due to invalid subscription key or wrong endpoint data."
+        elif error_message == "invalid api token":
+            # cohere
+            notification_message = "Access denied due to invalid api token."
         notification.create(
             project_id,
             user_id,
-            "Error at runtime. Please contact support.",
+            notification_message,
             enums.Notification.ERROR.value,
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
         )
         send_project_update(project_id, f"notification_created:{user_id}", True)
-        print(traceback.format_exc(), flush=True)
         doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
         return status.HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -535,9 +557,11 @@ def re_embed_records(project_id: str, changes: Dict[str, List[Dict[str, str]]]):
             records = {str(r.id): r for r in records}
 
             data_to_embed = [
-                records[c["record_id"]].data[attribute_name]
-                if "sub_key" not in c
-                else records[c["record_id"]].data[attribute_name][c["sub_key"]]
+                (
+                    records[c["record_id"]].data[attribute_name]
+                    if "sub_key" not in c
+                    else records[c["record_id"]].data[attribute_name][c["sub_key"]]
+                )
                 for c in changes[embedding_id]
             ]
 
@@ -559,9 +583,11 @@ def re_embed_records(project_id: str, changes: Dict[str, List[Dict[str, str]]]):
             embedding.delete_by_record_ids(project_id, embedding_id, record_ids)
         # add new
         record_ids_batched = [
-            c["record_id"]
-            if "sub_key" not in c
-            else c["record_id"] + "@" + str(c["sub_key"])
+            (
+                c["record_id"]
+                if "sub_key" not in c
+                else c["record_id"] + "@" + str(c["sub_key"])
+            )
             for c in changes[embedding_id]
         ]
 
