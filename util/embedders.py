@@ -37,7 +37,7 @@ def get_embedder(
             elif model == "bag-of-words":
                 embedder = BagOfWordsSentenceEmbedder(batch_size=batch_size)
             elif model == "tf-idf":
-                embedder = TfidfSentenceEmbedder(batch_size=batch_size)
+                return TfidfSentenceEmbedder(batch_size=batch_size, min_df=0)
             else:
                 raise Exception(f"Unknown model {model}")
         elif (
@@ -66,6 +66,7 @@ def get_embedder(
             raise Exception(f"Unknown platform {platform}")
 
         if record.count(project_id) < n_components:
+            # no PCA for tf-idf
             return embedder
         else:
             return PCASentenceReducer(embedder, n_components=n_components)
