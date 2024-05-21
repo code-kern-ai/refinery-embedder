@@ -89,7 +89,7 @@ pyyaml==6.0.1
     #   transformers
 regex==2023.12.25
     # via transformers
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r mini-requirements.in
     #   huggingface-hub
