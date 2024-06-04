@@ -6,7 +6,7 @@
 #
 --extra-index-url https://download.pytorch.org/whl/cu113
 
-anyio==4.3.0
+anyio==4.4.0
     # via starlette
 boto3==1.25.0
     # via -r common-requirements.in
@@ -14,7 +14,7 @@ botocore==1.28.5
     # via
     #   boto3
     #   s3transfer
-certifi==2024.2.2
+certifi==2024.6.2
     # via
     #   minio
     #   requests
@@ -22,21 +22,19 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via uvicorn
-exceptiongroup==1.2.0
+exceptiongroup==1.2.1
     # via anyio
-fastapi==0.110.0
+fastapi==0.110.3
     # via -r mini-requirements.in
-filelock==3.13.4
+filelock==3.14.0
     # via
     #   huggingface-hub
     #   transformers
-fsspec==2024.3.1
+fsspec==2024.6.0
     # via huggingface-hub
-greenlet==3.0.3
-    # via sqlalchemy
 h11==0.14.0
     # via uvicorn
-huggingface-hub==0.22.2
+huggingface-hub==0.23.2
     # via
     #   tokenizers
     #   transformers
@@ -48,7 +46,7 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-joblib==1.4.0
+joblib==1.4.2
     # via
     #   scikit-learn
     #   scikit-optimize
@@ -62,16 +60,6 @@ numpy==1.23.4
     #   scikit-optimize
     #   scipy
     #   transformers
-nvidia-cublas-cu11==11.10.3.66
-    # via
-    #   nvidia-cudnn-cu11
-    #   torch
-nvidia-cuda-nvrtc-cu11==11.7.99
-    # via torch
-nvidia-cuda-runtime-cu11==11.7.99
-    # via torch
-nvidia-cudnn-cu11==8.5.0.96
-    # via torch
 packaging==24.0
     # via
     #   huggingface-hub
@@ -80,9 +68,9 @@ pandas==1.5.1
     # via -r common-requirements.in
 psycopg2-binary==2.9.9
     # via -r common-requirements.in
-pyaml==23.12.0
+pyaml==24.4.0
     # via scikit-optimize
-pydantic==1.10.8
+pydantic==1.10.13
     # via
     #   -r mini-requirements.in
     #   fastapi
@@ -97,9 +85,9 @@ pyyaml==6.0.1
     #   huggingface-hub
     #   pyaml
     #   transformers
-regex==2024.4.16
+regex==2024.5.15
     # via transformers
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r mini-requirements.in
     #   huggingface-hub
@@ -114,7 +102,7 @@ scikit-learn==1.1.2
     #   scikit-optimize
 scikit-optimize==0.9.0
     # via -r torch-cuda-requirements.in
-scipy==1.13.0
+scipy==1.13.1
     # via
     #   scikit-learn
     #   scikit-optimize
@@ -124,21 +112,21 @@ sniffio==1.3.1
     # via anyio
 sqlalchemy==1.4.42
     # via -r common-requirements.in
-starlette==0.36.3
+starlette==0.37.2
     # via fastapi
-threadpoolctl==3.4.0
+threadpoolctl==3.5.0
     # via scikit-learn
-tokenizers==0.15.2
+tokenizers==0.19.1
     # via transformers
 torch==1.13.1
     # via -r torch-cuda-requirements.in
-tqdm==4.66.2
+tqdm==4.66.4
     # via
     #   huggingface-hub
     #   transformers
-transformers==4.38.2
+transformers==4.41.2
     # via -r torch-cuda-requirements.in
-typing-extensions==4.11.0
+typing-extensions==4.12.1
     # via
     #   anyio
     #   fastapi
@@ -153,10 +141,3 @@ urllib3==1.26.18
     #   requests
 uvicorn==0.22.0
     # via -r mini-requirements.in
-wheel==0.43.0
-    # via
-    #   nvidia-cublas-cu11
-    #   nvidia-cuda-runtime-cu11
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
