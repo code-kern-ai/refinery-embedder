@@ -192,7 +192,7 @@ regex==2024.5.15
     #   -r requirements/torch-cpu-requirements.txt
     #   nltk
     #   transformers
-requests==2.32.3
+requests==2.31.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   cohere
