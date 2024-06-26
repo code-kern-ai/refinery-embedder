@@ -49,6 +49,7 @@ charset-normalizer==3.3.2
 click==8.1.7
     # via
     #   -r requirements/torch-cpu-requirements.txt
+    #   nltk
     #   typer
     #   uvicorn
 cloudpathlib==0.18.1
@@ -123,6 +124,7 @@ jmespath==1.0.1
 joblib==1.4.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
+    #   nltk
     #   scikit-learn
     #   scikit-optimize
 langcodes==3.4.0
@@ -148,6 +150,8 @@ murmurhash==1.0.10
     #   preshed
     #   spacy
     #   thinc
+nltk==3.8.1
+    # via sentence-transformers
 numpy==1.23.4
     # via
     #   -r requirements/torch-cpu-requirements.txt
@@ -177,9 +181,7 @@ packaging==24.0
 pandas==1.5.1
     # via -r requirements/torch-cpu-requirements.txt
 pillow==10.3.0
-    # via
-    #   sentence-transformers
-    #   torchvision
+    # via torchvision
 preshed==3.0.9
     # via
     #   spacy
@@ -221,6 +223,7 @@ pyyaml==6.0.1
 regex==2024.5.15
     # via
     #   -r requirements/torch-cpu-requirements.txt
+    #   nltk
     #   transformers
 requests==2.31.0
     # via
@@ -256,8 +259,12 @@ scipy==1.13.1
     #   scikit-learn
     #   scikit-optimize
     #   sentence-transformers
-sentence-transformers==3.0.1
-    # via embedders
+sentence-transformers==2.2.2
+    # via
+    #   -r requirements/requirements.in
+    #   embedders
+sentencepiece==0.2.0
+    # via sentence-transformers
 shellingham==1.5.4
     # via typer
 six==1.16.0
@@ -309,12 +316,15 @@ torch==1.13.1+cpu
     #   sentence-transformers
     #   torchvision
 torchvision==0.14.1+cpu
-    # via -r requirements/requirements.in
+    # via
+    #   -r requirements/requirements.in
+    #   sentence-transformers
 tqdm==4.66.4
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   embedders
     #   huggingface-hub
+    #   nltk
     #   openai
     #   sentence-transformers
     #   spacy
