@@ -70,7 +70,7 @@ psycopg2-binary==2.9.9
     # via -r common-requirements.in
 pyaml==24.4.0
     # via scikit-optimize
-pydantic==1.10.13
+#pydantic==1.10.13
     # via
     #   -r mini-requirements.in
     #   fastapi

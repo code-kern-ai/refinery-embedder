@@ -1,4 +1,7 @@
 -r torch-cpu-requirements.txt
 embedders==0.1.8
-spacy==3.4.2
+spacy==3.7.5
+pydantic==2.7.4
 torchvision==0.14.1 # define version for torchvision to avoid dependency conflict
+sentence-transformers~=2.2.0 # last version with default_prompt_name & pooling_mode_weightedmean_tokens # higher only possible with embedders/gates change
+openai>=0.27.6,<1.0 # define version for openai to avoid dependency conflict for embedder lib
