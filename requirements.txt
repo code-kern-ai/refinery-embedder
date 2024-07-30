@@ -88,8 +88,6 @@ fsspec==2024.6.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
-greenlet==3.0.3
-    # via sqlalchemy
 h11==0.14.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
@@ -309,13 +307,13 @@ tokenizers==0.19.1
     #   -r requirements/torch-cpu-requirements.txt
     #   cohere
     #   transformers
-torch==1.13.1+cpu
+torch==1.13.1
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   embedders
     #   sentence-transformers
     #   torchvision
-torchvision==0.14.1+cpu
+torchvision==0.14.1
     # via
     #   -r requirements/requirements.in
     #   sentence-transformers
