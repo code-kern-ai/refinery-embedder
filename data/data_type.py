@@ -14,3 +14,7 @@ class EmbeddingRebuildRequest(BaseModel):
     # also sub_key is an int but converted to string in the request
 
     changes: Dict[str, List[Dict[str, str]]]
+
+
+class EmbeddingCalcTensorByPkl(BaseModel):
+    texts: List[str]

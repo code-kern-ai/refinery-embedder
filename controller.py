@@ -619,3 +619,22 @@ def __setup_tmp_embedder(project_id: str, embedder_id: str) -> Transformer:
         embedder = pickle.load(f)
 
     return embedder
+
+
+def calc_tensors(project_id: str, embedding_id: str, texts: List[str]) -> List[Any]:
+    if not embedding.get(project_id, embedding_id):
+        print("Embedding not found", flush=True)
+        return None
+    if len(texts) == 0:
+        return []
+    try:
+        embedder = __setup_tmp_embedder(project_id, embedding_id)
+        return embedder.transform(texts)
+    except Exception:
+        print(traceback.format_exc(), flush=True)
+        return None
+    finally:
+        del embedder
+        time.sleep(0.1)
+        gc.collect()
+        time.sleep(0.1)
