@@ -2,7 +2,7 @@
 from fastapi import FastAPI, responses, status, Request
 import controller
 from data import data_type
-from typing import List, Dict, Tuple
+from typing import Union
 import torch
 
 from submodules.model.business_objects import general
@@ -168,6 +168,20 @@ def re_embed_record(
 ) -> responses.PlainTextResponse:
     controller.re_embed_records(project_id, request.changes)
     return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
+
+
+@app.post("/calc-tensor-by-pkl/{project_id}/{embedding_id}")
+def calc_tensor(
+    project_id: str, embedding_id: str, request: data_type.EmbeddingCalcTensorByPkl
+) -> Union[responses.PlainTextResponse, responses.PlainTextResponse]:
+    if tensor := controller.calc_tensors(project_id, embedding_id, request.texts):
+        return responses.JSONResponse(
+            status_code=status.HTTP_200_OK, content={"tensor": tensor}
+        )
+    return responses.PlainTextResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content="Error while calculating tensor",
+    )
 
 
 @app.put("/config_changed")
