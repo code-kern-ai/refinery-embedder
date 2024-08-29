@@ -337,7 +337,7 @@ torch==2.2.0
     #   embedders
     #   sentence-transformers
     #   torchvision
-torchvision==0.14.1
+torchvision==0.17.0
     # via
     #   -r requirements/requirements.in
     #   sentence-transformers
@@ -376,7 +376,6 @@ typing-extensions==4.12.2
     #   pydantic-core
     #   starlette
     #   torch
-    #   torchvision
     #   typer
 urllib3==1.26.19
     # via
