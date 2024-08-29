@@ -87,8 +87,6 @@ fsspec==2024.6.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   huggingface-hub
-greenlet==3.0.3
-    # via sqlalchemy
 h11==0.14.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
@@ -162,16 +160,6 @@ numpy==1.23.4
     #   thinc
     #   torchvision
     #   transformers
-nvidia-cublas-cu11==11.10.3.66
-    # via
-    #   nvidia-cudnn-cu11
-    #   torch
-nvidia-cuda-nvrtc-cu11==11.7.99
-    # via torch
-nvidia-cuda-runtime-cu11==11.7.99
-    # via torch
-nvidia-cudnn-cu11==8.5.0.96
-    # via torch
 openai==0.28.1
     # via
     #   -r requirements/gpu-requirements.in
@@ -371,10 +359,6 @@ wasabi==1.1.3
     #   weasel
 weasel==0.4.1
     # via spacy
-wheel==0.43.0
-    # via
-    #   nvidia-cublas-cu11
-    #   nvidia-cuda-runtime-cu11
 wrapt==1.16.0
     # via smart-open
 yarl==1.9.4
