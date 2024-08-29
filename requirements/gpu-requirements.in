@@ -2,5 +2,5 @@
 embedders==0.1.8
 spacy==3.7.5
 pydantic==2.7.4
-torchvision==0.14.1 # define version for torchvision to avoid dependency conflict
+torchvision==0.17.0 # define version for torchvision to avoid dependency conflict
 openai>=0.27.6,<1.0 # define version for openai to avoid dependency conflict for embedder lib
