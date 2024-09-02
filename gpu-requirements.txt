@@ -11,7 +11,9 @@ aiohttp==3.9.5
 aiosignal==1.3.1
     # via aiohttp
 annotated-types==0.7.0
-    # via pydantic
+    # via
+    #   -r requirements/torch-cuda-requirements.txt
+    #   pydantic
 anyio==4.4.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
@@ -35,7 +37,7 @@ catalogue==2.0.10
     #   spacy
     #   srsly
     #   thinc
-certifi==2024.6.2
+certifi==2024.7.4
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   httpcore
@@ -66,7 +68,7 @@ cymem==2.0.8
     #   thinc
 embedders==0.1.8
     # via -r requirements/gpu-requirements.in
-exceptiongroup==1.2.1
+exceptiongroup==1.2.2
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   anyio
@@ -74,21 +76,21 @@ fastapi==0.110.3
     # via -r requirements/torch-cuda-requirements.txt
 fastavro==1.9.4
     # via cohere
-filelock==3.14.0
+filelock==3.15.4
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   huggingface-hub
+    #   torch
     #   transformers
 frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
-fsspec==2024.6.0
+fsspec==2024.6.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   huggingface-hub
-greenlet==3.0.3
-    # via sqlalchemy
+    #   torch
 h11==0.14.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
@@ -100,13 +102,13 @@ httpx==0.27.0
     # via cohere
 httpx-sse==0.4.0
     # via cohere
-huggingface-hub==0.23.2
+huggingface-hub==0.24.6
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   sentence-transformers
     #   tokenizers
     #   transformers
-idna==3.7
+idna==3.8
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   anyio
@@ -114,7 +116,10 @@ idna==3.7
     #   requests
     #   yarl
 jinja2==3.1.4
-    # via spacy
+    # via
+    #   -r requirements/torch-cuda-requirements.txt
+    #   spacy
+    #   torch
 jmespath==1.0.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
@@ -134,11 +139,17 @@ marisa-trie==1.2.0
 markdown-it-py==3.0.0
     # via rich
 markupsafe==2.1.5
-    # via jinja2
+    # via
+    #   -r requirements/torch-cuda-requirements.txt
+    #   jinja2
 mdurl==0.1.2
     # via markdown-it-py
 minio==7.1.12
     # via -r requirements/torch-cuda-requirements.txt
+mpmath==1.3.0
+    # via
+    #   -r requirements/torch-cuda-requirements.txt
+    #   sympy
 multidict==6.0.5
     # via
     #   aiohttp
@@ -148,6 +159,10 @@ murmurhash==1.0.10
     #   preshed
     #   spacy
     #   thinc
+networkx==3.2.1
+    # via
+    #   -r requirements/torch-cuda-requirements.txt
+    #   torch
 numpy==1.23.4
     # via
     #   -r requirements/torch-cuda-requirements.txt
@@ -162,21 +177,11 @@ numpy==1.23.4
     #   thinc
     #   torchvision
     #   transformers
-nvidia-cublas-cu11==11.10.3.66
-    # via
-    #   nvidia-cudnn-cu11
-    #   torch
-nvidia-cuda-nvrtc-cu11==11.7.99
-    # via torch
-nvidia-cuda-runtime-cu11==11.7.99
-    # via torch
-nvidia-cudnn-cu11==8.5.0.96
-    # via torch
 openai==0.28.1
     # via
     #   -r requirements/gpu-requirements.in
     #   embedders
-packaging==24.0
+packaging==24.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   huggingface-hub
@@ -196,13 +201,14 @@ preshed==3.0.9
     #   thinc
 psycopg2-binary==2.9.9
     # via -r requirements/torch-cuda-requirements.txt
-pyaml==24.4.0
+pyaml==24.7.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   scikit-optimize
 pydantic==2.7.4
     # via
     #   -r requirements/gpu-requirements.in
+    #   -r requirements/torch-cuda-requirements.txt
     #   cohere
     #   confection
     #   fastapi
@@ -210,7 +216,9 @@ pydantic==2.7.4
     #   thinc
     #   weasel
 pydantic-core==2.18.4
-    # via pydantic
+    # via
+    #   -r requirements/torch-cuda-requirements.txt
+    #   pydantic
 pygments==2.18.0
     # via rich
 python-dateutil==2.9.0.post0
@@ -222,13 +230,13 @@ pytz==2024.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   pandas
-pyyaml==6.0.1
+pyyaml==6.0.2
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   huggingface-hub
     #   pyaml
     #   transformers
-regex==2024.5.15
+regex==2024.7.24
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   transformers
@@ -248,11 +256,11 @@ s3transfer==0.6.2
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   boto3
-safetensors==0.4.3
+safetensors==0.4.4
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   transformers
-scikit-learn==1.1.2
+scikit-learn==1.5.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   embedders
@@ -301,6 +309,10 @@ starlette==0.37.2
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   fastapi
+sympy==1.13.2
+    # via
+    #   -r requirements/torch-cuda-requirements.txt
+    #   torch
 thinc==8.2.5
     # via spacy
 threadpoolctl==3.5.0
@@ -312,15 +324,15 @@ tokenizers==0.19.1
     #   -r requirements/torch-cuda-requirements.txt
     #   cohere
     #   transformers
-torch==1.13.1
+torch==2.2.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   embedders
     #   sentence-transformers
     #   torchvision
-torchvision==0.14.1
+torchvision==0.17.0
     # via -r requirements/gpu-requirements.in
-tqdm==4.66.4
+tqdm==4.66.5
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   embedders
@@ -342,7 +354,7 @@ types-requests==2.31.0.6
     # via cohere
 types-urllib3==1.26.25.14
     # via types-requests
-typing-extensions==4.12.1
+typing-extensions==4.12.2
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   anyio
@@ -354,9 +366,8 @@ typing-extensions==4.12.1
     #   pydantic-core
     #   starlette
     #   torch
-    #   torchvision
     #   typer
-urllib3==1.26.18
+urllib3==1.26.19
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   botocore
@@ -371,10 +382,6 @@ wasabi==1.1.3
     #   weasel
 weasel==0.4.1
     # via spacy
-wheel==0.43.0
-    # via
-    #   nvidia-cublas-cu11
-    #   nvidia-cuda-runtime-cu11
 wrapt==1.16.0
     # via smart-open
 yarl==1.9.4
