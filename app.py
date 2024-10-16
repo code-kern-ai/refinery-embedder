@@ -7,6 +7,7 @@ import torch
 
 from submodules.model.business_objects import general
 from util import request_util, config_handler
+from submodules.model import session
 
 app = FastAPI()
 
@@ -202,3 +203,5 @@ def healthcheck() -> responses.PlainTextResponse:
     if not text:
         text = "OK"
     return responses.PlainTextResponse(text, status_code=status_code)
+
+session.start_session_cleanup_thread()
