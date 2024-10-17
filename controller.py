@@ -19,7 +19,6 @@ import time
 import zlib
 from spacy.tokens import DocBin, Doc
 from spacy.vocab import Vocab
-from data import doc_ock
 from embedders import Transformer
 from typing import Any, Dict, Iterator, List, Optional
 
@@ -157,7 +156,6 @@ def __prepare_encoding(project_id: str, embedding_id: str) -> None:
                         f"notification_created:{user_id}",
                         True,
                     )
-                    doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
                     raise Exception(message)
     return (
         project_id,
@@ -244,7 +242,6 @@ def run_encoding(
             project_id,
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}",
         )
-        doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
         notification_message = f"Error while getting model - {e}"
         notification.create(
             project_id,
@@ -276,7 +273,6 @@ def run_encoding(
             project_id,
             f"embedding:{embedding_id}:state:{enums.EmbeddingState.ENCODING.value}",
         )
-        doc_ock.post_embedding_encoding(user_id, f"{model}-{platform}")
         notification.create(
             project_id,
             user_id,
@@ -346,7 +342,6 @@ def run_encoding(
             enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
             True,
         )
-        doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
         return status.HTTP_500_INTERNAL_SERVER_ERROR
     except Exception as e:
         error_message = str(e)
@@ -409,7 +404,6 @@ def run_encoding(
             True,
         )
         send_project_update(project_id, f"notification_created:{user_id}", True)
-        doc_ock.post_embedding_failed(user_id, f"{model}-{platform}")
         return status.HTTP_500_INTERNAL_SERVER_ERROR
 
     if embedding.get(project_id, embedding_id) and not embedding_canceled:
@@ -471,7 +465,6 @@ def run_encoding(
             True,
         )
         send_project_update(project_id, f"notification_created:{user_id}", True)
-        doc_ock.post_embedding_finished(user_id, f"{model}-{platform}")
     general.commit()
     general.remove_and_refresh_session(session_token)
     return status.HTTP_200_OK
