@@ -1,13 +1,13 @@
 from typing import Dict, Any, Optional, Union
 import requests
-import json
 import time
 from util import daemon
 
 __config = None
 
 # meant as a const value since env variables will be removed at some point
-REQUEST_URL = "http://refinery-config:80/full_config"
+# REQUEST_URL = "http://refinery-config:80/full_config"
+REQUEST_URL = "http://refinery-gateway/api/v1/misc/full_config"
 
 
 def __get_config() -> Dict[str, Any]:
