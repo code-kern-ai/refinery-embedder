@@ -23,7 +23,6 @@ from embedders import Transformer
 from typing import Any, Dict, Iterator, List, Optional
 
 from util import daemon, request_util
-from util.config_handler import get_config_value
 from util.decorator import param_throttle
 from util.embedders import get_embedder
 from util.notification import send_project_update, embedding_warning_templates
@@ -208,9 +207,7 @@ def run_encoding(
     iso2_code = project.get_blank_tokenizer_from_project(project_id)
     try:
         if platform == "huggingface":
-            if not __is_embedders_internal_model(model) and get_config_value(
-                "is_managed"
-            ):
+            if not __is_embedders_internal_model(model):
                 config_string = request_util.get_model_path(model)
                 if isinstance(config_string, dict):
                     config_string = model
