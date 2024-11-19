@@ -1,8 +1,6 @@
 #!/bin/bash
 trap "echo -ne '\nstopping container...' && docker stop refinery-embedder > /dev/null 2>&1 && echo -ne '\t\t [done]\n'" EXIT
 
-source check_config_service
-
 HOST_IP=$(docker network inspect bridge --format='{{json .IPAM.Config}}' | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' | tail -1)
 
 echo -ne 'stopping old container...'
