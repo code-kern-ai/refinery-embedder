@@ -87,7 +87,7 @@ frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
-fsspec==2024.9.0
+fsspec==2024.10.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
@@ -103,7 +103,7 @@ httpx==0.27.0
     # via cohere
 httpx-sse==0.4.0
     # via cohere
-huggingface-hub==0.25.2
+huggingface-hub==0.26.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   sentence-transformers
@@ -140,7 +140,7 @@ marisa-trie==1.2.0
     # via language-data
 markdown-it-py==3.0.0
     # via rich
-markupsafe==3.0.1
+markupsafe==3.0.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   jinja2
@@ -185,7 +185,7 @@ openai==0.28.1
     # via
     #   -r requirements/requirements.in
     #   embedders
-packaging==24.1
+packaging==24.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
@@ -238,7 +238,7 @@ pyyaml==6.0.2
     #   huggingface-hub
     #   pyaml
     #   transformers
-regex==2024.9.11
+regex==2024.11.6
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   nltk
@@ -341,7 +341,7 @@ torchvision==0.17.0
     # via
     #   -r requirements/requirements.in
     #   sentence-transformers
-tqdm==4.66.5
+tqdm==4.67.1
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   embedders
