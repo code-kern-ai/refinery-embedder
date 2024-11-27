@@ -33,13 +33,13 @@ filelock==3.16.1
     #   huggingface-hub
     #   torch
     #   transformers
-fsspec==2024.9.0
+fsspec==2024.10.0
     # via
     #   huggingface-hub
     #   torch
 h11==0.14.0
     # via uvicorn
-huggingface-hub==0.25.2
+huggingface-hub==0.26.2
     # via
     #   tokenizers
     #   transformers
@@ -57,7 +57,7 @@ joblib==1.4.2
     # via
     #   scikit-learn
     #   scikit-optimize
-markupsafe==3.0.1
+markupsafe==3.0.2
     # via jinja2
 minio==7.1.12
     # via -r common-requirements.in
@@ -73,7 +73,7 @@ numpy==1.23.4
     #   scikit-optimize
     #   scipy
     #   transformers
-packaging==24.1
+packaging==24.2
     # via
     #   huggingface-hub
     #   transformers
@@ -100,7 +100,7 @@ pyyaml==6.0.2
     #   huggingface-hub
     #   pyaml
     #   transformers
-regex==2024.9.11
+regex==2024.11.6
     # via transformers
 requests==2.31.0
     # via
@@ -137,7 +137,7 @@ tokenizers==0.19.1
     # via transformers
 torch==2.2.0
     # via -r torch-cpu-requirements.in
-tqdm==4.66.5
+tqdm==4.67.1
     # via
     #   huggingface-hub
     #   transformers
