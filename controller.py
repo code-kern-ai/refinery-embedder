@@ -628,6 +628,7 @@ def calc_tensors(project_id: str, embedding_id: str, texts: List[str]) -> List[A
         return None
     if len(texts) == 0:
         return []
+    embedder = None
     try:
         embedder = __setup_tmp_embedder(project_id, embedding_id)
         return embedder.transform(texts)
