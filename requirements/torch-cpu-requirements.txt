@@ -39,7 +39,7 @@ fsspec==2025.3.0
     #   torch
 h11==0.14.0
     # via uvicorn
-huggingface-hub==0.29.3
+# huggingface-hub==0.29.3
     # via
     #   tokenizers
     #   transformers
