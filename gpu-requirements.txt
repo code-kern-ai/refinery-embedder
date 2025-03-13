@@ -14,7 +14,7 @@ annotated-types==0.7.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   pydantic
-anyio==4.6.2.post1
+anyio==4.8.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   httpx
@@ -37,18 +37,18 @@ catalogue==2.0.10
     #   spacy
     #   srsly
     #   thinc
-certifi==2024.8.30
+certifi==2025.1.31
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   httpcore
     #   httpx
     #   minio
     #   requests
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   requests
-click==8.1.7
+click==8.1.8
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   typer
@@ -76,7 +76,7 @@ fastapi==0.115.2
     # via -r requirements/torch-cuda-requirements.txt
 fastavro==1.9.4
     # via cohere
-filelock==3.16.1
+filelock==3.17.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   huggingface-hub
@@ -86,7 +86,7 @@ frozenlist==1.4.1
     # via
     #   aiohttp
     #   aiosignal
-fsspec==2024.10.0
+fsspec==2025.3.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   huggingface-hub
@@ -102,9 +102,9 @@ httpx==0.27.0
     # via cohere
 httpx-sse==0.4.0
     # via cohere
-huggingface-hub==0.26.2
+huggingface-hub==0.25.2
     # via
-    #   -r requirements/torch-cuda-requirements.txt
+    #   -r requirements/gpu-requirements.in
     #   sentence-transformers
     #   tokenizers
     #   transformers
@@ -115,7 +115,7 @@ idna==3.10
     #   httpx
     #   requests
     #   yarl
-jinja2==3.1.4
+jinja2==3.1.6
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   spacy
@@ -201,7 +201,7 @@ preshed==3.0.9
     #   thinc
 psycopg2-binary==2.9.9
     # via -r requirements/torch-cuda-requirements.txt
-pyaml==24.9.0
+pyaml==25.1.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   scikit-optimize
@@ -226,7 +226,7 @@ python-dateutil==2.9.0.post0
     #   -r requirements/torch-cuda-requirements.txt
     #   botocore
     #   pandas
-pytz==2024.2
+pytz==2025.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   pandas
@@ -256,7 +256,7 @@ s3transfer==0.6.2
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   boto3
-safetensors==0.4.5
+safetensors==0.5.3
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   transformers
@@ -278,7 +278,7 @@ sentence-transformers==3.0.1
     # via embedders
 shellingham==1.5.4
     # via typer
-six==1.16.0
+six==1.17.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   python-dateutil
