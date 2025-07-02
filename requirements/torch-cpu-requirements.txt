@@ -41,7 +41,7 @@ h11==0.16.0
     # via uvicorn
 hf-xet==1.1.5
     # via huggingface-hub
-huggingface-hub==0.33.2
+# huggingface-hub==0.33.2
     # via
     #   tokenizers
     #   transformers
