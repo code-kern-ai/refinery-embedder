@@ -5,3 +5,5 @@ pydantic==2.7.4
 torchvision==0.17.0 # define version for torchvision to avoid dependency conflict
 openai>=0.27.6,<1.0 # define version for openai to avoid dependency conflict for embedder lib
 huggingface-hub==0.25.2 # define version for huggingface-hub to avoid dependency conflict for embedder lib
+httpx==0.28.1
+httpcore==1.0.9
