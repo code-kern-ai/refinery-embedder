@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Any
 from pydantic import BaseModel
 
 
@@ -13,7 +13,7 @@ class EmbeddingRebuildRequest(BaseModel):
     # note that sub_key is optional and only for embedding lists relevant
     # also sub_key is an int but converted to string in the request
 
-    changes: Dict[str, List[Dict[str, str]]]
+    changes: Dict[str, List[Dict[str, Any]]]
 
 
 class EmbeddingCalcTensorByPkl(BaseModel):
