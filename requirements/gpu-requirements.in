@@ -1,5 +1,5 @@
 -r torch-cuda-requirements.txt
-embedders==0.1.8
+embedders @ git+https://github.com/code-kern-ai/embedders@python-upgrade
 spacy==3.7.5
 pydantic==2.7.4
 torchvision==0.17.0 # define version for torchvision to avoid dependency conflict
