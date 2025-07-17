@@ -1,10 +1,9 @@
 -r torch-cpu-requirements.txt
-embedders==0.1.8
+embedders @ git+https://github.com/code-kern-ai/embedders@python-upgrade
 spacy==3.7.5
 pydantic==2.7.4
-torchvision==0.17.0 # define version for torchvision to avoid dependency conflict
-sentence-transformers~=2.2.0 # last version with default_prompt_name & pooling_mode_weightedmean_tokens # higher only possible with embedders/gates change
+torchvision==0.22.1 # define version for torchvision to avoid dependency conflict
+sentence-transformers==5.0.0 # last version (~=2.2.0) with default_prompt_name & pooling_mode_weightedmean_tokens # higher only possible with embedders/gates change
 openai>=0.27.6,<1.0 # define version for openai to avoid dependency conflict for embedder lib
-huggingface-hub==0.25.2 # define version for huggingface-hub to avoid dependency conflict for embedder lib
 httpx==0.28.1
 httpcore==1.0.9
