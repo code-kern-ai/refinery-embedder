@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from fastapi import FastAPI, responses, status, Request
-import controller
-from data import data_type
 from typing import Union
+
 import torch
 
+from src.util import request_util
+from src.data import data_type
+import controller
+
 from submodules.model.business_objects import general
-from util import request_util
 from submodules.model import session
 
 app = FastAPI()

@@ -349,13 +349,13 @@ tokenizers==0.21.2
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
     #   cohere
     #   transformers
-torch==2.7.1+cpu
+torch==2.7.1
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
     #   embedders
     #   sentence-transformers
     #   torchvision
-torchvision==0.22.1+cpu
+torchvision==0.22.1
     # via -r requirements/requirements.in
 tqdm==4.67.1
     # via

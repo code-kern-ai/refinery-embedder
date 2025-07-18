@@ -1,19 +1,19 @@
 from typing import Optional
-from embedders.classification.count_based import (
+from src.embedders.classification.count_based import (
     BagOfCharsSentenceEmbedder,
     BagOfWordsSentenceEmbedder,
     TfidfSentenceEmbedder,
 )
-from embedders.classification.contextual import (
+from src.embedders.classification.contextual import (
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
     CohereSentenceEmbedder,
 )
-from embedders.extraction.count_based import BagOfCharsTokenEmbedder
-from embedders.extraction.contextual import TransformerTokenEmbedder
-from embedders.classification.reduce import PCASentenceReducer
-from embedders.extraction.reduce import PCATokenReducer
-from embedders import Transformer
+from src.embedders.extraction.count_based import BagOfCharsTokenEmbedder
+from src.embedders.extraction.contextual import TransformerTokenEmbedder
+from src.embedders.classification.reduce import PCASentenceReducer
+from src.embedders.extraction.reduce import PCATokenReducer
+from src.embedders import Transformer
 from submodules.model import enums
 
 from submodules.model.business_objects import record
