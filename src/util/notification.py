@@ -1,7 +1,7 @@
 import requests
 import os
 
-from embedders.enums import WarningType
+from src.embedders.enums import WarningType
 
 from submodules.model.business_objects import project
 

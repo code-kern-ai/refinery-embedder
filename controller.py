@@ -1,4 +1,27 @@
 # -*- coding: utf-8 -*-
+from typing import Any, Dict, Iterator, List, Optional
+from fastapi import status
+from spacy.tokens import DocBin, Doc
+from spacy.vocab import Vocab
+
+import pickle
+import torch
+import traceback
+import logging
+import time
+import zlib
+import gc
+import os
+import openai
+import pandas as pd
+
+from src.embedders import Transformer
+from src.util import daemon, request_util
+from src.util.decorator import param_throttle
+from src.util.embedders import get_embedder
+from src.util.notification import send_project_update, embedding_warning_templates
+
+from submodules.s3 import controller as s3
 from submodules.model import enums
 from submodules.model.business_objects import (
     attribute,
@@ -10,27 +33,6 @@ from submodules.model.business_objects import (
     notification,
     organization,
 )
-from fastapi import status
-import pickle
-import torch
-import traceback
-import logging
-import time
-import zlib
-from spacy.tokens import DocBin, Doc
-from spacy.vocab import Vocab
-from embedders import Transformer
-from typing import Any, Dict, Iterator, List, Optional
-
-from util import daemon, request_util
-from util.decorator import param_throttle
-from util.embedders import get_embedder
-from util.notification import send_project_update, embedding_warning_templates
-import os
-import pandas as pd
-from submodules.s3 import controller as s3
-import openai
-import gc
 
 
 logging.basicConfig(level=logging.INFO)

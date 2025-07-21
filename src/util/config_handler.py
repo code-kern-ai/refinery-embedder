@@ -1,7 +1,7 @@
 from typing import Dict, Any, Optional, Union
 import requests
 import time
-from util import daemon
+from src.util import daemon
 
 __config = None
 
