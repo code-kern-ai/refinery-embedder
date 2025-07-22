@@ -1,9 +1,9 @@
 from typing import List, Generator, Union
 from sklearn.feature_extraction.text import CountVectorizer
-from embedders import util
+from src.embedders import util
 from spacy.tokens.doc import Doc
 
-from embedders.extraction import TokenEmbedder
+from src.embedders.extraction import TokenEmbedder
 
 
 class BagOfCharsTokenEmbedder(TokenEmbedder):

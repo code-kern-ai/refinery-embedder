@@ -3,7 +3,7 @@ from typing import Dict, List, Generator, Optional, Union
 from spacy.tokens.doc import Doc
 from sklearn.decomposition import PCA
 from tqdm import tqdm
-from embedders import util
+from src.embedders import util
 from joblib import dump, load
 
 
@@ -112,7 +112,7 @@ class PCAReducer(Transformer, metaclass=ABCMeta):
         embedder: Embedder,
         n_components: int = 8,
         autocorrect_n_components: bool = True,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
         self.embedder = embedder
@@ -126,7 +126,7 @@ class PCAReducer(Transformer, metaclass=ABCMeta):
         Args:
             file_name (str): Path to the file without any file endings.
         """
-        dump(self.reducer, f'{file_name}.joblib') 
+        dump(self.reducer, f"{file_name}.joblib")
 
     def load_pca_weights(self, file_name: str):
         """Loads the PCA weights from a file.
@@ -134,7 +134,7 @@ class PCAReducer(Transformer, metaclass=ABCMeta):
         Args:
             file_name (str): Path to the file without any file endings.
         """
-        self.reducer = load(f'{file_name}.joblib')
+        self.reducer = load(f"{file_name}.joblib")
 
     @abstractmethod
     def _reduce(

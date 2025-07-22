@@ -1,7 +1,7 @@
 from typing import List, Optional, Union, Generator
 from sentence_transformers import SentenceTransformer
-from embedders import util
-from embedders.classification import SentenceEmbedder
+from src.embedders import util
+from src.embedders.classification import SentenceEmbedder
 from spacy.tokens.doc import Doc
 import torch
 import openai

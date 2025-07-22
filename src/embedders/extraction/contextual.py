@@ -5,12 +5,12 @@ import numpy as np
 import re
 from transformers import AutoTokenizer, AutoModel
 from collections import defaultdict
-from embedders import util
+from src.embedders import util
 from spacy.tokens.doc import Doc
 
 
-from embedders.enums import WarningType
-from embedders.extraction import TokenEmbedder
+from src.embedders.enums import WarningType
+from src.embedders.extraction import TokenEmbedder
 
 
 class TransformerTokenEmbedder(TokenEmbedder):
