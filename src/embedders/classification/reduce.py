@@ -1,7 +1,7 @@
 from spacy.tokens.doc import Doc
 from typing import Union, List, Generator
 import numpy as np
-from embedders import PCAReducer, util
+from src.embedders import PCAReducer, util
 
 
 class PCASentenceReducer(PCAReducer):

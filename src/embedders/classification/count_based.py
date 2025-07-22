@@ -1,8 +1,8 @@
 from typing import List, Union, Generator
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from embedders.classification import SentenceEmbedder
-from embedders import util
+from src.embedders.classification import SentenceEmbedder
+from src.embedders import util
 
 
 class CountSentenceEmbedder(SentenceEmbedder):

@@ -1,6 +1,6 @@
 from typing import List, Generator, Union
 import numpy as np
-from embedders import PCAReducer, util
+from src.embedders import PCAReducer, util
 
 
 class PCATokenReducer(PCAReducer):

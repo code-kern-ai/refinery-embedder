@@ -1,5 +1,5 @@
 import spacy
-from embedders import Embedder
+from src.embedders import Embedder
 from spacy.tokens.doc import Doc
 from typing import Union
 

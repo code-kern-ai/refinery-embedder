@@ -1,4 +1,4 @@
-from embedders import Embedder
+from src.embedders import Embedder
 
 
 class SentenceEmbedder(Embedder):
