@@ -4,7 +4,7 @@ WORKDIR /program
 
 COPY gpu-requirements.txt .
 
-RUN python3.9 -m pip install --no-cache-dir -r gpu-requirements.txt
+RUN pip3 install --no-cache-dir -r gpu-requirements.txt
 
 COPY / .
 
