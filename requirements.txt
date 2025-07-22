@@ -19,6 +19,7 @@ annotated-types==0.7.0
 anyio==4.9.0
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
+    #   httpx
     #   starlette
 argon2-cffi==25.1.0
     # via
@@ -47,6 +48,8 @@ catalogue==2.0.10
 certifi==2025.7.14
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
+    #   httpcore
+    #   httpx
     #   minio
     #   requests
 cffi==1.17.1
@@ -64,6 +67,8 @@ click==8.2.1
     #   uvicorn
 cloudpathlib==0.21.1
     # via weasel
+cohere==5.16.1
+    # via -r requirements/requirements.in
 confection==0.1.5
     # via
     #   thinc
@@ -75,6 +80,8 @@ cymem==2.0.11
     #   thinc
 fastapi==0.116.1
     # via -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
+fastavro==1.11.1
+    # via cohere
 filelock==3.18.0
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
@@ -90,16 +97,21 @@ fsspec==2025.7.0
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
     #   huggingface-hub
     #   torch
-greenlet==3.2.3
-    # via sqlalchemy
 h11==0.16.0
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
+    #   httpcore
     #   uvicorn
 hf-xet==1.1.5
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
     #   huggingface-hub
+httpcore==1.0.9
+    # via httpx
+httpx==0.28.1
+    # via cohere
+httpx-sse==0.4.0
+    # via cohere
 huggingface-hub==0.33.4
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
@@ -110,6 +122,7 @@ idna==3.10
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
     #   anyio
+    #   httpx
     #   requests
     #   yarl
 jinja2==3.1.6
@@ -213,6 +226,7 @@ pycryptodome==3.23.0
 pydantic==2.7.4
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
+    #   cohere
     #   confection
     #   fastapi
     #   spacy
@@ -221,6 +235,7 @@ pydantic==2.7.4
 pydantic-core==2.18.4
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
+    #   cohere
     #   pydantic
 pygments==2.19.2
     # via rich
@@ -246,6 +261,7 @@ regex==2024.11.6
 requests==2.32.4
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
+    #   cohere
     #   huggingface-hub
     #   openai
     #   spacy
@@ -319,6 +335,7 @@ threadpoolctl==3.6.0
 tokenizers==0.21.2
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
+    #   cohere
     #   transformers
 torch==2.7.1
     # via
@@ -343,11 +360,14 @@ typer==0.16.0
     # via
     #   spacy
     #   weasel
+types-requests==2.32.4.20250611
+    # via cohere
 typing-extensions==4.14.1
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
     #   aiosignal
     #   anyio
+    #   cohere
     #   fastapi
     #   huggingface-hub
     #   minio
@@ -363,6 +383,7 @@ urllib3==2.5.0
     #   botocore
     #   minio
     #   requests
+    #   types-requests
 uvicorn==0.35.0
     # via -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
 wasabi==1.1.3
