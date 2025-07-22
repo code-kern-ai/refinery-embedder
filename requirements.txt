@@ -320,12 +320,12 @@ tokenizers==0.21.2
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
     #   transformers
-torch==2.7.1
+torch==2.7.1+cpu
     # via
     #   -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
     #   sentence-transformers
     #   torchvision
-torchvision==0.22.1
+torchvision==0.22.1+cpu
     # via -r requirements/requirements.in
 tqdm==4.67.1
     # via
