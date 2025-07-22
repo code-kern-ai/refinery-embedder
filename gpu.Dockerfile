@@ -1,4 +1,4 @@
-FROM kernai/refinery-parent-images:v1.23.0-torch-cuda
+FROM registry.dev.kern.ai/code-kern-ai/refinery-parent-images:parent-image-updates-torch-cuda
 
 WORKDIR /program
 
