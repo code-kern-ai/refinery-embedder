@@ -80,7 +80,7 @@ cymem==2.0.11
     #   preshed
     #   spacy
     #   thinc
-embedders @ git+https://github.com/code-kern-ai/embedders.git@python-upgrade
+embedders==0.1.8
     # via -r requirements/requirements.in
 fastapi==0.116.1
     # via -r /home/runner/work/refinery-submodule-parent-images/refinery-submodule-parent-images/refinery-embedder/requirements/torch-cpu-requirements.txt
