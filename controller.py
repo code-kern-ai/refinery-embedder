@@ -4,7 +4,7 @@ from fastapi import status
 from spacy.tokens import DocBin, Doc
 from spacy.vocab import Vocab
 
-import pickle
+import json
 import torch
 import traceback
 import logging
@@ -14,8 +14,19 @@ import gc
 import os
 import openai
 import pandas as pd
+import shutil
 
-from src.embedders import Transformer
+from src.embedders import Transformer, util
+from src.embedders.classification.contextual import (
+    OpenAISentenceEmbedder,
+    HuggingFaceSentenceEmbedder,
+)
+from src.embedders.classification.count_based import (
+    BagOfCharsSentenceEmbedder,
+    BagOfWordsSentenceEmbedder,
+    TfidfSentenceEmbedder,
+)
+from src.embedders.classification.reduce import PCASentenceReducer
 from src.util import daemon, request_util
 from src.util.decorator import param_throttle
 from src.util.embedders import get_embedder
@@ -453,14 +464,7 @@ def run_encoding(
             request_util.post_embedding_to_neural_search(project_id, embedding_id)
 
         # now always since otherwise record edit wouldn't work for embedded columns
-        pickle_path = os.path.join(
-            "/inference", project_id, f"embedder-{embedding_id}.pkl"
-        )
-        if not os.path.exists(pickle_path):
-            os.makedirs(os.path.dirname(pickle_path), exist_ok=True)
-            with open(pickle_path, "wb") as f:
-                pickle.dump(embedder, f)
-
+        embedder.dump(project_id, embedding_id)
         upload_embedding_as_file(project_id, embedding_id)
         embedding.update_embedding_state_finished(
             project_id,
@@ -490,9 +494,8 @@ def delete_embedding(project_id: str, embedding_id: str) -> int:
     org_id = organization.get_id_by_project_id(project_id)
     s3.delete_object(org_id, f"{project_id}/{object_name}")
     request_util.delete_embedding_from_neural_search(embedding_id)
-    pickle_path = os.path.join("/inference", project_id, f"embedder-{embedding_id}.pkl")
-    if os.path.exists(pickle_path):
-        os.remove(pickle_path)
+    json_path = util.INFERENCE_DIR / project_id / embedding_id / "embedder.json"
+    shutil.rmtree(json_path.parent)
     return status.HTTP_200_OK
 
 
@@ -629,15 +632,13 @@ def re_embed_records(project_id: str, changes: Dict[str, List[Dict[str, str]]]):
 
 
 def __setup_tmp_embedder(project_id: str, embedder_id: str) -> Transformer:
-    embedder_path = os.path.join(
-        "/inference", project_id, f"embedder-{embedder_id}.pkl"
-    )
-    if not os.path.exists(embedder_path):
+    embedder_path = util.INFERENCE_DIR / project_id / embedder_id / "embedder.json"
+    if not embedder_path.exists():
         raise Exception(f"Embedder {embedder_id} not found")
-    with open(embedder_path, "rb") as f:
-        embedder = pickle.load(f)
-
-    return embedder
+    with open(embedder_path, "r") as f:
+        embedder = json.load(f)
+        Embedder = eval(embedder["cls"])
+        return Embedder.load(embedder)
 
 
 def calc_tensors(project_id: str, embedding_id: str, texts: List[str]) -> List[Any]:

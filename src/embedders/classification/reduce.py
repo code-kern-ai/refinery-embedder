@@ -2,6 +2,10 @@ from spacy.tokens.doc import Doc
 from typing import Union, List, Generator
 import numpy as np
 from src.embedders import PCAReducer, util
+from src.embedders.classification.contextual import (
+    OpenAISentenceEmbedder,
+    HuggingFaceSentenceEmbedder,
+)
 
 
 class PCASentenceReducer(PCAReducer):
@@ -50,3 +54,28 @@ class PCASentenceReducer(PCAReducer):
         else:
             embeddings = self.embedder.transform(documents)
             yield self._transform(embeddings)
+
+    @staticmethod
+    def load(embedder: dict) -> "PCASentenceReducer":
+        reducer = util.read_pickle(embedder["reducer_pkl"])
+        Embedder = eval(embedder["embedder"]["cls"])
+        return PCASentenceReducer(
+            embedder=Embedder.load(embedder["embedder"]),
+            reducer=reducer,
+        )
+
+    def to_json(self) -> dict:
+        return {
+            "cls": "PCASentenceReducer",
+            "embedder": self.embedder.to_json(),
+        }
+
+    def dump(self, project_id: str, embedding_id: str) -> None:
+        export_file = util.INFERENCE_DIR / project_id / embedding_id / "embedder.json"
+        export_file.parent.mkdir(parents=True, exist_ok=True)
+        pkl_file = util.INFERENCE_DIR / project_id / embedding_id / "reducer.pkl"
+        util.write_pickle(self.reducer, pkl_file)
+
+        json_obj = self.to_json()
+        json_obj["reducer_pkl"] = str(pkl_file)
+        util.write_json(json_obj, export_file, indent=2)

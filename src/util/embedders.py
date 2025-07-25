@@ -7,7 +7,7 @@ from src.embedders.classification.count_based import (
 from src.embedders.classification.contextual import (
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
-    CohereSentenceEmbedder,
+    # CohereSentenceEmbedder,
 )
 from src.embedders.extraction.count_based import BagOfCharsTokenEmbedder
 from src.embedders.extraction.contextual import TransformerTokenEmbedder
@@ -58,10 +58,10 @@ def get_embedder(
             embedder = HuggingFaceSentenceEmbedder(
                 config_string=model, batch_size=batch_size
             )
-        elif platform == enums.EmbeddingPlatform.COHERE.value:
-            embedder = CohereSentenceEmbedder(
-                cohere_api_key=api_token, batch_size=batch_size
-            )
+        # elif platform == enums.EmbeddingPlatform.COHERE.value:
+        #     embedder = CohereSentenceEmbedder(
+        #         cohere_api_key=api_token, batch_size=batch_size
+        #     )
         else:
             raise Exception(f"Unknown platform {platform}")
 

@@ -2,11 +2,11 @@ from typing import List, Optional, Union, Generator
 from sentence_transformers import SentenceTransformer
 from src.embedders import util
 from src.embedders.classification import SentenceEmbedder
+from src.util import request_util
 from spacy.tokens.doc import Doc
 import torch
 import openai
 from openai import error as openai_error
-import cohere
 import time
 
 
@@ -33,6 +33,25 @@ class TransformerSentenceEmbedder(SentenceEmbedder):
 class HuggingFaceSentenceEmbedder(TransformerSentenceEmbedder):
     def __init__(self, config_string: str, batch_size: int = 128):
         super().__init__(config_string, batch_size)
+
+    @staticmethod
+    def load(embedder: dict) -> "HuggingFaceSentenceEmbedder":
+        return HuggingFaceSentenceEmbedder(
+            config_string=request_util.get_model_path(embedder["model_name"]),
+            batch_size=embedder["batch_size"],
+        )
+
+    def to_json(self) -> dict:
+        return {
+            "cls": "HuggingFaceSentenceEmbedder",
+            "model_name": self.model.model_card_data.base_model,
+            "batch_size": self.batch_size,
+        }
+
+    def dump(self, project_id: str, embedding_id: str) -> None:
+        export_file = util.INFERENCE_DIR / project_id / embedding_id / "embedder.json"
+        export_file.parent.mkdir(parents=True, exist_ok=True)
+        util.write_json(self.to_json(), export_file, indent=2)
 
 
 class OpenAISentenceEmbedder(SentenceEmbedder):
@@ -167,27 +186,30 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                     "OpenAI API key is invalid. Please provide a valid API key in the constructor of OpenAISentenceEmbedder."
                 )
 
+    @staticmethod
+    def load(embedder: dict) -> "OpenAISentenceEmbedder":
+        return OpenAISentenceEmbedder(
+            model_name=embedder["model_name"],
+            batch_size=embedder["batch_size"],
+            openai_api_key=embedder["openai_api_key"],
+            api_base=embedder["api_base"],
+            api_type=embedder["api_type"],
+            api_version=embedder["api_version"],
+        )
 
-class CohereSentenceEmbedder(SentenceEmbedder):
-    def __init__(self, cohere_api_key: str, batch_size: int = 128):
-        super().__init__(batch_size)
-        self.cohere_api_key = cohere_api_key
-        self.model = cohere.Client(self.cohere_api_key)
+    def to_json(self) -> dict:
+        return {
+            "cls": "OpenAISentenceEmbedder",
+            "model_name": self.model_name,
+            "batch_size": self.batch_size,
+            "openai_api_key": self.openai_api_key,
+            "api_base": self.api_base,
+            "api_type": self.api_type,
+            "api_version": self.api_version,
+            "use_azure": self.use_azure,
+        }
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        # Don't pickle 'model'
-        del state["model"]
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        # Restore 'model' after unpickling
-        self.model = cohere.Client(self.cohere_api_key)
-
-    def _encode(
-        self, documents: List[Union[str, Doc]], fit_model: bool
-    ) -> Generator[List[List[float]], None, None]:
-        for documents_batch in util.batch(documents, self.batch_size):
-            embeddings = self.model.embed(documents_batch).embeddings
-            yield embeddings
+    def dump(self, project_id: str, embedding_id: str) -> None:
+        export_file = util.INFERENCE_DIR / project_id / embedding_id / "embedder.json"
+        export_file.parent.mkdir(parents=True, exist_ok=True)
+        util.write_json(self.to_json(), export_file, indent=2)
