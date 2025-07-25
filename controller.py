@@ -419,7 +419,6 @@ def run_encoding(
             elif platform == enums.EmbeddingPlatform.AZURE.value:
                 notification_message = "Access denied due to invalid subscription key or wrong endpoint data."
         elif error_message == "invalid api token":
-            # cohere
             notification_message = "Access denied due to invalid api token."
         notification.create(
             project_id,
