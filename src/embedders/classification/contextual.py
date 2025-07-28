@@ -5,8 +5,8 @@ from src.embedders.classification import SentenceEmbedder
 from src.util import request_util
 from spacy.tokens.doc import Doc
 import torch
-import openai
-from openai import error as openai_error
+from openai import OpenAI, AzureOpenAI
+from openai import AuthenticationError, RateLimitError
 import time
 
 
@@ -104,7 +104,6 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         super().__init__(batch_size)
         self.model_name = model_name
         self.openai_api_key = openai_api_key
-        openai.api_key = self.openai_api_key
         self.api_base = api_base
         self.api_type = api_type
         self.api_version = api_version
@@ -123,27 +122,18 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                 and api_base is not None
             ), "If you want to use Azure, you need to provide api_type, api_version and api_base."
 
-            openai.api_base = api_base
-            openai.api_type = api_type
-            openai.api_version = api_version
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self.model_name = state["model_name"]
-        self.openai_api_key = state["openai_api_key"]
-        openai.api_key = self.openai_api_key
-        self.use_azure = state.get("use_azure")
+    @property
+    def openai_client(self):
         if self.use_azure:
-            self.api_base = state["api_base"]
-            self.api_type = state["api_type"]
-            self.api_version = state["api_version"]
-            openai.api_base = self.api_base
-            openai.api_type = self.api_type
-            openai.api_version = self.api_version
+            return AzureOpenAI(
+                api_key=self.openai_api_key,
+                azure_endpoint=self.api_base,
+                api_version=self.api_version,
+            )
+        return OpenAI(
+            api_key=self.openai_api_key,
+            base_url=self.api_base,
+        )
 
     def _encode(
         self, documents: List[Union[str, Doc]], fit_model: bool
@@ -159,11 +149,11 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                         while True and count < 60:
                             try:
                                 count += 1
-                                response = openai.Embedding.create(
-                                    input=azure_batch, engine=self.model_name
+                                response = self.openai_client.embeddings.create(
+                                    input=azure_batch, model=self.model_name
                                 )
                                 break
-                            except openai.error.RateLimitError as e:
+                            except RateLimitError as e:
                                 if count >= 60:
                                     raise e
                                 if count == 1:
@@ -174,14 +164,14 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                                     time.sleep(10.05)
                                 else:
                                     time.sleep(1)
-                        embeddings += [entry["embedding"] for entry in response["data"]]
+                        embeddings += [entry.embedding for entry in response.data]
                 else:
-                    response = openai.Embedding.create(
-                        input=documents_batch, engine=self.model_name
+                    response = self.openai_client.embeddings.create(
+                        input=documents_batch, model=self.model_name
                     )
-                    embeddings = [entry["embedding"] for entry in response["data"]]
+                    embeddings = [entry.embedding for entry in response.data]
                 yield embeddings
-            except openai_error.AuthenticationError:
+            except AuthenticationError:
                 raise Exception(
                     "OpenAI API key is invalid. Please provide a valid API key in the constructor of OpenAISentenceEmbedder."
                 )
