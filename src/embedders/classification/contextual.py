@@ -37,7 +37,7 @@ class HuggingFaceSentenceEmbedder(TransformerSentenceEmbedder):
     @staticmethod
     def load(embedder: dict) -> "HuggingFaceSentenceEmbedder":
         return HuggingFaceSentenceEmbedder(
-            config_string=request_util.get_model_path(embedder["model_name"]),
+            config_string=request_util.get_model_path(embedder["config_string"]),
             batch_size=embedder["batch_size"],
         )
 
