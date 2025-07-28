@@ -12,11 +12,13 @@ import time
 import zlib
 import gc
 import os
-import openai
 import pandas as pd
 import shutil
+from openai import APIConnectionError
 
 from src.embedders import Transformer, util
+
+# Embedder imports are used by eval(Embedder) in __setup_tmp_embedder
 from src.embedders.classification.contextual import (
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
@@ -350,7 +352,7 @@ def run_encoding(
                 enums.EmbeddingState.ENCODING.value,
                 initial_count,
             )
-    except openai.error.APIConnectionError as e:
+    except APIConnectionError as e:
         embedding.update_embedding_state_failed(
             project_id,
             embedding_id,
