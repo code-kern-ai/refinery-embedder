@@ -5,9 +5,7 @@ import os
 import json
 import pickle
 
-INFERENCE_DIR = Path(
-    os.getenv("INFERENCE_DIR", "/Users/andhrelja/Projects/dev-setup/inference")
-)
+INFERENCE_DIR = Path(os.getenv("INFERENCE_DIR", "/inference"))
 
 
 def batch(documents: List[Any], batch_size: int) -> Generator[List[Any], None, None]:

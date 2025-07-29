@@ -44,7 +44,7 @@ class HuggingFaceSentenceEmbedder(TransformerSentenceEmbedder):
     def to_json(self) -> dict:
         return {
             "cls": "HuggingFaceSentenceEmbedder",
-            "model_name": self.model.model_card_data.base_model,
+            "config_string": self.model.model_card_data.base_model,
             "batch_size": self.batch_size,
         }
 
@@ -121,19 +121,13 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                 and api_version is not None
                 and api_base is not None
             ), "If you want to use Azure, you need to provide api_type, api_version and api_base."
-
-    @property
-    def openai_client(self):
-        if self.use_azure:
-            return AzureOpenAI(
+            self.openai_client = AzureOpenAI(
                 api_key=self.openai_api_key,
                 azure_endpoint=self.api_base,
                 api_version=self.api_version,
             )
-        return OpenAI(
-            api_key=self.openai_api_key,
-            base_url=self.api_base,
-        )
+        else:
+            self.openai_client = OpenAI(api_key=self.openai_api_key)
 
     def _encode(
         self, documents: List[Union[str, Doc]], fit_model: bool

@@ -3,6 +3,7 @@ from typing import Any, Dict, Iterator, List, Optional
 from fastapi import status
 from spacy.tokens import DocBin, Doc
 from spacy.vocab import Vocab
+from functools import lru_cache
 
 import json
 import torch
@@ -636,6 +637,11 @@ def __setup_tmp_embedder(project_id: str, embedder_id: str) -> Transformer:
     embedder_path = util.INFERENCE_DIR / project_id / embedder_id / "embedder.json"
     if not embedder_path.exists():
         raise Exception(f"Embedder {embedder_id} not found")
+    return __load_embedder_by_path(embedder_path)
+
+
+@lru_cache(maxsize=32)
+def __load_embedder_by_path(embedder_path: str) -> Transformer:
     with open(embedder_path, "r") as f:
         embedder = json.load(f)
         Embedder = eval(embedder["cls"])
