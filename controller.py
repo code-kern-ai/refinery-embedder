@@ -24,11 +24,6 @@ from src.embedders.classification.contextual import (
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
 )
-from src.embedders.classification.count_based import (
-    BagOfCharsSentenceEmbedder,
-    BagOfWordsSentenceEmbedder,
-    TfidfSentenceEmbedder,
-)
 from src.embedders.classification.reduce import PCASentenceReducer
 from src.util import daemon, request_util
 from src.util.decorator import param_throttle
@@ -421,8 +416,6 @@ def run_encoding(
                 notification_message = "Access denied due to invalid api key."
             elif platform == enums.EmbeddingPlatform.AZURE.value:
                 notification_message = "Access denied due to invalid subscription key or wrong endpoint data."
-        elif error_message == "invalid api token":
-            notification_message = "Access denied due to invalid api token."
         notification.create(
             project_id,
             user_id,
