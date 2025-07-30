@@ -1,15 +1,8 @@
 from typing import Optional
-from src.embedders.classification.count_based import (
-    BagOfCharsSentenceEmbedder,
-    BagOfWordsSentenceEmbedder,
-    TfidfSentenceEmbedder,
-)
 from src.embedders.classification.contextual import (
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
-    CohereSentenceEmbedder,
 )
-from src.embedders.extraction.count_based import BagOfCharsTokenEmbedder
 from src.embedders.extraction.contextual import TransformerTokenEmbedder
 from src.embedders.classification.reduce import PCASentenceReducer
 from src.embedders.extraction.reduce import PCATokenReducer
@@ -31,16 +24,7 @@ def get_embedder(
     if embedding_type == enums.EmbeddingType.ON_ATTRIBUTE.value:
         batch_size = 128
         n_components = 64
-        if platform == enums.EmbeddingPlatform.PYTHON.value:
-            if model == "bag-of-characters":
-                return BagOfCharsSentenceEmbedder(batch_size=batch_size)
-            elif model == "bag-of-words":
-                embedder = BagOfWordsSentenceEmbedder(batch_size=batch_size)
-            elif model == "tf-idf":
-                return TfidfSentenceEmbedder(batch_size=batch_size, min_df=0)
-            else:
-                raise Exception(f"Unknown model {model}")
-        elif (
+        if (
             platform == enums.EmbeddingPlatform.OPENAI.value
             or platform == enums.EmbeddingPlatform.AZURE.value
         ):
@@ -58,10 +42,6 @@ def get_embedder(
             embedder = HuggingFaceSentenceEmbedder(
                 config_string=model, batch_size=batch_size
             )
-        elif platform == enums.EmbeddingPlatform.COHERE.value:
-            embedder = CohereSentenceEmbedder(
-                cohere_api_key=api_token, batch_size=batch_size
-            )
         else:
             raise Exception(f"Unknown platform {platform}")
 
@@ -74,23 +54,12 @@ def get_embedder(
     else:  # extraction
         batch_size = 32
         n_components = 16
-        if model == "bag-of-characters":
-            return BagOfCharsTokenEmbedder(
+        return PCATokenReducer(
+            TransformerTokenEmbedder(
+                config_string=model,
                 language_code=language_code,
                 precomputed_docs=True,
                 batch_size=batch_size,
-            )
-        if model == "bag-of-words":
-            return None
-        if model == "tf-idf":
-            return None
-        else:
-            return PCATokenReducer(
-                TransformerTokenEmbedder(
-                    config_string=model,
-                    language_code=language_code,
-                    precomputed_docs=True,
-                    batch_size=batch_size,
-                ),
-                n_components=n_components,
-            )
+            ),
+            n_components=n_components,
+        )

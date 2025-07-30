@@ -50,6 +50,30 @@ class Transformer(metaclass=ABCMeta):
         """
         pass
 
+    @abstractmethod
+    def load(self, embedder: dict) -> None:
+        """Loads the model configuration and weights from disk.
+
+        Args:
+            embedder (dict): The dumped model configuration.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def dump(self, project_id: str, embedding_id: str) -> None:
+        """Dumps the model configuration and weights to disk.
+
+        Args:
+            project_id (str): The ID of the project.
+            embedding_id (str): The ID of the embedding.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def to_json(self) -> dict:
+        """Converts the embedder to a JSON serializable dictionary."""
+        raise NotImplementedError
+
 
 class Embedder(Transformer, metaclass=ABCMeta):
     def __init__(self):
@@ -112,11 +136,12 @@ class PCAReducer(Transformer, metaclass=ABCMeta):
         embedder: Embedder,
         n_components: int = 8,
         autocorrect_n_components: bool = True,
+        reducer: PCA = None,
         **kwargs,
     ):
         super().__init__()
         self.embedder = embedder
-        self.reducer = PCA(n_components=n_components, **kwargs)
+        self.reducer = reducer or PCA(n_components=n_components, **kwargs)
         self.batch_size = self.embedder.batch_size
         self.autocorrect_n_components = autocorrect_n_components
 

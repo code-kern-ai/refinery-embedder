@@ -2,11 +2,11 @@ from typing import List, Optional, Union, Generator
 from sentence_transformers import SentenceTransformer
 from src.embedders import util
 from src.embedders.classification import SentenceEmbedder
+from src.util import request_util
 from spacy.tokens.doc import Doc
 import torch
-import openai
-from openai import error as openai_error
-import cohere
+from openai import OpenAI, AzureOpenAI
+from openai import AuthenticationError, RateLimitError
 import time
 
 
@@ -33,6 +33,25 @@ class TransformerSentenceEmbedder(SentenceEmbedder):
 class HuggingFaceSentenceEmbedder(TransformerSentenceEmbedder):
     def __init__(self, config_string: str, batch_size: int = 128):
         super().__init__(config_string, batch_size)
+
+    @staticmethod
+    def load(embedder: dict) -> "HuggingFaceSentenceEmbedder":
+        return HuggingFaceSentenceEmbedder(
+            config_string=request_util.get_model_path(embedder["config_string"]),
+            batch_size=embedder["batch_size"],
+        )
+
+    def to_json(self) -> dict:
+        return {
+            "cls": "HuggingFaceSentenceEmbedder",
+            "config_string": self.model.model_card_data.base_model,
+            "batch_size": self.batch_size,
+        }
+
+    def dump(self, project_id: str, embedding_id: str) -> None:
+        export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
+        export_file.parent.mkdir(parents=True, exist_ok=True)
+        util.write_json(self.to_json(), export_file, indent=2)
 
 
 class OpenAISentenceEmbedder(SentenceEmbedder):
@@ -85,7 +104,6 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         super().__init__(batch_size)
         self.model_name = model_name
         self.openai_api_key = openai_api_key
-        openai.api_key = self.openai_api_key
         self.api_base = api_base
         self.api_type = api_type
         self.api_version = api_version
@@ -103,28 +121,13 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                 and api_version is not None
                 and api_base is not None
             ), "If you want to use Azure, you need to provide api_type, api_version and api_base."
-
-            openai.api_base = api_base
-            openai.api_type = api_type
-            openai.api_version = api_version
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self.model_name = state["model_name"]
-        self.openai_api_key = state["openai_api_key"]
-        openai.api_key = self.openai_api_key
-        self.use_azure = state.get("use_azure")
-        if self.use_azure:
-            self.api_base = state["api_base"]
-            self.api_type = state["api_type"]
-            self.api_version = state["api_version"]
-            openai.api_base = self.api_base
-            openai.api_type = self.api_type
-            openai.api_version = self.api_version
+            self.openai_client = AzureOpenAI(
+                api_key=self.openai_api_key,
+                azure_endpoint=self.api_base,
+                api_version=self.api_version,
+            )
+        else:
+            self.openai_client = OpenAI(api_key=self.openai_api_key)
 
     def _encode(
         self, documents: List[Union[str, Doc]], fit_model: bool
@@ -140,11 +143,11 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                         while True and count < 60:
                             try:
                                 count += 1
-                                response = openai.Embedding.create(
-                                    input=azure_batch, engine=self.model_name
+                                response = self.openai_client.embeddings.create(
+                                    input=azure_batch, model=self.model_name
                                 )
                                 break
-                            except openai.error.RateLimitError as e:
+                            except RateLimitError as e:
                                 if count >= 60:
                                     raise e
                                 if count == 1:
@@ -155,39 +158,44 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                                     time.sleep(10.05)
                                 else:
                                     time.sleep(1)
-                        embeddings += [entry["embedding"] for entry in response["data"]]
+                        embeddings += [entry.embedding for entry in response.data]
                 else:
-                    response = openai.Embedding.create(
-                        input=documents_batch, engine=self.model_name
+                    response = self.openai_client.embeddings.create(
+                        input=documents_batch, model=self.model_name
                     )
-                    embeddings = [entry["embedding"] for entry in response["data"]]
+                    embeddings = [entry.embedding for entry in response.data]
                 yield embeddings
-            except openai_error.AuthenticationError:
+            except AuthenticationError:
                 raise Exception(
                     "OpenAI API key is invalid. Please provide a valid API key in the constructor of OpenAISentenceEmbedder."
                 )
 
+    @staticmethod
+    def load(embedder: dict) -> "OpenAISentenceEmbedder":
+        return OpenAISentenceEmbedder(
+            model_name=embedder["model_name"],
+            batch_size=embedder["batch_size"],
+            openai_api_key=embedder["openai_api_key"],
+            # only set for Azure
+            api_base=embedder["api_base"],
+            api_type=embedder["api_type"],
+            api_version=embedder["api_version"],
+        )
 
-class CohereSentenceEmbedder(SentenceEmbedder):
-    def __init__(self, cohere_api_key: str, batch_size: int = 128):
-        super().__init__(batch_size)
-        self.cohere_api_key = cohere_api_key
-        self.model = cohere.Client(self.cohere_api_key)
+    def to_json(self) -> dict:
+        return {
+            "cls": "OpenAISentenceEmbedder",
+            "model_name": self.model_name,
+            "batch_size": self.batch_size,
+            "openai_api_key": self.openai_api_key,
+            # only set for Azure
+            "api_base": self.api_base,
+            "api_type": self.api_type,
+            "api_version": self.api_version,
+            "use_azure": self.use_azure,
+        }
 
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        # Don't pickle 'model'
-        del state["model"]
-        return state
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        # Restore 'model' after unpickling
-        self.model = cohere.Client(self.cohere_api_key)
-
-    def _encode(
-        self, documents: List[Union[str, Doc]], fit_model: bool
-    ) -> Generator[List[List[float]], None, None]:
-        for documents_batch in util.batch(documents, self.batch_size):
-            embeddings = self.model.embed(documents_batch).embeddings
-            yield embeddings
+    def dump(self, project_id: str, embedding_id: str) -> None:
+        export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
+        export_file.parent.mkdir(parents=True, exist_ok=True)
+        util.write_json(self.to_json(), export_file, indent=2)

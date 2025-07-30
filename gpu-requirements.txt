@@ -6,12 +6,6 @@
 #
 --extra-index-url https://download.pytorch.org/whl/cu113
 
-aiohappyeyeballs==2.6.1
-    # via aiohttp
-aiohttp==3.12.14
-    # via openai
-aiosignal==1.4.0
-    # via aiohttp
 annotated-types==0.7.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
@@ -20,6 +14,7 @@ anyio==4.9.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   httpx
+    #   openai
     #   starlette
 argon2-cffi==25.1.0
     # via
@@ -29,8 +24,6 @@ argon2-cffi-bindings==21.2.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   argon2-cffi
-attrs==25.3.0
-    # via aiohttp
 blis==0.7.11
     # via thinc
 boto3==1.39.6
@@ -67,8 +60,6 @@ click==8.2.1
     #   uvicorn
 cloudpathlib==0.21.1
     # via weasel
-cohere==5.16.1
-    # via -r requirements/gpu-requirements.in
 confection==0.1.5
     # via
     #   thinc
@@ -78,20 +69,16 @@ cymem==2.0.11
     #   preshed
     #   spacy
     #   thinc
+distro==1.9.0
+    # via openai
 fastapi==0.116.1
     # via -r requirements/torch-cuda-requirements.txt
-fastavro==1.11.1
-    # via cohere
 filelock==3.18.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   huggingface-hub
     #   torch
     #   transformers
-frozenlist==1.7.0
-    # via
-    #   aiohttp
-    #   aiosignal
 fsspec==2025.7.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
@@ -109,9 +96,7 @@ hf-xet==1.1.5
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
-    # via cohere
-httpx-sse==0.4.0
-    # via cohere
+    # via openai
 huggingface-hub==0.33.4
     # via
     #   -r requirements/torch-cuda-requirements.txt
@@ -124,12 +109,13 @@ idna==3.10
     #   anyio
     #   httpx
     #   requests
-    #   yarl
 jinja2==3.1.6
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   spacy
     #   torch
+jiter==0.10.0
+    # via openai
 jmespath==1.0.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
@@ -160,10 +146,6 @@ mpmath==1.3.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   sympy
-multidict==6.6.3
-    # via
-    #   aiohttp
-    #   yarl
 murmurhash==1.0.13
     # via
     #   preshed
@@ -185,7 +167,7 @@ numpy==1.23.4
     #   thinc
     #   torchvision
     #   transformers
-openai==0.28.1
+openai==1.97.1
     # via -r requirements/gpu-requirements.in
 packaging==25.0
     # via
@@ -205,10 +187,6 @@ preshed==3.0.10
     # via
     #   spacy
     #   thinc
-propcache==0.3.2
-    # via
-    #   aiohttp
-    #   yarl
 psycopg2-binary==2.9.9
     # via -r requirements/torch-cuda-requirements.txt
 pyaml==25.7.0
@@ -226,16 +204,15 @@ pycryptodome==3.23.0
 pydantic==2.7.4
     # via
     #   -r requirements/torch-cuda-requirements.txt
-    #   cohere
     #   confection
     #   fastapi
+    #   openai
     #   spacy
     #   thinc
     #   weasel
 pydantic-core==2.18.4
     # via
     #   -r requirements/torch-cuda-requirements.txt
-    #   cohere
     #   pydantic
 pygments==2.19.2
     # via rich
@@ -261,9 +238,7 @@ regex==2024.11.6
 requests==2.32.4
     # via
     #   -r requirements/torch-cuda-requirements.txt
-    #   cohere
     #   huggingface-hub
-    #   openai
     #   spacy
     #   transformers
     #   weasel
@@ -304,6 +279,7 @@ sniffio==1.3.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   anyio
+    #   openai
 spacy==3.7.5
     # via -r requirements/gpu-requirements.in
 spacy-legacy==3.0.12
@@ -335,7 +311,6 @@ threadpoolctl==3.6.0
 tokenizers==0.21.2
     # via
     #   -r requirements/torch-cuda-requirements.txt
-    #   cohere
     #   transformers
 torch==2.7.1
     # via
@@ -360,17 +335,14 @@ typer==0.16.0
     # via
     #   spacy
     #   weasel
-types-requests==2.32.4.20250611
-    # via cohere
 typing-extensions==4.14.1
     # via
     #   -r requirements/torch-cuda-requirements.txt
-    #   aiosignal
     #   anyio
-    #   cohere
     #   fastapi
     #   huggingface-hub
     #   minio
+    #   openai
     #   pydantic
     #   pydantic-core
     #   sentence-transformers
@@ -383,7 +355,6 @@ urllib3==2.5.0
     #   botocore
     #   minio
     #   requests
-    #   types-requests
 uvicorn==0.35.0
     # via -r requirements/torch-cuda-requirements.txt
 wasabi==1.1.3
@@ -395,8 +366,6 @@ weasel==0.4.1
     # via spacy
 wrapt==1.17.2
     # via smart-open
-yarl==1.20.1
-    # via aiohttp
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
