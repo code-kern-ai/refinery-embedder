@@ -49,7 +49,7 @@ class HuggingFaceSentenceEmbedder(TransformerSentenceEmbedder):
         }
 
     def dump(self, project_id: str, embedding_id: str) -> None:
-        export_file = util.INFERENCE_DIR / project_id / embedding_id / "embedder.json"
+        export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
         export_file.parent.mkdir(parents=True, exist_ok=True)
         util.write_json(self.to_json(), export_file, indent=2)
 
@@ -176,6 +176,7 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
             model_name=embedder["model_name"],
             batch_size=embedder["batch_size"],
             openai_api_key=embedder["openai_api_key"],
+            # only set for Azure
             api_base=embedder["api_base"],
             api_type=embedder["api_type"],
             api_version=embedder["api_version"],
@@ -187,6 +188,7 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
             "model_name": self.model_name,
             "batch_size": self.batch_size,
             "openai_api_key": self.openai_api_key,
+            # only set for Azure
             "api_base": self.api_base,
             "api_type": self.api_type,
             "api_version": self.api_version,
@@ -194,6 +196,6 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         }
 
     def dump(self, project_id: str, embedding_id: str) -> None:
-        export_file = util.INFERENCE_DIR / project_id / embedding_id / "embedder.json"
+        export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
         export_file.parent.mkdir(parents=True, exist_ok=True)
         util.write_json(self.to_json(), export_file, indent=2)

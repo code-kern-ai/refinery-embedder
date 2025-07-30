@@ -55,8 +55,7 @@ class Transformer(metaclass=ABCMeta):
         """Loads the model configuration and weights from disk.
 
         Args:
-            project_id (str): The ID of the project.
-            embedding_id (str): The ID of the embedding.
+            embedder (dict): The dumped model configuration.
         """
         raise NotImplementedError
 

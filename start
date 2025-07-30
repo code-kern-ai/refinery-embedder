@@ -68,7 +68,6 @@ docker run -d --rm \
 -e MODEL_PROVIDER=http://refinery-model-provider:80 \
 -e WS_NOTIFY_ENDPOINT="http://refinery-websocket:8080" \
 -e NEURAL_SEARCH=http://refinery-neural-search:80 \
--e INFERENCE_DIR=/inference \
 --mount type=bind,source="$(pwd)"/,target=/app \
 -v /var/run/docker.sock:/var/run/docker.sock \
 -v "$MODEL_DIR":/models \

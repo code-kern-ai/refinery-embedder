@@ -1,11 +1,10 @@
 from typing import Any, Generator, List
 from pathlib import Path
 import numpy as np
-import os
 import json
 import pickle
 
-INFERENCE_DIR = Path(os.getenv("INFERENCE_DIR", "/inference"))
+INFERENCE_DIR = Path("/inference")
 
 
 def batch(documents: List[Any], batch_size: int) -> Generator[List[Any], None, None]:
@@ -28,7 +27,7 @@ def write_pickle(obj: Any, file_path: str, **kwargs) -> None:
         pickle.dump(obj, f, **kwargs)
 
 
-def read_json(file_path: str) -> Any:
+def read_json(file_path: str) -> dict[str, Any]:
     with open(file_path, "r") as f:
         return json.load(f)
 

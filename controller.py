@@ -489,8 +489,8 @@ def delete_embedding(project_id: str, embedding_id: str) -> int:
     org_id = organization.get_id_by_project_id(project_id)
     s3.delete_object(org_id, f"{project_id}/{object_name}")
     request_util.delete_embedding_from_neural_search(embedding_id)
-    json_path = util.INFERENCE_DIR / project_id / embedding_id / "embedder.json"
-    shutil.rmtree(json_path.parent)
+    json_path = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
+    json_path.unlink(missing_ok=True)
     return status.HTTP_200_OK
 
 
@@ -627,7 +627,7 @@ def re_embed_records(project_id: str, changes: Dict[str, List[Dict[str, str]]]):
 
 
 def __setup_tmp_embedder(project_id: str, embedder_id: str) -> Transformer:
-    embedder_path = util.INFERENCE_DIR / project_id / embedder_id / "embedder.json"
+    embedder_path = util.INFERENCE_DIR / project_id / f"embedder-{embedder_id}.json"
     if not embedder_path.exists():
         raise Exception(f"Embedder {embedder_id} not found")
     return __load_embedder_by_path(embedder_path)

@@ -1,7 +1,10 @@
 from spacy.tokens.doc import Doc
 from typing import Union, List, Generator
 import numpy as np
+import pickle
 from src.embedders import PCAReducer, util
+
+# Embedder imports are used by eval(Embedder) in load methods
 from src.embedders.classification.contextual import (
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
@@ -57,7 +60,9 @@ class PCASentenceReducer(PCAReducer):
 
     @staticmethod
     def load(embedder: dict) -> "PCASentenceReducer":
-        reducer = util.read_pickle(embedder["reducer_pkl"])
+        reducer = pickle.loads(
+            embedder["reducer_pkl_bytes"].encode("latin-1")
+        )  # Decode to latin1 to avoid binary issues in JSON
         Embedder = eval(embedder["embedder"]["cls"])
         return PCASentenceReducer(
             embedder=Embedder.load(embedder["embedder"]),
@@ -68,14 +73,12 @@ class PCASentenceReducer(PCAReducer):
         return {
             "cls": "PCASentenceReducer",
             "embedder": self.embedder.to_json(),
+            "reducer_pkl_bytes": pickle.dumps(self.reducer).decode(
+                "latin-1"
+            ),  # Encode to latin1 to avoid binary issues in JSON
         }
 
     def dump(self, project_id: str, embedding_id: str) -> None:
-        export_file = util.INFERENCE_DIR / project_id / embedding_id / "embedder.json"
+        export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
         export_file.parent.mkdir(parents=True, exist_ok=True)
-        pkl_file = util.INFERENCE_DIR / project_id / embedding_id / "reducer.pkl"
-        util.write_pickle(self.reducer, pkl_file)
-
-        json_obj = self.to_json()
-        json_obj["reducer_pkl"] = str(pkl_file)
-        util.write_json(json_obj, export_file, indent=2)
+        util.write_json(self.to_json(), export_file, indent=2)
