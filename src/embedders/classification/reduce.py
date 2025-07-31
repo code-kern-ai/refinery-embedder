@@ -5,9 +5,10 @@ import pickle
 from src.embedders import PCAReducer, util
 
 # Embedder imports are used by eval(Embedder) in load methods
-from src.embedders.classification.contextual import (
+from src.embedders.classification.contextual import (  # noqa: F401
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
+    PrivatemodeAISentenceEmbedder,
 )
 
 
