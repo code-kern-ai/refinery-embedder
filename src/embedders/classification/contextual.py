@@ -8,6 +8,10 @@ import torch
 from openai import OpenAI, AzureOpenAI
 from openai import AuthenticationError, RateLimitError
 import time
+import os
+
+
+PRIVATEMODE_AI_URL = os.getenv("PRIVATEMODE_AI_URL", "http://privatemode-proxy:8080/v1")
 
 
 class TransformerSentenceEmbedder(SentenceEmbedder):
@@ -224,7 +228,7 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
         self.model_name = model_name
         self.openai_client = OpenAI(
             api_key="dummy",  # Set in proxy
-            base_url="http://privatemode-proxy:8080/v1",
+            base_url=PRIVATEMODE_AI_URL,
         )
 
     def _encode(
