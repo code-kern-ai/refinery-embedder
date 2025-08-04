@@ -9,6 +9,7 @@ from openai import OpenAI, AzureOpenAI
 from openai import AuthenticationError, RateLimitError
 import time
 import os
+from transformers import AutoTokenizer
 
 
 PRIVATEMODE_AI_URL = os.getenv("PRIVATEMODE_AI_URL", "http://privatemode-proxy:8080/v1")
@@ -206,6 +207,7 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
 
 
 class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
+
     def __init__(
         self,
         batch_size: int = 128,
@@ -230,12 +232,14 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
             api_key="dummy",  # Set in proxy
             base_url=PRIVATEMODE_AI_URL,
         )
+        # for trimming the length of the text if > 512 tokens
+        self._auto_tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
     def _encode(
         self, documents: List[Union[str, Doc]], fit_model: bool
     ) -> Generator[List[List[float]], None, None]:
         for documents_batch in util.batch(documents, self.batch_size):
-            documents_batch = [doc.replace("\n", " ") for doc in documents_batch]
+            documents_batch = [self._trim_length(doc.replace("\n", " ")) for doc in documents_batch]
             try:
                 response = self.openai_client.embeddings.create(
                     input=documents_batch, model=self.model_name
@@ -265,3 +269,12 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
         export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
         export_file.parent.mkdir(parents=True, exist_ok=True)
         util.write_json(self.to_json(), export_file, indent=2)
+
+    def _trim_length(self, text: str, max_length: int=512) -> str:
+        tokens = self._auto_tokenizer(
+            text,
+            truncation=True,
+            max_length=max_length,
+            return_tensors=None  # No tensors needed for just truncating
+        )
+        return self._auto_tokenizer.decode(tokens["input_ids"], skip_special_tokens=True)

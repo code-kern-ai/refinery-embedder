@@ -35,3 +35,4 @@ def read_json(file_path: str) -> dict[str, Any]:
 def write_json(obj: Any, file_path: str, **kwargs) -> None:
     with open(file_path, "w") as f:
         json.dump(obj, f, **kwargs)
+
