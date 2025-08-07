@@ -8,6 +8,11 @@ import torch
 from openai import OpenAI, AzureOpenAI
 from openai import AuthenticationError, RateLimitError
 import time
+import os
+from transformers import AutoTokenizer
+
+
+PRIVATEMODE_AI_URL = os.getenv("PRIVATEMODE_AI_URL", "http://privatemode-proxy:8080/v1")
 
 
 class TransformerSentenceEmbedder(SentenceEmbedder):
@@ -199,3 +204,77 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
         export_file.parent.mkdir(parents=True, exist_ok=True)
         util.write_json(self.to_json(), export_file, indent=2)
+
+
+class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
+
+    def __init__(
+        self,
+        batch_size: int = 128,
+        model_name: str = "intfloat/multilingual-e5-large-instruct",
+    ):
+        """
+        Embeds documents using privatemode ai proxy via OpenAI classes.
+        Note that the model and api key are currently hardcoded since they aren't configurable.
+
+        Args:
+            batch_size (int, optional): Defines the number of conversions after which the embedder yields. Defaults to 128.
+            model_name (str, optional): Name of the embedding model from Privatemode AI (e.g. intfloat/multilingual-e5-large-instruct). Defaults to "intfloat/multilingual-e5-large-instruct".
+
+        Raises:
+            Exception: If you use Azure, you need to provide api_type, api_version and api_base.
+
+
+        """
+        super().__init__(batch_size)
+        self.model_name = model_name
+        self.openai_client = OpenAI(
+            api_key="dummy",  # Set in proxy
+            base_url=PRIVATEMODE_AI_URL,
+        )
+        # for trimming the length of the text if > 512 tokens
+        self._auto_tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+
+    def _encode(
+        self, documents: List[Union[str, Doc]], fit_model: bool
+    ) -> Generator[List[List[float]], None, None]:
+        for documents_batch in util.batch(documents, self.batch_size):
+            documents_batch = [self._trim_length(doc.replace("\n", " ")) for doc in documents_batch]
+            try:
+                response = self.openai_client.embeddings.create(
+                    input=documents_batch, model=self.model_name
+                )
+                embeddings = [entry.embedding for entry in response.data]
+                yield embeddings
+            except AuthenticationError:
+                raise Exception(
+                    "OpenAI API key is invalid. Please provide a valid API key in the constructor of PrivatemodeAISentenceEmbedder."
+                )
+
+    @staticmethod
+    def load(embedder: dict) -> "PrivatemodeAISentenceEmbedder":
+        return PrivatemodeAISentenceEmbedder(
+            model_name=embedder["model_name"],
+            batch_size=embedder["batch_size"],
+        )
+
+    def to_json(self) -> dict:
+        return {
+            "cls": "PrivatemodeAISentenceEmbedder",
+            "model_name": self.model_name,
+            "batch_size": self.batch_size,
+        }
+
+    def dump(self, project_id: str, embedding_id: str) -> None:
+        export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
+        export_file.parent.mkdir(parents=True, exist_ok=True)
+        util.write_json(self.to_json(), export_file, indent=2)
+
+    def _trim_length(self, text: str, max_length: int=512) -> str:
+        tokens = self._auto_tokenizer(
+            text,
+            truncation=True,
+            max_length=max_length,
+            return_tensors=None  # No tensors needed for just truncating
+        )
+        return self._auto_tokenizer.decode(tokens["input_ids"], skip_special_tokens=True)

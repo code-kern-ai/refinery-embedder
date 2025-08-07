@@ -2,6 +2,7 @@ from typing import Optional
 from src.embedders.classification.contextual import (
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
+    PrivatemodeAISentenceEmbedder,
 )
 from src.embedders.extraction.contextual import TransformerTokenEmbedder
 from src.embedders.classification.reduce import PCASentenceReducer
@@ -42,6 +43,8 @@ def get_embedder(
             embedder = HuggingFaceSentenceEmbedder(
                 config_string=model, batch_size=batch_size
             )
+        elif platform == enums.EmbeddingPlatform.PRIVATEMODE_AI.value:
+            embedder = PrivatemodeAISentenceEmbedder(batch_size=batch_size)
         else:
             raise Exception(f"Unknown platform {platform}")
 

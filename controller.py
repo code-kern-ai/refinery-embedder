@@ -14,17 +14,17 @@ import zlib
 import gc
 import os
 import pandas as pd
-import shutil
 from openai import APIConnectionError
 
 from src.embedders import Transformer, util
 
 # Embedder imports are used by eval(Embedder) in __setup_tmp_embedder
-from src.embedders.classification.contextual import (
+from src.embedders.classification.contextual import (  # noqa: F401
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
+    PrivatemodeAISentenceEmbedder,
 )
-from src.embedders.classification.reduce import PCASentenceReducer
+from src.embedders.classification.reduce import PCASentenceReducer  # noqa: F401
 from src.util import daemon, request_util
 from src.util.decorator import param_throttle
 from src.util.embedders import get_embedder
