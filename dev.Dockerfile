@@ -1,4 +1,4 @@
-FROM kernai/refinery-parent-images:v2.0.0-torch-cpu
+FROM registry.dev.kern.ai/code-kern-ai/refinery-parent-images:parent-image-updates-torch-cpu
 
 WORKDIR /app
 
