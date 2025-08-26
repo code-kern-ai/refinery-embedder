@@ -145,7 +145,7 @@ threadpoolctl==3.6.0
     # via scikit-learn
 tokenizers==0.21.2
     # via transformers
-torch==2.7.1
+torch==2.8.0
     # via -r torch-cpu-requirements.in
 tqdm==4.67.1
     # via
