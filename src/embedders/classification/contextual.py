@@ -38,18 +38,22 @@ class TransformerSentenceEmbedder(SentenceEmbedder):
 class HuggingFaceSentenceEmbedder(TransformerSentenceEmbedder):
     def __init__(self, config_string: str, batch_size: int = 128):
         super().__init__(config_string, batch_size)
+        self.config_string = config_string
 
     @staticmethod
     def load(embedder: dict) -> "HuggingFaceSentenceEmbedder":
+        if os.path.exists(embedder["config_string"]):
+            config_string = embedder["config_string"]
+        else:
+            config_string = request_util.get_model_path(embedder["config_string"])
         return HuggingFaceSentenceEmbedder(
-            config_string=request_util.get_model_path(embedder["config_string"]),
-            batch_size=embedder["batch_size"],
+            config_string=config_string, batch_size=embedder["batch_size"]
         )
 
     def to_json(self) -> dict:
         return {
             "cls": "HuggingFaceSentenceEmbedder",
-            "config_string": self.model.model_card_data.base_model,
+            "config_string": self.config_string,
             "batch_size": self.batch_size,
         }
 
@@ -239,7 +243,9 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
         self, documents: List[Union[str, Doc]], fit_model: bool
     ) -> Generator[List[List[float]], None, None]:
         for documents_batch in util.batch(documents, self.batch_size):
-            documents_batch = [self._trim_length(doc.replace("\n", " ")) for doc in documents_batch]
+            documents_batch = [
+                self._trim_length(doc.replace("\n", " ")) for doc in documents_batch
+            ]
             try:
                 response = self.openai_client.embeddings.create(
                     input=documents_batch, model=self.model_name
@@ -270,11 +276,13 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
         export_file.parent.mkdir(parents=True, exist_ok=True)
         util.write_json(self.to_json(), export_file, indent=2)
 
-    def _trim_length(self, text: str, max_length: int=512) -> str:
+    def _trim_length(self, text: str, max_length: int = 512) -> str:
         tokens = self._auto_tokenizer(
             text,
             truncation=True,
             max_length=max_length,
-            return_tensors=None  # No tensors needed for just truncating
+            return_tensors=None,  # No tensors needed for just truncating
         )
-        return self._auto_tokenizer.decode(tokens["input_ids"], skip_special_tokens=True)
+        return self._auto_tokenizer.decode(
+            tokens["input_ids"], skip_special_tokens=True
+        )
