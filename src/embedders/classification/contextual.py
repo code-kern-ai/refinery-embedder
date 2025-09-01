@@ -142,7 +142,9 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         self, documents: List[Union[str, Doc]], fit_model: bool
     ) -> Generator[List[List[float]], None, None]:
         for documents_batch in util.batch(documents, self.batch_size):
-            documents_batch = [doc.replace("\n", " ") for doc in documents_batch]
+            documents_batch = [
+                doc.replace("\n", " ") for doc in filter(None, documents_batch)
+            ]
             try:
                 if self.use_azure:
                     embeddings = []
