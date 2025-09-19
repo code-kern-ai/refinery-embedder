@@ -77,8 +77,29 @@ def generate_batches(
         embedding_batches = embedder.transform(document_batches, as_generator=True)
     else:
         embedding_batches = embedder.fit_transform(document_batches, as_generator=True)
-    for record_batch in record_batches:
-        yield {"record_ids": record_batch, "embeddings": next(embedding_batches)}
+    for i, record_batch in enumerate(record_batches):
+        try:
+            yield {"record_ids": record_batch, "embeddings": next(embedding_batches)}
+        except StopIteration as e:
+            print(
+                f"Number of record batches ({len(record_batches)}) "
+                f"exceeds number of embedding batches ({i+1}). This should never happen.",
+                flush=True,
+            )
+            print(
+                f"Aborting embedding creation for `{attribute_name}` (for_delta={for_delta}):",
+                flush=True,
+            )
+            print("- project ID:", project_id, flush=True)
+            print("- record IDs:", record_batch, flush=True)
+            batch_start = i * embedder.batch_size
+            batch_stop = batch_start + (embedder.batch_size - 1)
+            print(
+                "- document batch:",
+                document_batches[batch_start:batch_stop],
+                flush=True,
+            )
+            raise e
 
 
 def get_docbins(
