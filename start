@@ -2,11 +2,13 @@
 
 DEBUG_MODE=false
 DEBUG_PORT=15675
+ENABLE_TELEMETRY=false
 
-while getopts d flag
+while getopts dg flag
 do
     case "${flag}" in
         d) DEBUG_MODE=true;;
+        g) ENABLE_TELEMETRY=true;;
     esac
 done
 
@@ -68,11 +70,14 @@ docker run -d --rm \
 -e MODEL_PROVIDER=http://refinery-model-provider:80 \
 -e WS_NOTIFY_ENDPOINT="http://refinery-websocket:8080" \
 -e NEURAL_SEARCH=http://refinery-neural-search:80 \
+-e ENABLE_TELEMETRY=$ENABLE_TELEMETRY \
 --mount type=bind,source="$(pwd)"/,target=/app \
 -v /var/run/docker.sock:/var/run/docker.sock \
 -v "$MODEL_DIR":/models \
 -v "$INFERENCE_DIR":/inference \
 --network dev-setup_default \
+--log-driver=loki \
+--log-opt loki-url="http://$HOST_IP:3100/loki/api/v1/push" \
 refinery-embedder-dev $CMD > /dev/null 2>&1
 echo -ne '\t\t\t [done]\n'
 

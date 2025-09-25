@@ -1,17 +1,34 @@
-# -*- coding: utf-8 -*-
 from fastapi import FastAPI, responses, status, Request
 from typing import Union
 
 import torch
+import logging
+import os
 
 from src.util import request_util
 from src.data import data_type
 import controller
 
 from submodules.model.business_objects import general
-from submodules.model import session
+from submodules.model import session, telemetry
 
-app = FastAPI()
+
+OTLP_GRPC_ENDPOINT = os.getenv("OTLP_GRPC_ENDPOINT", "tempo:4317")
+
+app_name = "refinery-embedder"
+app = FastAPI(title=app_name)
+
+if telemetry.ENABLE_TELEMETRY:
+    print("WARNING:  Running telemetry.", flush=True)
+    telemetry.setting_otlp(app, app_name=app_name, endpoint=OTLP_GRPC_ENDPOINT)
+    app.add_middleware(telemetry.PrometheusMiddleware, app_name=app_name)
+    app.add_route("/metrics", telemetry.metrics)
+
+    # Filter out /metrics
+    logging.getLogger("uvicorn.access").addFilter(
+        lambda record: "GET /metrics" not in record.getMessage()
+    )
+
 
 if torch.cuda.is_available():
     print(
