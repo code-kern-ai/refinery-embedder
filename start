@@ -76,8 +76,6 @@ docker run -d --rm \
 -v "$MODEL_DIR":/models \
 -v "$INFERENCE_DIR":/inference \
 --network dev-setup_default \
---log-driver=loki \
---log-opt loki-url="http://$HOST_IP:3100/loki/api/v1/push" \
 refinery-embedder-dev $CMD > /dev/null 2>&1
 echo -ne '\t\t\t [done]\n'
 
