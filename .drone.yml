@@ -67,7 +67,7 @@ name: arm64
 platform:
   arch: arm64
 
-steps:  
+steps:
   - name: submodules
     image: alpine/git
     commands:
@@ -96,41 +96,41 @@ trigger:
     - push
 
 ---
-kind: pipeline
-type: docker
-name: gpu
+# kind: pipeline
+# type: docker
+# name: gpu
 
-platform:
-  arch: amd64
+# platform:
+#   arch: amd64
 
-steps:
-  - name: submodules
-    image: alpine/git
-    commands:
-      - git submodule init
-      - 'git config --global url."https://github.com/".insteadOf git@github.com:'
-      - "git submodule update --recursive"
-  - name: build and publish
-    image: plugins/docker
-    settings:
-      registry: registry.dev.kern.ai
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      dockerfile: gpu.Dockerfile
-      repo: "registry.dev.kern.ai/${DRONE_REPO}"
-      tags: ["${DRONE_COMMIT_SHA}-gpu", "${DRONE_COMMIT_BRANCH}-gpu"]
-      cache_from:
-          - "registry.dev.kern.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}-gpu"
+# steps:
+#   - name: submodules
+#     image: alpine/git
+#     commands:
+#       - git submodule init
+#       - 'git config --global url."https://github.com/".insteadOf git@github.com:'
+#       - "git submodule update --recursive"
+#   - name: build and publish
+#     image: plugins/docker
+#     settings:
+#       registry: registry.dev.kern.ai
+#       username:
+#         from_secret: docker_username
+#       password:
+#         from_secret: docker_password
+#       dockerfile: gpu.Dockerfile
+#       repo: "registry.dev.kern.ai/${DRONE_REPO}"
+#       tags: ["${DRONE_COMMIT_SHA}-gpu", "${DRONE_COMMIT_BRANCH}-gpu"]
+#       cache_from:
+#           - "registry.dev.kern.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}-gpu"
 
-trigger:
-  branch:
-    - dev
-  event:
-    - push
+# trigger:
+#   branch:
+#     - dev
+#   event:
+#     - push
 
----
+# ---
 kind: pipeline
 type: docker
 name: amd64-dockerhub
@@ -160,36 +160,36 @@ trigger:
     - tag
 
 ---
-kind: pipeline
-type: docker
-name: amd64-gpu-dockerhub
+# kind: pipeline
+# type: docker
+# name: amd64-gpu-dockerhub
 
-platform:
-  arch: amd64
+# platform:
+#   arch: amd64
 
-steps:
-  - name: submodules
-    image: alpine/git
-    commands:
-      - git submodule init
-      - 'git config --global url."https://github.com/".insteadOf git@github.com:'
-      - "git submodule update --recursive"
-  - name: build and publish
-    image: plugins/docker
-    settings:
-      username:
-        from_secret: dockerhub_username
-      password:
-        from_secret: dockerhub_password
-      dockerfile: gpu.Dockerfile
-      repo: "kernai/${DRONE_REPO_NAME}"
-      tag: "${DRONE_TAG}-gpu"
+# steps:
+#   - name: submodules
+#     image: alpine/git
+#     commands:
+#       - git submodule init
+#       - 'git config --global url."https://github.com/".insteadOf git@github.com:'
+#       - "git submodule update --recursive"
+#   - name: build and publish
+#     image: plugins/docker
+#     settings:
+#       username:
+#         from_secret: dockerhub_username
+#       password:
+#         from_secret: dockerhub_password
+#       dockerfile: gpu.Dockerfile
+#       repo: "kernai/${DRONE_REPO_NAME}"
+#       tag: "${DRONE_TAG}-gpu"
 
-trigger:
-  event:
-    - tag
+# trigger:
+#   event:
+#     - tag
 
----
+# ---
 kind: pipeline
 type: docker
 name: arm64-dockerhub
@@ -222,16 +222,16 @@ trigger:
 kind: pipeline
 name: manifest-version
 steps:
-- name: manifest
-  image: plugins/manifest
-  settings:
-    spec: drone-manifest-version.tmpl
-    tag: "${DRONE_TAG}"
-    ignore_missing: true
-    username:
-      from_secret: dockerhub_username
-    password:
-      from_secret: dockerhub_password
+  - name: manifest
+    image: plugins/manifest
+    settings:
+      spec: drone-manifest-version.tmpl
+      tag: "${DRONE_TAG}"
+      ignore_missing: true
+      username:
+        from_secret: dockerhub_username
+      password:
+        from_secret: dockerhub_password
 
 depends_on:
   - amd64-dockerhub
@@ -245,16 +245,16 @@ trigger:
 kind: pipeline
 name: manifest-latest
 steps:
-- name: manifest
-  image: plugins/manifest
-  settings:
-    spec: drone-manifest-latest.tmpl
-    tag: "${DRONE_TAG}"
-    ignore_missing: true
-    username:
-      from_secret: dockerhub_username
-    password:
-      from_secret: dockerhub_password
+  - name: manifest
+    image: plugins/manifest
+    settings:
+      spec: drone-manifest-latest.tmpl
+      tag: "${DRONE_TAG}"
+      ignore_missing: true
+      username:
+        from_secret: dockerhub_username
+      password:
+        from_secret: dockerhub_password
 
 depends_on:
   - manifest-version
