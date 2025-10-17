@@ -65,8 +65,12 @@ class PCATokenReducer(PCAReducer):
                 if batch_idx > fit_after_n_batches:
                     yield self._transform(batch)
         else:
-            embeddings = self.embedder.transform(documents, as_generator)
             if as_generator:
-                yield self._transform(list(embeddings))
+                embeddings = [
+                    emb
+                    for batch in self.embedder.transform(documents, as_generator)
+                    for emb in batch
+                ]
+                yield from util.batch(self._transform(embeddings), self.batch_size)
             else:
                 yield self._transform(embeddings)
