@@ -21,6 +21,7 @@ class PCASentenceReducer(PCAReducer):
     def _reduce(
         self,
         documents: List[Union[str, Doc]],
+        as_generator: bool,
         fit_model: bool,
         fit_after_n_batches: int,
     ) -> Generator[List[List[Union[float, int]]], None, None]:
@@ -29,7 +30,7 @@ class PCASentenceReducer(PCAReducer):
             num_batches = util.num_batches(documents, self.embedder.batch_size)
             fit_after_n_batches = min(num_batches, fit_after_n_batches) - 1
             for batch_idx, batch in enumerate(
-                self.embedder.fit_transform(documents, as_generator=True)
+                self.embedder.fit_transform(documents, as_generator)
             ):
                 if batch_idx <= fit_after_n_batches:
                     embeddings_training.append(batch)
@@ -56,8 +57,11 @@ class PCASentenceReducer(PCAReducer):
                 if batch_idx > fit_after_n_batches:
                     yield self._transform(batch)
         else:
-            embeddings = self.embedder.transform(documents)
-            yield self._transform(embeddings)
+            embeddings = self.embedder.transform(documents, as_generator)
+            if as_generator:
+                yield self._transform(list(embeddings))
+            else:
+                yield self._transform(embeddings)
 
     @staticmethod
     def load(embedder: dict) -> "PCASentenceReducer":

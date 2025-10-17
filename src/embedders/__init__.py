@@ -165,6 +165,7 @@ class PCAReducer(Transformer, metaclass=ABCMeta):
     def _reduce(
         self,
         documents: List[Union[str, Doc]],
+        as_generator: bool,
         fit_model: bool,
         fit_after_n_batches: int,
     ):
@@ -178,11 +179,11 @@ class PCAReducer(Transformer, metaclass=ABCMeta):
         fit_after_n_batches: int,
     ) -> Union[List, Generator]:
         if as_generator:
-            return self._reduce(documents, fit_model, fit_after_n_batches)
+            return self._reduce(documents, as_generator, fit_model, fit_after_n_batches)
         else:
             embeddings = []
             for embedding_batch in self._reduce(
-                documents, fit_model, fit_after_n_batches
+                documents, as_generator, fit_model, fit_after_n_batches
             ):
                 embeddings.extend(embedding_batch)
             return embeddings
