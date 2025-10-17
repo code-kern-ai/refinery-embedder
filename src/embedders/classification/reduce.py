@@ -65,6 +65,7 @@ class PCASentenceReducer(PCAReducer):
                 ]
                 yield from util.batch(self._transform(embeddings), self.batch_size)
             else:
+                embeddings = self.embedder.transform(documents)
                 yield self._transform(embeddings)
 
     @staticmethod
