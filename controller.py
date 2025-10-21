@@ -25,13 +25,13 @@ from src.embedders.classification.contextual import (  # noqa: F401
     PrivatemodeAISentenceEmbedder,
 )
 from src.embedders.classification.reduce import PCASentenceReducer  # noqa: F401
-from src.util import daemon, request_util
+from src.util import request_util
 from src.util.decorator import param_throttle
 from src.util.embedders import get_embedder
 from src.util.notification import send_project_update, embedding_warning_templates
 
 from submodules.s3 import controller as s3
-from submodules.model import enums
+from submodules.model import enums, daemon
 from submodules.model.business_objects import (
     attribute,
     embedding,
@@ -120,7 +120,7 @@ def get_docbins(
 
 
 def manage_encoding_thread(project_id: str, embedding_id: str) -> int:
-    daemon.run(prepare_run, project_id, embedding_id)
+    daemon.run_without_db_token(prepare_run, project_id, embedding_id)
     return status.HTTP_200_OK
 
 
