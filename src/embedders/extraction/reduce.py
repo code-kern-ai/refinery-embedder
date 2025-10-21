@@ -1,3 +1,4 @@
+from spacy.tokens.doc import Doc
 from typing import List, Generator, Union
 import numpy as np
 from src.embedders import PCAReducer, util
@@ -24,7 +25,11 @@ class PCATokenReducer(PCAReducer):
         return batch_unsqueezed
 
     def _reduce(
-        self, documents, fit_model, fit_after_n_batches
+        self,
+        documents: List[Union[str, Doc]],
+        as_generator: bool,
+        fit_model: bool,
+        fit_after_n_batches: int,
     ) -> Generator[List[List[List[Union[float, int]]]], None, None]:
         if fit_model:
             embeddings_training = []
@@ -60,5 +65,13 @@ class PCATokenReducer(PCAReducer):
                 if batch_idx > fit_after_n_batches:
                     yield self._transform(batch)
         else:
-            embeddings = self.embedder.transform(documents)
-            yield self._transform(embeddings)
+            if as_generator:
+                embeddings = [
+                    emb
+                    for batch in self.embedder.transform(documents, as_generator)
+                    for emb in batch
+                ]
+                yield from util.batch(self._transform(embeddings), self.batch_size)
+            else:
+                embeddings = self.embedder.transform(documents)
+                yield self._transform(embeddings)
