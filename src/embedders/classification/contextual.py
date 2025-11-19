@@ -217,7 +217,7 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
     def __init__(
         self,
         batch_size: int = 128,
-        model_name: str = "intfloat/multilingual-e5-large-instruct",
+        model_name: str = "qwen3-embedding-4b",
     ):
         """
         Embeds documents using privatemode ai proxy via OpenAI classes.
@@ -225,7 +225,7 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
 
         Args:
             batch_size (int, optional): Defines the number of conversions after which the embedder yields. Defaults to 128.
-            model_name (str, optional): Name of the embedding model from Privatemode AI (e.g. intfloat/multilingual-e5-large-instruct). Defaults to "intfloat/multilingual-e5-large-instruct".
+            model_name (str, optional): Name of the embedding model from Privatemode AI (e.g. intfloat/multilingual-e5-large-instruct). Defaults to "qwen3-embedding-4b".
 
         Raises:
             Exception: If you use Azure, you need to provide api_type, api_version and api_base.
