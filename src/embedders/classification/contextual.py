@@ -218,6 +218,7 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
         self,
         batch_size: int = 128,
         model_name: str = "qwen3-embedding-4b",
+        hf_model_name: str = "boboliu/Qwen3-Embedding-4B-W4A16-G128",
     ):
         """
         Embeds documents using privatemode ai proxy via OpenAI classes.
@@ -238,8 +239,8 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
             api_key="dummy",  # Set in proxy
             base_url=PRIVATEMODE_AI_URL,
         )
-        # for trimming the length of the text if > 512 tokens
-        self._auto_tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        # for trimming the length of the text if > 32000 tokens
+        self._auto_tokenizer = AutoTokenizer.from_pretrained(hf_model_name)
 
     def _encode(
         self, documents: List[Union[str, Doc]], fit_model: bool
