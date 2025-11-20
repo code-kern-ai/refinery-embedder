@@ -278,7 +278,7 @@ class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
         export_file.parent.mkdir(parents=True, exist_ok=True)
         util.write_json(self.to_json(), export_file, indent=2)
 
-    def _trim_length(self, text: str, max_length: int = 512) -> str:
+    def _trim_length(self, text: str, max_length: int = 32000) -> str:
         tokens = self._auto_tokenizer(
             text,
             truncation=True,
