@@ -1,4 +1,4 @@
-FROM kernai/refinery-parent-images:v2.2.0-torch-cpu
+FROM kernai/refinery-parent-images:v2.3.0-torch-cpu
 
 WORKDIR /program
 
