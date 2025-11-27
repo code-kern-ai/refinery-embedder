@@ -394,12 +394,12 @@ tokenizers==0.21.4
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   transformers
-torch==2.8.0+cpu
+torch==2.8.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   sentence-transformers
     #   torchvision
-torchvision==0.23.0+cpu
+torchvision==0.23.0
     # via -r requirements/requirements.in
 tqdm==4.67.1
     # via
