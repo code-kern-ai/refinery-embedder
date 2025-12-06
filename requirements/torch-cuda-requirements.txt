@@ -229,7 +229,7 @@ typing-extensions==4.15.0
     #   pydantic-core
     #   starlette
     #   torch
-urllib3==2.5.0
+urllib3==2.6.0
     # via
     #   botocore
     #   minio
