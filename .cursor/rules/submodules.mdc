@@ -44,10 +44,10 @@ s3.get_object(bucket, object_name)
 
 1. Make changes in `submodules/model/models.py` (add entity class or modify columns)
 2. Update `submodules/model/enums.py` if adding a new table (add to `Tablenames` enum)
-3. Create migration: `./db commit "Description of changes"` (must be run from `refinery-embedder` root)
-4. Apply migration: `./db migrate` (must be run from `refinery-embedder` root)
+3. Create migration: `./db commit "Description of changes"` (must be run from `refinery-gateway` root)
+4. Apply migration: `./db migrate` (must be run from `refinery-gateway` root)
 
-**Important**: Database migrations MUST be done only from `refinery-embedder` root directory, not from within the submodule.
+**Important**: Database migrations MUST be done only from `refinery-gateway` root directory, not from within the submodule.
 
 **This is mandatory** - schema changes require both `commit` and `migrate` steps. See `submodules/model/.cursor/rules/entities.mdc` for detailed migration guidelines.
 
