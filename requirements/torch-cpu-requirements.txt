@@ -10,13 +10,13 @@ annotated-doc==0.0.4
     # via fastapi
 annotated-types==0.7.0
     # via pydantic
-anyio==4.11.0
+anyio==4.12.1
     # via starlette
 argon2-cffi==25.1.0
     # via minio
 argon2-cffi-bindings==25.1.0
     # via argon2-cffi
-asgiref==3.11.0
+asgiref==3.11.1
     # via opentelemetry-instrumentation-asgi
 boto3==1.39.6
     # via -r common-requirements.in
@@ -24,7 +24,7 @@ botocore==1.39.17
     # via
     #   boto3
     #   s3transfer
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   minio
     #   requests
@@ -36,12 +36,13 @@ click==8.3.1
     # via uvicorn
 fastapi==0.120.1
     # via -r mini-requirements.in
-filelock==3.20.0
+filelock==3.20.3
     # via
+    #   -r torch-cpu-requirements.in
     #   huggingface-hub
     #   torch
     #   transformers
-fsspec==2025.10.0
+fsspec==2026.1.0
     # via
     #   huggingface-hub
     #   torch
@@ -53,7 +54,7 @@ h11==0.16.0
     # via uvicorn
 hf-xet==1.2.0
     # via huggingface-hub
-huggingface-hub==0.36.0
+huggingface-hub==0.36.1
     # via
     #   tokenizers
     #   transformers
@@ -61,15 +62,15 @@ idna==3.11
     # via
     #   anyio
     #   requests
-importlib-metadata==8.7.0
+importlib-metadata==8.7.1
     # via opentelemetry-api
 jinja2==3.1.6
     # via torch
-jmespath==1.0.1
+jmespath==1.1.0
     # via
     #   boto3
     #   botocore
-joblib==1.5.2
+joblib==1.5.3
     # via
     #   scikit-learn
     #   scikit-optimize
@@ -79,7 +80,7 @@ minio==7.2.15
     # via -r common-requirements.in
 mpmath==1.3.0
     # via sympy
-networkx==3.6
+networkx==3.6.1
     # via torch
 numpy==1.26.2
     # via
@@ -89,7 +90,7 @@ numpy==1.26.2
     #   scikit-optimize
     #   scipy
     #   transformers
-opentelemetry-api==1.37.0
+opentelemetry-api==1.39.1
     # via
     #   -r common-requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -99,41 +100,41 @@ opentelemetry-api==1.37.0
     #   opentelemetry-instrumentation-logging
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-exporter-otlp-proto-common==1.37.0
+opentelemetry-exporter-otlp-proto-common==1.39.1
     # via opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-exporter-otlp-proto-grpc==1.37.0
+opentelemetry-exporter-otlp-proto-grpc==1.39.1
     # via -r common-requirements.in
-opentelemetry-instrumentation==0.58b0
+opentelemetry-instrumentation==0.60b1
     # via
     #   -r common-requirements.in
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
     #   opentelemetry-instrumentation-logging
-opentelemetry-instrumentation-asgi==0.58b0
+opentelemetry-instrumentation-asgi==0.60b1
     # via opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-fastapi==0.58b0
+opentelemetry-instrumentation-fastapi==0.60b1
     # via -r common-requirements.in
-opentelemetry-instrumentation-logging==0.58b0
+opentelemetry-instrumentation-logging==0.60b1
     # via -r common-requirements.in
-opentelemetry-proto==1.37.0
+opentelemetry-proto==1.39.1
     # via
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-sdk==1.37.0
+opentelemetry-sdk==1.39.1
     # via
     #   -r common-requirements.in
     #   opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-semantic-conventions==0.58b0
+opentelemetry-semantic-conventions==0.60b1
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.58b0
+opentelemetry-util-http==0.60b1
     # via
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
-packaging==25.0
+packaging==26.0
     # via
     #   huggingface-hub
     #   opentelemetry-instrumentation
@@ -142,15 +143,16 @@ pandas==1.5.1
     # via -r common-requirements.in
 prometheus-client==0.23.1
     # via -r common-requirements.in
-protobuf==6.33.1
+protobuf==6.33.5
     # via
+    #   -r common-requirements.in
     #   googleapis-common-protos
     #   opentelemetry-proto
 psycopg2-binary==2.9.9
     # via -r common-requirements.in
 pyaml==25.7.0
     # via scikit-optimize
-pycparser==2.23
+pycparser==3.0
     # via cffi
 pycryptodome==3.23.0
     # via minio
@@ -171,9 +173,9 @@ pyyaml==6.0.3
     #   huggingface-hub
     #   pyaml
     #   transformers
-regex==2025.11.3
+regex==2026.1.15
     # via transformers
-requests==2.32.4
+requests==2.32.5
     # via
     #   -r mini-requirements.in
     #   huggingface-hub
@@ -194,8 +196,6 @@ scipy==1.16.3
     #   scikit-optimize
 six==1.17.0
     # via python-dateutil
-sniffio==1.3.1
-    # via anyio
 sqlalchemy==1.4.42
     # via -r common-requirements.in
 starlette==0.49.3
@@ -208,7 +208,7 @@ tokenizers==0.21.4
     # via transformers
 torch==2.8.0
     # via -r torch-cpu-requirements.in
-tqdm==4.67.1
+tqdm==4.67.3
     # via
     #   huggingface-hub
     #   transformers
@@ -229,7 +229,7 @@ typing-extensions==4.15.0
     #   pydantic-core
     #   starlette
     #   torch
-urllib3==2.5.0
+urllib3==2.6.3
     # via
     #   botocore
     #   minio
