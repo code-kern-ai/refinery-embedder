@@ -1,0 +1,86 @@
+---
+description: Rules for middleware and request processing
+globs: ["app.py"]
+alwaysApply: true
+---
+
+# Middleware Guidelines
+
+Middleware handles cross-cutting concerns: database session management. Middleware is defined inline in `app.py`.
+
+## Database Session Management
+
+Sessions are managed automatically by inline middleware in `app.py`. Never create SQLAlchemy sessions directly.
+
+**Middleware pattern:**
+```python
+from submodules.model.business_objects import general
+from fastapi import Request
+
+@app.middleware("http")
+async def handle_db_session(request: Request, call_next):
+    session_token = general.get_ctx_token()
+    request.state.session_token = session_token
+    try:
+        response = await call_next(request)
+    finally:
+        general.remove_and_refresh_session(session_token)
+    return response
+```
+
+## Request State
+
+Middleware sets `request.state` with session token:
+
+```python
+from fastapi import Request
+
+@app.post("/endpoint")
+def my_endpoint(request: Request):
+    session_token = request.state.session_token  # Set by middleware
+    # Use session_token if needed for operations
+```
+
+## Session Management in Controllers
+
+For background operations, manage sessions explicitly:
+
+```python
+from submodules.model.business_objects import general
+
+def prepare_run(project_id: str, embedding_id: str) -> None:
+    session_token = general.get_ctx_token()
+    try:
+        # Operations that need database access
+        t = __prepare_encoding(project_id, embedding_id)
+    finally:
+        general.remove_and_refresh_session(session_token)
+    if t:
+        run_encoding(*t)
+```
+
+## Error Handling
+
+Middleware should not catch exceptions - let them propagate to FastAPI's error handling:
+
+```python
+@app.middleware("http")
+async def handle_db_session(request: Request, call_next):
+    session_token = general.get_ctx_token()
+    request.state.session_token = session_token
+    try:
+        response = await call_next(request)
+    finally:
+        # Always cleanup session, even if exception occurs
+        general.remove_and_refresh_session(session_token)
+    return response
+```
+
+## Best Practices
+
+1. Never create SQLAlchemy sessions directly - use `general.get_ctx_token()` and `general.remove_and_refresh_session()`
+2. Always cleanup resources in `finally` blocks
+3. Use `request.state` to pass session token between middleware and routes if needed
+4. Keep middleware lightweight - only handle session management
+5. For background operations, use `daemon.run_without_db_token()` and manage sessions explicitly
+6. Session cleanup is critical - always use `finally` blocks

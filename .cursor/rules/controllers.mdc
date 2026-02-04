@@ -1,0 +1,155 @@
+---
+description: Rules for controller module and business logic
+globs: ["controller.py"]
+alwaysApply: true
+---
+
+# Controllers Guidelines
+
+The controller module (`controller.py`) contains business logic for embedding operations and orchestrates interactions between routes, submodules, embedders, and external services.
+
+## Import Patterns
+
+```python
+# Submodules
+from submodules.model.business_objects import (
+    attribute,
+    embedding,
+    general,
+    project,
+    record,
+    tokenization,
+    notification,
+    organization,
+)
+from submodules.model import enums, daemon
+from submodules.s3 import controller as s3
+
+# Embedders
+from src.embedders import Transformer, util
+from src.embedders.classification.contextual import (
+    OpenAISentenceEmbedder,
+    HuggingFaceSentenceEmbedder,
+)
+from src.util import request_util
+from src.util.decorator import param_throttle
+from src.util.embedders import get_embedder
+from src.util.notification import send_project_update
+```
+
+## Function Patterns
+
+**Async embedding operations:**
+```python
+from submodules.model import daemon
+from fastapi import status
+
+def manage_encoding_thread(project_id: str, embedding_id: str) -> int:
+    daemon.run_without_db_token(prepare_run, project_id, embedding_id)
+    return status.HTTP_200_OK
+```
+
+**Embedding lifecycle:**
+```python
+def delete_embedding(project_id: str, embedding_id: str) -> int:
+    object_name = f"embedding_tensors_{embedding_id}.csv.bz2"
+    org_id = organization.get_id_by_project_id(project_id)
+    s3.delete_object(org_id, f"{project_id}/{object_name}")
+    request_util.delete_embedding_from_neural_search(embedding_id)
+    json_path = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
+    json_path.unlink(missing_ok=True)
+    return status.HTTP_200_OK
+```
+
+**Embedding state management:**
+```python
+def run_encoding(project_id: str, user_id: str, embedding_id: str, ...) -> int:
+    session_token = general.get_ctx_token()
+    try:
+        # Update embedding state
+        embedding.update_embedding_state_encoding(project_id, embedding_id, with_commit=True)
+        send_project_update(project_id, f"embedding:{embedding_id}:state:{enums.EmbeddingState.ENCODING.value}")
+        
+        # Process batches
+        for pair in generate_batches(...):
+            embedding.create_tensors(project_id, embedding_id, record_ids_batched, tensors, with_commit=True)
+            send_progress_update_throttle(project_id, embedding_id, state, initial_count)
+        
+        # Finalize
+        embedding.update_embedding_state_finished(project_id, embedding_id, with_commit=True)
+    finally:
+        general.remove_and_refresh_session(session_token)
+    return status.HTTP_200_OK
+```
+
+## Business Logic Patterns
+
+**Batch processing:**
+```python
+def generate_batches(
+    project_id: str,
+    record_ids: List[str],
+    embedding_type: str,
+    attribute_values_raw: List[str],
+    embedder: Transformer,
+    attribute_name: str,
+    for_delta: bool = False,
+) -> Iterator[Dict[List[str], List[Any]]]:
+    # Process records in batches using embedder.batch_size
+    # Yield batches of record_ids and embeddings
+    pass
+```
+
+**Session management:**
+```python
+def prepare_run(project_id: str, embedding_id: str) -> None:
+    session_token = general.get_ctx_token()
+    try:
+        t = __prepare_encoding(project_id, embedding_id)
+    finally:
+        general.remove_and_refresh_session(session_token)
+    if t:
+        run_encoding(*t)
+```
+
+**Error handling with notifications:**
+```python
+try:
+    # Embedding operation
+    pass
+except Exception as e:
+    embedding.update_embedding_state_failed(project_id, embedding_id, with_commit=True)
+    send_project_update(project_id, f"embedding:{embedding_id}:state:{enums.EmbeddingState.FAILED.value}")
+    notification.create(
+        project_id,
+        user_id,
+        str(e),
+        enums.Notification.ERROR.value,
+        enums.NotificationType.EMBEDDING_CREATION_FAILED.value,
+        True,
+    )
+    return status.HTTP_500_INTERNAL_SERVER_ERROR
+```
+
+**Throttled progress updates:**
+```python
+@param_throttle(seconds=5)
+def send_progress_update_throttle(
+    project_id: str, embedding_id: str, state: str, initial_count: int
+) -> None:
+    progress = resolve_progress(embedding_id, state, initial_count)
+    send_project_update(project_id, f"embedding:{embedding_id}:progress:{progress}")
+```
+
+## Best Practices
+
+1. Single responsibility per function
+2. Always validate inputs and check embedding existence
+3. Use type hints for all parameters
+4. Use `with_commit=True` when modifying database state
+5. Use submodule business objects, never SQLAlchemy directly
+6. Manage database sessions with `general.get_ctx_token()` and `general.remove_and_refresh_session()`
+7. Use `daemon.run_without_db_token()` for background operations
+8. Update embedding state and send project updates for progress tracking
+9. Clean up resources (delete embedders, call gc.collect()) after operations
+10. Handle errors gracefully with appropriate notifications and state updates

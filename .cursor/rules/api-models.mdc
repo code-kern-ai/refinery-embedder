@@ -1,0 +1,85 @@
+---
+description: Rules for Pydantic models and request/response validation
+globs: ["src/data/data_type.py"]
+alwaysApply: true
+---
+
+# API Models Guidelines
+
+Pydantic models validate request bodies and ensure type safety. Models are defined in `src/data/data_type.py`.
+
+## Model Definition
+
+**Basic structure:**
+```python
+from typing import Dict, List, Any
+from pydantic import BaseModel
+
+class EmbeddingRequest(BaseModel):
+    project_id: str
+    embedding_id: str
+
+class EmbeddingRebuildRequest(BaseModel):
+    # example request structure:
+    # {"<embedding_id>":[{"record_id":"<record_id>","attribute_name":"<attribute_name>","sub_key":<sub_key>}]}
+    # note that sub_key is optional and only for embedding lists relevant
+    # also sub_key is an int but converted to string in the request
+    changes: Dict[str, List[Dict[str, Any]]]
+
+class EmbeddingCalcTensorByPkl(BaseModel):
+    texts: List[str]
+```
+
+## Naming Conventions
+
+- Request models: `EmbeddingRequest`, `EmbeddingRebuildRequest`, `EmbeddingCalcTensorByPkl`
+- Use descriptive names that indicate the operation and data type
+- Use `Request` suffix for request body models
+
+## Usage in Routes
+
+```python
+from src.data import data_type
+
+@app.post("/embed")
+def embed(request: data_type.EmbeddingRequest) -> responses.PlainTextResponse:
+    status_code = controller.manage_encoding_thread(
+        request.project_id, request.embedding_id
+    )
+    return responses.PlainTextResponse(status_code=status_code)
+
+@app.post("/re_embed_records/{project_id}")
+def re_embed_record(
+    project_id: str, 
+    request: data_type.EmbeddingRebuildRequest
+) -> responses.PlainTextResponse:
+    controller.re_embed_records(project_id, request.changes)
+    return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
+```
+
+## Field Validation
+
+```python
+from pydantic import field_validator, Field
+
+class EmbeddingRequest(BaseModel):
+    project_id: str = Field(min_length=1)
+    embedding_id: str = Field(min_length=1)
+    
+    @field_validator('project_id', 'embedding_id')
+    @classmethod
+    def validate_ids(cls, v):
+        if not v or not v.strip():
+            raise ValueError('ID cannot be empty')
+        return v.strip()
+```
+
+## Best Practices
+
+1. Use standard Python types (`str`, `int`, `List`, `Dict`) - Pydantic handles validation
+2. Provide defaults for optional fields using `Optional[Type] = None`
+3. Use descriptive model names that indicate purpose
+4. Document complex nested structures with comments
+5. Use proper type hints for all fields
+6. Keep models focused on request/response data structure
+7. Use `Dict[str, Any]` for flexible nested structures when needed
