@@ -1,0 +1,79 @@
+---
+description: Rules for utility functions and helper modules
+globs: ["src/util/**/*.py"]
+alwaysApply: true
+---
+
+# Utilities Guidelines
+
+Utilities contain reusable, stateless helper functions organized in `src/util/`.
+
+## Common Utilities
+
+**Embedder Factory:**
+```python
+from src.util.embedders import get_embedder
+from submodules.model import enums
+
+embedder = get_embedder(
+    project_id=project_id,
+    embedding_type=enums.EmbeddingType.ON_ATTRIBUTE.value,
+    language_code=iso2_code,
+    platform=platform,
+    model=model,
+    api_token=api_token,
+    additional_data=additional_data,
+)
+```
+
+**Request Utilities (External API Communication):**
+```python
+from src.util import request_util
+
+# Neural search integration
+request_util.post_embedding_to_neural_search(project_id, embedding_id)
+request_util.delete_embedding_from_neural_search(embedding_id)
+
+# Model provider integration
+config_string = request_util.get_model_path(model_name)
+```
+
+**Notifications:**
+```python
+from src.util.notification import send_project_update
+
+# Send project update via websocket
+send_project_update(project_id, f"embedding:{embedding_id}:state:{state}")
+send_project_update(project_id, f"embedding:{embedding_id}:progress:{progress}")
+
+# Global updates
+send_project_update(project_id, message, is_global=True)
+```
+
+**Decorators:**
+```python
+from src.util.decorator import param_throttle
+
+@param_throttle(seconds=5)
+def send_progress_update_throttle(
+    project_id: str, embedding_id: str, state: str, initial_count: int
+) -> None:
+    # Function will only execute once per project_id every 5 seconds
+    pass
+```
+
+## Best Practices
+
+1. Keep utilities stateless and reusable
+2. Use type hints for all functions
+3. Document with docstrings
+4. Single responsibility per function
+5. Avoid side effects when possible (except for external API calls)
+6. Make functions easily testable
+7. Use decorators for cross-cutting concerns like throttling
+
+## Utility vs Controller vs Route
+
+- **Utilities** (`src/util/`): Pure transformations, external API communication, embedder factories, decorators, notification helpers
+- **Controllers** (`controller.py`): Business logic requiring database access, embedding orchestration, state management
+- **Routes** (`app.py`): HTTP handling, input validation, response formatting

@@ -1,0 +1,77 @@
+---
+description: Main guidelines and architecture overview for refinery-embedder
+alwaysApply: true
+---
+
+# Refinery Embedder Guidelines
+
+Embedder service guidelines ensuring consistency across API routes, controllers, middleware, and related code.
+
+## Overview
+
+The `refinery-embedder` is a FastAPI-based microservice that manages the creation of document- and token-level embeddings for the Refinery platform. It handles embedding generation using various transformer models (HuggingFace, OpenAI, Azure, etc.) and manages embedding lifecycle operations including creation, updates, deletion, and tensor calculations.
+
+## Architecture
+
+The embedder follows a simplified layered architecture:
+
+- **FastAPI Routes** (`app.py`): HTTP endpoint definitions and request/response handling
+- **Controller** (`controller.py`): Business logic for embedding operations and orchestration
+- **Middleware** (`app.py`): Inline database session management middleware
+- **Submodules** (`submodules/`): Shared modules for models and S3 operations
+- **Utilities** (`src/util/`): Helper functions for embedders, notifications, request handling, and decorators
+- **Embedders** (`src/embedders/`): Embedding model implementations (classification, extraction, reduction)
+- **Data Models** (`src/data/data_type.py`): Pydantic models for request/response validation
+
+## Guideline Files
+
+- **[submodules.mdc](./submodules.mdc)** - Rules for working with submodules
+- **[fastapi-routes.mdc](./fastapi-routes.mdc)** - Rules for FastAPI route definitions
+- **[controllers.mdc](./controllers.mdc)** - Rules for controller modules and business logic
+- **[middleware.mdc](./middleware.mdc)** - Rules for middleware and request processing
+- **[exceptions.mdc](./exceptions.mdc)** - Rules for exception handling and custom exceptions
+- **[api-models.mdc](./api-models.mdc)** - Rules for Pydantic models and request/response validation
+- **[utilities.mdc](./utilities.mdc)** - Rules for utility functions and helpers
+
+## General Principles
+
+1. **Separation of Concerns**: Routes handle HTTP, controllers contain business logic, submodules handle data access
+2. **Type Safety**: Use type hints consistently, leverage Pydantic for validation
+3. **Consistency**: Follow established naming conventions and patterns
+4. **Security**: Always validate authentication and authorization, sanitize inputs
+5. **Error Handling**: Use appropriate HTTP status codes and consistent error responses
+6. **Submodule Integration**: Always check submodule rules before making changes to submodule code
+
+## Directory Structure
+
+```
+refinery-embedder/
+├── app.py                 # FastAPI application with routes and middleware
+├── controller.py           # Business logic for embedding operations
+├── src/
+│   ├── data/
+│   │   └── data_type.py   # Pydantic models for request validation
+│   ├── embedders/         # Embedding model implementations
+│   │   ├── classification/ # Attribute-level embedders
+│   │   ├── extraction/     # Token-level embedders
+│   │   └── enums.py        # Embedding enums
+│   └── util/               # Utility functions
+│       ├── embedders.py   # Embedder factory functions
+│       ├── request_util.py # External API communication
+│       ├── notification.py # Project update notifications
+│       └── decorator.py   # Throttling decorators
+├── submodules/            # Git submodules
+│   ├── model/             # Database models and business objects
+│   └── s3/                # S3 storage operations
+└── requirements.txt       # Python dependencies
+```
+
+## Quick Reference
+
+**Response Patterns**: Use `responses.JSONResponse` for data responses, `responses.PlainTextResponse` for status responses. Return appropriate HTTP status codes from `fastapi.status`.
+
+**Database**: Sessions managed by inline middleware in `app.py`. Use submodule business objects (`submodules.model.business_objects`), never create SQLAlchemy sessions directly.
+
+**Embedding Operations**: Use `daemon.run_without_db_token()` for async embedding operations. Manage embedding state through `embedding.update_embedding_state_*` functions.
+
+**Submodules**: Always check `submodules/{name}/.cursor/rules/` before modifying submodule code.

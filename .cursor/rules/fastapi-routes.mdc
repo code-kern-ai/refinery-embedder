@@ -1,0 +1,120 @@
+---
+description: Rules for FastAPI route definitions and HTTP handling
+globs: ["app.py"]
+alwaysApply: true
+---
+
+# FastAPI Routes Guidelines
+
+Routes handle HTTP request/response logic. Keep routes thin - validate input, call controllers, format responses.
+
+## Route Structure
+
+Routes are defined directly in `app.py`:
+
+```python
+from fastapi import FastAPI, responses, status, Request
+from src.data import data_type
+import controller
+
+app = FastAPI(title="refinery-embedder")
+
+@app.post("/embed")
+def embed(request: data_type.EmbeddingRequest) -> responses.PlainTextResponse:
+    status_code = controller.manage_encoding_thread(
+        request.project_id, request.embedding_id
+    )
+    return responses.PlainTextResponse(status_code=status_code)
+```
+
+## Response Patterns
+
+```python
+# JSON response with data
+return responses.JSONResponse(
+    status_code=status.HTTP_200_OK, 
+    content={"tensor": tensor}
+)
+
+# Plain text response
+return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
+
+# Error responses
+return responses.PlainTextResponse(
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+    content="Error message"
+)
+```
+
+## Request Parameters
+
+```python
+# Path parameters
+@app.delete("/delete/{project_id}/{embedding_id}")
+def delete_embedding(
+    project_id: str, 
+    embedding_id: str
+) -> responses.PlainTextResponse:
+    pass
+
+# Request body with Pydantic models
+from src.data import data_type
+
+@app.post("/re_embed_records/{project_id}")
+def re_embed_record(
+    project_id: str, 
+    request: data_type.EmbeddingRebuildRequest
+) -> responses.PlainTextResponse:
+    controller.re_embed_records(project_id, request.changes)
+    return responses.PlainTextResponse(status_code=status.HTTP_200_OK)
+```
+
+## Health Check Pattern
+
+```python
+@app.get("/healthcheck")
+def healthcheck() -> responses.PlainTextResponse:
+    text = ""
+    status_code = status.HTTP_200_OK
+    database_test = general.test_database_connection()
+    if not database_test.get("success"):
+        error_name = database_test.get("error")
+        text += f"database_error:{error_name}:"
+        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    if not text:
+        text = "OK"
+    return responses.PlainTextResponse(text, status_code=status_code)
+```
+
+## Error Handling
+
+```python
+from fastapi import status, responses
+
+@app.post("/calc-tensor-by-pkl/{project_id}/{embedding_id}")
+def calc_tensor(
+    project_id: str, 
+    embedding_id: str, 
+    request: data_type.EmbeddingCalcTensorByPkl
+) -> Union[responses.JSONResponse, responses.PlainTextResponse]:
+    if tensor := controller.calc_tensors(project_id, embedding_id, request.texts):
+        return responses.JSONResponse(
+            status_code=status.HTTP_200_OK, 
+            content={"tensor": tensor}
+        )
+    return responses.PlainTextResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content="Error while calculating tensor",
+    )
+```
+
+## Best Practices
+
+1. Keep routes thin - delegate to controllers
+2. Use Pydantic models from `src.data.data_type` for request validation
+3. Return appropriate `responses.JSONResponse` or `responses.PlainTextResponse`
+4. Use proper HTTP status codes from `fastapi.status`
+5. Use type hints for all parameters and return types
+6. Handle errors gracefully with informative error messages
+7. Use kebab-case for route paths: `/calc-tensor-by-pkl`, `/re_embed_records`
+8. For async operations, use `daemon.run_without_db_token()` to run in background
