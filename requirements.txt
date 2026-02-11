@@ -250,7 +250,7 @@ packaging==26.0
     #   weasel
 pandas==1.5.1
     # via -r requirements/torch-cpu-requirements.txt
-pillow==12.1.0
+pillow==12.1.1
     # via
     #   sentence-transformers
     #   torchvision
@@ -387,12 +387,12 @@ tokenizers==0.21.4
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   transformers
-torch==2.8.0
+torch==2.8.0+cpu
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   sentence-transformers
     #   torchvision
-torchvision==0.23.0
+torchvision==0.23.0+cpu
     # via -r requirements/requirements.in
 tqdm==4.67.3
     # via

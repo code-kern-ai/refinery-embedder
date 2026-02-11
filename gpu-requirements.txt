@@ -287,7 +287,7 @@ packaging==26.0
     #   weasel
 pandas==1.5.1
     # via -r requirements/torch-cuda-requirements.txt
-pillow==12.1.0
+pillow==12.1.1
     # via
     #   sentence-transformers
     #   torchvision
