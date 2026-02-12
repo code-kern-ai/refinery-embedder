@@ -1,5 +1,6 @@
 -r torch-cpu-requirements.txt
+openai==1.97.1
+pillow==12.1.1 # override to avoid security vulnerability
+sentence-transformers==5.0.0 # last version with default_prompt_name & pooling_mode_weightedmean_tokens # higher only possible with embedders/gates change
 spacy==3.7.5
 torchvision==0.23.0
-sentence-transformers==5.0.0 # last version with default_prompt_name & pooling_mode_weightedmean_tokens # higher only possible with embedders/gates change
-openai==1.97.1
