@@ -3,13 +3,7 @@ from typing import Union, List, Generator
 import numpy as np
 import pickle
 from src.embedders import PCAReducer, util
-
-# Embedder imports are used by eval(Embedder) in load methods
-from src.embedders.classification.contextual import (  # noqa: F401
-    OpenAISentenceEmbedder,
-    HuggingFaceSentenceEmbedder,
-    PrivatemodeAISentenceEmbedder,
-)
+from src.util.safe_embedder_cls import get_embedder_class
 
 
 class PCASentenceReducer(PCAReducer):
@@ -73,7 +67,7 @@ class PCASentenceReducer(PCAReducer):
         reducer = pickle.loads(
             embedder["reducer_pkl_bytes"].encode("latin-1")
         )  # Decode to latin1 to avoid binary issues in JSON
-        Embedder = eval(embedder["embedder"]["cls"])
+        Embedder = get_embedder_class(embedder["embedder"]["cls"])
         return PCASentenceReducer(
             embedder=Embedder.load(embedder["embedder"]),
             reducer=reducer,

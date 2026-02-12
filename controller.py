@@ -18,7 +18,7 @@ from openai import APIConnectionError
 
 from src.embedders import Transformer, util
 
-# Embedder imports are used by eval(Embedder) in __setup_tmp_embedder
+# Embedder classes are resolved by get_embedder_class() when loading serialized configs
 from src.embedders.classification.contextual import (  # noqa: F401
     OpenAISentenceEmbedder,
     HuggingFaceSentenceEmbedder,
@@ -29,6 +29,7 @@ from src.util import request_util
 from src.util.decorator import param_throttle
 from src.util.embedders import get_embedder
 from src.util.notification import send_project_update, embedding_warning_templates
+from src.util.safe_embedder_cls import get_embedder_class
 
 from submodules.s3 import controller as s3
 from submodules.model import enums, daemon
@@ -658,7 +659,7 @@ def __setup_tmp_embedder(project_id: str, embedder_id: str) -> Transformer:
 def __load_embedder_by_path(embedder_path: str) -> Transformer:
     with open(embedder_path, "r") as f:
         embedder = json.load(f)
-        Embedder = eval(embedder["cls"])
+        Embedder = get_embedder_class(embedder["cls"])
         return Embedder.load(embedder)
 
 
