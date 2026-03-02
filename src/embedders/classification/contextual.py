@@ -72,6 +72,7 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         api_base: Optional[str] = None,
         api_type: Optional[str] = None,
         api_version: Optional[str] = None,
+        hf_model_name: str = "intfloat/multilingual-e5-large",
     ):
         """
         Embeds documents using large language models from https://openai.com or https://azure.microsoft.com
@@ -137,6 +138,9 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
             )
         else:
             self.openai_client = OpenAI(api_key=self.openai_api_key)
+
+        # for trimming the length of the text if > 32000 tokens
+        self._auto_tokenizer = AutoTokenizer.from_pretrained(hf_model_name)
 
     def _encode(
         self, documents: List[Union[str, Doc]], fit_model: bool
@@ -210,6 +214,17 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
         export_file.parent.mkdir(parents=True, exist_ok=True)
         util.write_json(self.to_json(), export_file, indent=2)
+
+    def _trim_length(self, text: str, max_length: int = 8192) -> str:
+        tokens = self._auto_tokenizer(
+            text,
+            truncation=True,
+            max_length=max_length,
+            return_tensors=None,  # No tensors needed for just truncating
+        )
+        return self._auto_tokenizer.decode(
+            tokens["input_ids"], skip_special_tokens=True
+        )
 
 
 class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
