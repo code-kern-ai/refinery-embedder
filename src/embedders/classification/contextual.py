@@ -181,8 +181,6 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                                     time.sleep(10.05)
                                 else:
                                     time.sleep(1)
-                            except Exception as e:
-                                print("Exception", e, flush=True)
                         embeddings += [entry.embedding for entry in response.data]
                 else:
                     response = self.openai_client.embeddings.create(
@@ -229,6 +227,7 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         tokens = self._encoding.encode(text)
         if len(tokens) <= max_length:
             return text
+        print(f"WARNING:  trimmed from {len(tokens)} to {max_length}", flush=True)
         return self._encoding.decode(tokens[:max_length])
 
 
