@@ -154,6 +154,7 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
                     [
                         self._trim_length(doc.replace("\n", " "))
                         for doc in documents_batch
+                        if doc
                     ],
                 )
             )
@@ -227,7 +228,7 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         tokens = self._encoding.encode(text)
         if len(tokens) <= max_length:
             return text
-        print(f"WARNING:  trimmed from {len(tokens)} to {max_length}", flush=True)
+        print(f"WARNING: trimmed from {len(tokens)} to {max_length}", flush=True)
         return self._encoding.decode(tokens[:max_length])
 
 
