@@ -29,10 +29,10 @@ echo -ne 'building container...'
 docker build -t refinery-embedder-dev -f dev.Dockerfile .
 echo -ne '\t\t [done]\n'
 
-MODEL_DIR=${PWD%/*}/dev-setup/model-data/
+MODEL_DIR=${PWD%/*}/dev-setup/etc/model-data/
 if [ ! -d "$MODEL_DIR" ] 
 then
-    MODEL_DIR=${PWD%/*/*}/dev-setup/model-data/
+    MODEL_DIR=${PWD%/*/*}/dev-setup/etc/model-data/
     if [ ! -d "$MODEL_DIR" ] 
     then
         # to include volume for local development, use the dev-setup model data folder:  
@@ -43,10 +43,10 @@ then
     fi
 fi
 
-INFERENCE_DIR=${PWD%/*}/dev-setup/inference/
+INFERENCE_DIR=${PWD%/*}/dev-setup/etc/inference/
 if [ ! -d "$INFERENCE_DIR" ] 
 then
-    INFERENCE_DIR=${PWD%/*/*}/dev-setup/inference/
+    INFERENCE_DIR=${PWD%/*/*}/dev-setup/etc/inference/
     if [ ! -d "$INFERENCE_DIR" ] 
     then
         # to include volume for local development, use the dev-setup inference folder:  

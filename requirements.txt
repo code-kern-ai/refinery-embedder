@@ -311,12 +311,14 @@ pyyaml==6.0.3
 regex==2026.1.15
     # via
     #   -r requirements/torch-cpu-requirements.txt
+    #   tiktoken
     #   transformers
 requests==2.32.5
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
     #   spacy
+    #   tiktoken
     #   transformers
     #   weasel
 rich==14.3.2
@@ -382,6 +384,8 @@ threadpoolctl==3.6.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   scikit-learn
+tiktoken==0.12.0
+    # via -r requirements/requirements.in
 tokenizers==0.21.4
     # via
     #   -r requirements/torch-cpu-requirements.txt

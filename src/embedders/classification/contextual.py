@@ -9,6 +9,7 @@ from openai import OpenAI, AzureOpenAI
 from openai import AuthenticationError, RateLimitError
 import time
 import os
+import tiktoken
 from transformers import AutoTokenizer
 
 
@@ -138,13 +139,25 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         else:
             self.openai_client = OpenAI(api_key=self.openai_api_key)
 
+        try:
+            self._encoding = tiktoken.encoding_for_model("text-embedding-3-large")
+        except KeyError:
+            self._encoding = tiktoken.get_encoding("cl100k_base")
+
     def _encode(
         self, documents: List[Union[str, Doc]], fit_model: bool
     ) -> Generator[List[List[float]], None, None]:
         for documents_batch in util.batch(documents, self.batch_size):
-            documents_batch = [
-                doc.replace("\n", " ") for doc in filter(None, documents_batch)
-            ]
+            documents_batch = list(
+                filter(
+                    None,
+                    [
+                        self._trim_length(doc.replace("\n", " "))
+                        for doc in documents_batch
+                        if doc
+                    ],
+                )
+            )
             try:
                 if self.use_azure:
                     embeddings = []
@@ -210,6 +223,13 @@ class OpenAISentenceEmbedder(SentenceEmbedder):
         export_file = util.INFERENCE_DIR / project_id / f"embedder-{embedding_id}.json"
         export_file.parent.mkdir(parents=True, exist_ok=True)
         util.write_json(self.to_json(), export_file, indent=2)
+
+    def _trim_length(self, text: str, max_length: int = 8191) -> str:
+        tokens = self._encoding.encode(text)
+        if len(tokens) <= max_length:
+            return text
+        print(f"WARNING: trimmed from {len(tokens)} to {max_length}", flush=True)
+        return self._encoding.decode(tokens[:max_length])
 
 
 class PrivatemodeAISentenceEmbedder(SentenceEmbedder):
