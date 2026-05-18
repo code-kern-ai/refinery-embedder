@@ -28,7 +28,7 @@ botocore==1.39.17
     # via
     #   boto3
     #   s3transfer
-certifi==2026.2.25
+certifi==2026.4.22
     # via
     #   httpcore
     #   httpx
@@ -38,7 +38,7 @@ cffi==2.0.0
     # via argon2-cffi-bindings
 charset-normalizer==3.4.7
     # via requests
-click==8.3.2
+click==8.4.0
     # via
     #   typer
     #   uvicorn
@@ -49,11 +49,11 @@ filelock==3.20.3
     #   -r torch-cuda-requirements.in
     #   huggingface-hub
     #   torch
-fsspec==2026.3.0
+fsspec==2026.4.0
     # via
     #   huggingface-hub
     #   torch
-googleapis-common-protos==1.74.0
+googleapis-common-protos==1.75.0
     # via opentelemetry-exporter-otlp-proto-grpc
 grpcio==1.80.0
     # via opentelemetry-exporter-otlp-proto-grpc
@@ -61,17 +61,17 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hf-xet==1.4.3
+hf-xet==1.5.0
     # via huggingface-hub
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via huggingface-hub
-huggingface-hub==1.9.1
+huggingface-hub==1.15.0
     # via
     #   tokenizers
     #   transformers
-idna==3.11
+idna==3.15
     # via
     #   anyio
     #   httpx
@@ -88,7 +88,7 @@ joblib==1.5.3
     # via
     #   scikit-learn
     #   scikit-optimize
-markdown-it-py==4.0.0
+markdown-it-py==4.2.0
     # via rich
 markupsafe==3.0.3
     # via jinja2
@@ -152,7 +152,7 @@ opentelemetry-util-http==0.60b1
     # via
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
-packaging==26.0
+packaging==26.2
     # via
     #   huggingface-hub
     #   opentelemetry-instrumentation
@@ -186,18 +186,18 @@ python-dateutil==2.9.0.post0
     # via
     #   botocore
     #   pandas
-pytz==2026.1.post1
+pytz==2026.2
     # via pandas
 pyyaml==6.0.3
     # via
     #   huggingface-hub
     #   pyaml
     #   transformers
-regex==2026.4.4
+regex==2026.5.9
     # via transformers
-requests==2.33.0
+requests==2.34.2
     # via -r mini-requirements.in
-rich==14.3.3
+rich==15.0.0
     # via typer
 s3transfer==0.13.1
     # via boto3
@@ -235,7 +235,7 @@ tqdm==4.67.3
     #   transformers
 transformers==5.5.0
     # via -r torch-cuda-requirements.in
-typer==0.24.1
+typer==0.25.1
     # via
     #   huggingface-hub
     #   transformers
@@ -257,7 +257,7 @@ typing-extensions==4.15.0
     #   typing-inspection
 typing-inspection==0.4.2
     # via pydantic
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   botocore
     #   minio
@@ -266,5 +266,5 @@ uvicorn==0.35.0
     # via -r mini-requirements.in
 wrapt==1.17.3
     # via opentelemetry-instrumentation
-zipp==3.23.0
+zipp==3.23.1
     # via importlib-metadata
