@@ -47,7 +47,7 @@ catalogue==2.0.10
     #   spacy
     #   srsly
     #   thinc
-certifi==2026.2.25
+certifi==2026.4.22
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   httpcore
@@ -62,12 +62,12 @@ charset-normalizer==3.4.7
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   requests
-click==8.3.2
+click==8.4.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   typer
     #   uvicorn
-cloudpathlib==0.23.0
+cloudpathlib==0.24.0
     # via weasel
 confection==1.3.3
     # via
@@ -88,15 +88,17 @@ filelock==3.20.3
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
     #   torch
-fsspec==2026.3.0
+fsspec==2026.4.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
     #   torch
-googleapis-common-protos==1.74.0
+googleapis-common-protos==1.75.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   opentelemetry-exporter-otlp-proto-grpc
+greenlet==3.5.0
+    # via sqlalchemy
 grpcio==1.80.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
@@ -106,7 +108,7 @@ h11==0.16.0
     #   -r requirements/torch-cpu-requirements.txt
     #   httpcore
     #   uvicorn
-hf-xet==1.4.3
+hf-xet==1.5.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
@@ -120,13 +122,13 @@ httpx==0.28.1
     #   huggingface-hub
     #   openai
     #   weasel
-huggingface-hub==1.9.1
+huggingface-hub==1.15.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   sentence-transformers
     #   tokenizers
     #   transformers
-idna==3.11
+idna==3.15
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   anyio
@@ -141,7 +143,7 @@ jinja2==3.1.6
     #   -r requirements/torch-cpu-requirements.txt
     #   spacy
     #   torch
-jiter==0.13.0
+jiter==0.14.0
     # via openai
 jmespath==1.1.0
     # via
@@ -153,7 +155,7 @@ joblib==1.5.3
     #   -r requirements/torch-cpu-requirements.txt
     #   scikit-learn
     #   scikit-optimize
-markdown-it-py==4.0.0
+markdown-it-py==4.2.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   rich
@@ -246,7 +248,7 @@ opentelemetry-util-http==0.60b1
     #   -r requirements/torch-cpu-requirements.txt
     #   opentelemetry-instrumentation-asgi
     #   opentelemetry-instrumentation-fastapi
-packaging==26.0
+packaging==26.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
@@ -305,7 +307,7 @@ python-dateutil==2.9.0.post0
     #   -r requirements/torch-cpu-requirements.txt
     #   botocore
     #   pandas
-pytz==2026.1.post1
+pytz==2026.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   pandas
@@ -315,17 +317,17 @@ pyyaml==6.0.3
     #   huggingface-hub
     #   pyaml
     #   transformers
-regex==2026.4.4
+regex==2026.5.9
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   tiktoken
     #   transformers
-requests==2.33.0
+requests==2.34.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   spacy
     #   tiktoken
-rich==14.3.3
+rich==15.0.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   typer
@@ -360,7 +362,7 @@ six==1.17.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   python-dateutil
-smart-open==7.5.1
+smart-open==7.6.1
     # via weasel
 sniffio==1.3.1
     # via openai
@@ -391,18 +393,18 @@ threadpoolctl==3.6.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   scikit-learn
-tiktoken==0.12.0
+tiktoken==0.13.0
     # via -r requirements/requirements.in
 tokenizers==0.22.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   transformers
-torch==2.8.0
+torch==2.8.0+cpu
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   sentence-transformers
     #   torchvision
-torchvision==0.23.0
+torchvision==0.23.0+cpu
     # via -r requirements/requirements.in
 tqdm==4.67.3
     # via
@@ -416,7 +418,7 @@ transformers==5.5.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   sentence-transformers
-typer==0.24.1
+typer==0.25.1
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   huggingface-hub
@@ -446,7 +448,7 @@ typing-inspection==0.4.2
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   pydantic
-urllib3==2.6.3
+urllib3==2.7.0
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   botocore
@@ -466,7 +468,7 @@ wrapt==1.17.3
     #   -r requirements/torch-cpu-requirements.txt
     #   opentelemetry-instrumentation
     #   smart-open
-zipp==3.23.0
+zipp==3.23.1
     # via
     #   -r requirements/torch-cpu-requirements.txt
     #   importlib-metadata
