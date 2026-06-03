@@ -1,19 +1,26 @@
-ARG PARENT_IMAGE=kernai/refinery-parent-images:v2.6.0-torch-cpu
+ARG PARENT_IMAGE=registry.dev.kern.ai/code-kern-ai/refinery-parent-images:hardened-images-torch-cpu
+ARG DHI_PYTHON_BUILD=dhi.io/python:3.11-debian12-dev
 
-FROM ${PARENT_IMAGE} AS builder
+FROM ${PARENT_IMAGE} AS venv-source
+
+FROM ${DHI_PYTHON_BUILD} AS builder
 
 ENV VENV_PATH=/opt/venv
 ENV PATH="${VENV_PATH}/bin:${PATH}"
+ENV HF_HOME=/tmp/huggingface
+ENV TRANSFORMERS_CACHE=/tmp/huggingface/transformers
+ENV SENTENCE_TRANSFORMERS_HOME=/tmp/sentence-transformers
 
 WORKDIR /program
 
-USER root
-
-RUN if [ ! -d "${VENV_PATH}" ]; then python -m venv "${VENV_PATH}"; fi
+COPY --from=venv-source ${VENV_PATH} ${VENV_PATH}
 
 COPY requirements.txt .
 
 RUN pip3 install --no-cache-dir -r requirements.txt
+
+RUN mkdir -p /inference "${HF_HOME}" "${TRANSFORMERS_CACHE}" "${SENTENCE_TRANSFORMERS_HOME}" && \
+    chown -R 65532:65532 /inference "${HF_HOME}" "${SENTENCE_TRANSFORMERS_HOME}"
 
 COPY . .
 
@@ -27,14 +34,12 @@ ENV SENTENCE_TRANSFORMERS_HOME=/tmp/sentence-transformers
 
 WORKDIR /program
 
-USER root
-
-RUN mkdir -p /inference "${HF_HOME}" "${TRANSFORMERS_CACHE}" "${SENTENCE_TRANSFORMERS_HOME}" && \
-    chown -R 65532:65532 /inference "${HF_HOME}" "${SENTENCE_TRANSFORMERS_HOME}"
-
 COPY --from=builder --chown=65532:65532 ${VENV_PATH} ${VENV_PATH}
+COPY --from=builder --chown=65532:65532 /inference /inference
+COPY --from=builder --chown=65532:65532 /tmp/huggingface /tmp/huggingface
+COPY --from=builder --chown=65532:65532 /tmp/sentence-transformers /tmp/sentence-transformers
 COPY --from=builder --chown=65532:65532 /program /program
 
-USER 65532:65532
+USER nonroot
 
 CMD ["/opt/venv/bin/uvicorn", "--host", "0.0.0.0", "--port", "80", "app:app"]
