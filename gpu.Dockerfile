@@ -35,6 +35,6 @@ RUN mkdir -p /inference "${HF_HOME}" "${TRANSFORMERS_CACHE}" "${SENTENCE_TRANSFO
 COPY --from=builder --chown=65532:65532 ${VENV_PATH} ${VENV_PATH}
 COPY --from=builder --chown=65532:65532 /program /program
 
-USER 65532:65532
+USER nonroot
 
 CMD ["/opt/venv/bin/uvicorn", "--host", "0.0.0.0", "--port", "80", "app:app"]
