@@ -27,6 +27,7 @@ from src.embedders.classification.contextual import (  # noqa: F401
 from src.embedders.classification.reduce import PCASentenceReducer  # noqa: F401
 from src.util import request_util
 from src.util.decorator import param_throttle
+from src.util.debug_trace import debug_log
 from src.util.embedders import get_embedder
 from src.util.notification import send_project_update, embedding_warning_templates
 from src.util.safe_embedder_cls import get_embedder_class
@@ -120,25 +121,95 @@ def get_docbins(
     return result_list
 
 
+def _prepare_run_traced(project_id: str, embedding_id: str) -> None:
+    try:
+        prepare_run(project_id, embedding_id)
+    except Exception as e:
+        # region agent log
+        debug_log(
+            "controller.py:_prepare_run_traced",
+            "prepare_run raised before daemon wrapper",
+            {
+                "project_id": project_id,
+                "embedding_id": embedding_id,
+                "error_type": type(e).__name__,
+                "error": str(e),
+            },
+            "H4",
+        )
+        # endregion
+        raise
+    finally:
+        # region agent log
+        debug_log(
+            "controller.py:_prepare_run_traced",
+            "prepare_run thread finished",
+            {"project_id": project_id, "embedding_id": embedding_id},
+            "H2",
+        )
+        # endregion
+
+
 def manage_encoding_thread(project_id: str, embedding_id: str) -> int:
-    daemon.run_without_db_token(prepare_run, project_id, embedding_id)
+    # region agent log
+    debug_log(
+        "controller.py:manage_encoding_thread",
+        "spawning background prepare_run thread",
+        {"project_id": project_id, "embedding_id": embedding_id},
+        "H2",
+    )
+    # endregion
+    daemon.run_without_db_token(_prepare_run_traced, project_id, embedding_id)
     return status.HTTP_200_OK
 
 
 def prepare_run(project_id: str, embedding_id: str) -> None:
+    # region agent log
+    debug_log(
+        "controller.py:prepare_run",
+        "background thread started",
+        {"project_id": project_id, "embedding_id": embedding_id, "pid": os.getpid()},
+        "H2",
+    )
+    # endregion
     session_token = general.get_ctx_token()
     t = None
     try:
         t = __prepare_encoding(project_id, embedding_id)
     finally:
         general.remove_and_refresh_session(session_token)
+    # region agent log
+    debug_log(
+        "controller.py:prepare_run",
+        "prepare_run finished __prepare_encoding",
+        {"project_id": project_id, "embedding_id": embedding_id, "has_tuple": t is not None},
+        "H2",
+    )
+    # endregion
     if t:
         run_encoding(*t)
+    else:
+        # region agent log
+        debug_log(
+            "controller.py:prepare_run",
+            "run_encoding skipped because __prepare_encoding returned None",
+            {"project_id": project_id, "embedding_id": embedding_id},
+            "H2",
+        )
+        # endregion
 
 
 def __prepare_encoding(project_id: str, embedding_id: str) -> None:
     embedding_item = embedding.get(project_id, embedding_id)
     if not embedding_item:
+        # region agent log
+        debug_log(
+            "controller.py:__prepare_encoding",
+            "embedding not found, aborting",
+            {"project_id": project_id, "embedding_id": embedding_id},
+            "H2",
+        )
+        # endregion
         return
     attribute_item = attribute.get(project_id, embedding_item.attribute_id)
     attribute_name = attribute_item.name
@@ -249,6 +320,7 @@ def run_encoding(
     )
     send_project_update(project_id, f"notification_created:{user_id}", True)
     iso2_code = project.get_blank_tokenizer_from_project(project_id)
+    config_string = None
     try:
         if platform == "huggingface":
             if not __is_embedders_internal_model(model):
@@ -257,6 +329,23 @@ def run_encoding(
                     config_string = model
         else:
             config_string = model
+
+        # region agent log
+        debug_log(
+            "controller.py:run_encoding",
+            "about to initialize embedder",
+            {
+                "project_id": project_id,
+                "embedding_id": embedding_id,
+                "platform": platform,
+                "model": model,
+                "config_string": config_string,
+                "is_delta": is_delta,
+                "embedding_type": embedding_type,
+            },
+            "H3",
+        )
+        # endregion
 
         if is_delta:
             embedder = __setup_tmp_embedder(project_id, embedding_id)
@@ -275,7 +364,33 @@ def run_encoding(
             raise Exception(
                 f"couldn't find matching embedder for requested embedding with type {embedding_type} model {model} and platform {platform}"
             )
+
+        # region agent log
+        debug_log(
+            "controller.py:run_encoding",
+            "embedder initialized successfully",
+            {
+                "project_id": project_id,
+                "embedding_id": embedding_id,
+                "embedder_cls": type(embedder).__name__,
+            },
+            "H3",
+        )
+        # endregion
     except Exception as e:
+        # region agent log
+        debug_log(
+            "controller.py:run_encoding",
+            "embedder initialization failed",
+            {
+                "project_id": project_id,
+                "embedding_id": embedding_id,
+                "error_type": type(e).__name__,
+                "error": str(e),
+            },
+            "H4",
+        )
+        # endregion
         print(traceback.format_exc(), flush=True)
         embedding.update_embedding_state_failed(
             project_id,
@@ -503,6 +618,14 @@ def run_encoding(
         send_project_update(project_id, f"notification_created:{user_id}", True)
     general.commit()
     general.remove_and_refresh_session(session_token)
+    # region agent log
+    debug_log(
+        "controller.py:run_encoding",
+        "run_encoding completed",
+        {"project_id": project_id, "embedding_id": embedding_id},
+        "H2",
+    )
+    # endregion
     return status.HTTP_200_OK
 
 
