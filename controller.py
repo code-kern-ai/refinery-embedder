@@ -127,7 +127,6 @@ def manage_encoding_thread(project_id: str, embedding_id: str) -> int:
 
 def prepare_run(project_id: str, embedding_id: str) -> None:
     session_token = general.get_ctx_token()
-    t = None
     try:
         t = __prepare_encoding(project_id, embedding_id)
     finally:
@@ -249,14 +248,21 @@ def run_encoding(
     )
     send_project_update(project_id, f"notification_created:{user_id}", True)
     iso2_code = project.get_blank_tokenizer_from_project(project_id)
+    config_string = None
     try:
-        if platform == "huggingface":
+        if platform == enums.EmbeddingPlatform.HUGGINGFACE.value:
             if not __is_embedders_internal_model(model):
                 config_string = request_util.get_model_path(model)
                 if isinstance(config_string, dict):
                     config_string = model
         else:
             config_string = model
+
+        model_for_embedder = (
+            config_string
+            if platform == enums.EmbeddingPlatform.HUGGINGFACE.value and config_string
+            else model
+        )
 
         if is_delta:
             embedder = __setup_tmp_embedder(project_id, embedding_id)
@@ -266,7 +272,7 @@ def run_encoding(
                 embedding_type,
                 iso2_code,
                 platform,
-                model,
+                model_for_embedder,
                 api_token,
                 additional_data,
             )
@@ -275,6 +281,7 @@ def run_encoding(
             raise Exception(
                 f"couldn't find matching embedder for requested embedding with type {embedding_type} model {model} and platform {platform}"
             )
+
     except Exception as e:
         print(traceback.format_exc(), flush=True)
         embedding.update_embedding_state_failed(
@@ -370,6 +377,7 @@ def run_encoding(
                 enums.EmbeddingState.ENCODING.value,
                 initial_count,
             )
+            chunk += 1
     except APIConnectionError as e:
         embedding.update_embedding_state_failed(
             project_id,
@@ -503,6 +511,9 @@ def run_encoding(
         send_project_update(project_id, f"notification_created:{user_id}", True)
     general.commit()
     general.remove_and_refresh_session(session_token)
+    del embedder
+    time.sleep(0.1)
+    gc.collect()
     return status.HTTP_200_OK
 
 

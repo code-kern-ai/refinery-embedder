@@ -1,9 +1,9 @@
 from fastapi import FastAPI, responses, status, Request
 from typing import Union
 
-import torch
 import logging
 import os
+import torch
 
 from src.util import request_util
 from src.data import data_type
@@ -16,6 +16,7 @@ from submodules.model import session, telemetry
 OTLP_GRPC_ENDPOINT = os.getenv("OTLP_GRPC_ENDPOINT", "tempo:4317")
 
 app_name = "refinery-embedder"
+
 app = FastAPI(title=app_name)
 
 if telemetry.ENABLE_TELEMETRY:
