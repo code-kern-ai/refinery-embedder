@@ -124,7 +124,7 @@ def get_docbins(
 def _prepare_run_traced(project_id: str, embedding_id: str) -> None:
     try:
         prepare_run(project_id, embedding_id)
-    except Exception as e:
+    except BaseException as e:
         # region agent log
         debug_log(
             "controller.py:_prepare_run_traced",
@@ -541,6 +541,7 @@ def run_encoding(
                 enums.EmbeddingState.ENCODING.value,
                 initial_count,
             )
+            chunk += 1
     except APIConnectionError as e:
         embedding.update_embedding_state_failed(
             project_id,
@@ -649,11 +650,51 @@ def run_encoding(
             send_project_update(project_id, f"notification_created:{user_id}", True)
 
         if embedding_type == enums.EmbeddingType.ON_ATTRIBUTE.value:
+            # region agent log
+            debug_log(
+                "controller.py:run_encoding",
+                "before post_embedding_to_neural_search",
+                {"project_id": project_id, "embedding_id": embedding_id},
+                "H139b",
+            )
+            # endregion
             request_util.post_embedding_to_neural_search(project_id, embedding_id)
+            # region agent log
+            debug_log(
+                "controller.py:run_encoding",
+                "after post_embedding_to_neural_search",
+                {"project_id": project_id, "embedding_id": embedding_id},
+                "H139b",
+            )
+            # endregion
 
         # now always since otherwise record edit wouldn't work for embedded columns
+        # region agent log
+        debug_log(
+            "controller.py:run_encoding",
+            "before embedder.dump",
+            {"project_id": project_id, "embedding_id": embedding_id},
+            "H139b",
+        )
+        # endregion
         embedder.dump(project_id, embedding_id)
+        # region agent log
+        debug_log(
+            "controller.py:run_encoding",
+            "after embedder.dump",
+            {"project_id": project_id, "embedding_id": embedding_id},
+            "H139b",
+        )
+        # endregion
         upload_embedding_as_file(project_id, embedding_id)
+        # region agent log
+        debug_log(
+            "controller.py:run_encoding",
+            "after upload_embedding_as_file",
+            {"project_id": project_id, "embedding_id": embedding_id},
+            "H139b",
+        )
+        # endregion
         embedding.update_embedding_state_finished(
             project_id,
             embedding_id,
@@ -674,6 +715,29 @@ def run_encoding(
         send_project_update(project_id, f"notification_created:{user_id}", True)
     general.commit()
     general.remove_and_refresh_session(session_token)
+    # region agent log
+    debug_log(
+        "controller.py:run_encoding",
+        "before embedder teardown",
+        {
+            "project_id": project_id,
+            "embedding_id": embedding_id,
+            "embedder_cls": type(embedder).__name__,
+        },
+        "H139a",
+    )
+    # endregion
+    del embedder
+    time.sleep(0.1)
+    gc.collect()
+    # region agent log
+    debug_log(
+        "controller.py:run_encoding",
+        "after embedder teardown gc.collect",
+        {"project_id": project_id, "embedding_id": embedding_id},
+        "H139a",
+    )
+    # endregion
     # region agent log
     debug_log(
         "controller.py:run_encoding",

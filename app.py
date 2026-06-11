@@ -3,9 +3,11 @@ from fastapi import FastAPI, responses, status, Request
 from typing import AsyncGenerator, Union
 
 import atexit
+import faulthandler
 import logging
 import os
 import signal
+import sys
 import torch
 
 from src.util import request_util
@@ -71,6 +73,8 @@ def _on_process_exit() -> None:
 signal.signal(signal.SIGTERM, _on_shutdown_signal)
 signal.signal(signal.SIGINT, _on_shutdown_signal)
 atexit.register(_on_process_exit)
+faulthandler.enable(file=sys.stderr, all_threads=True)
+
 
 def _cache_dir_writable(path: str | None) -> bool | None:
     if not path:
