@@ -1,5 +1,6 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, responses, status, Request
-from typing import Union
+from typing import AsyncGenerator, Union
 
 import atexit
 import logging
@@ -19,7 +20,30 @@ from submodules.model import session, telemetry
 OTLP_GRPC_ENDPOINT = os.getenv("OTLP_GRPC_ENDPOINT", "tempo:4317")
 
 app_name = "refinery-embedder"
-app = FastAPI(title=app_name)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+    # region agent log
+    debug_log(
+        "app.py:lifespan",
+        "application startup",
+        {"pid": os.getpid()},
+        "H6",
+    )
+    # endregion
+    yield
+    # region agent log
+    debug_log(
+        "app.py:lifespan",
+        "application shutdown (uvicorn graceful stop)",
+        {"pid": os.getpid()},
+        "H6",
+    )
+    # endregion
+
+
+app = FastAPI(title=app_name, lifespan=lifespan)
 
 
 def _on_shutdown_signal(signum: int, _frame) -> None:

@@ -322,7 +322,7 @@ def run_encoding(
     iso2_code = project.get_blank_tokenizer_from_project(project_id)
     config_string = None
     try:
-        if platform == "huggingface":
+        if platform == enums.EmbeddingPlatform.HUGGINGFACE.value:
             if not __is_embedders_internal_model(model):
                 config_string = request_util.get_model_path(model)
                 if isinstance(config_string, dict):
@@ -347,6 +347,12 @@ def run_encoding(
         )
         # endregion
 
+        model_for_embedder = (
+            config_string
+            if platform == enums.EmbeddingPlatform.HUGGINGFACE.value and config_string
+            else model
+        )
+
         if is_delta:
             embedder = __setup_tmp_embedder(project_id, embedding_id)
         else:
@@ -355,7 +361,7 @@ def run_encoding(
                 embedding_type,
                 iso2_code,
                 platform,
-                model,
+                model_for_embedder,
                 api_token,
                 additional_data,
             )
@@ -414,9 +420,34 @@ def run_encoding(
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
     try:
+        # region agent log
+        debug_log(
+            "controller.py:run_encoding",
+            "fetching attribute data for encoding",
+            {
+                "project_id": project_id,
+                "embedding_id": embedding_id,
+                "attribute_name": attribute_name,
+                "is_delta": is_delta,
+            },
+            "H6",
+        )
+        # endregion
         record_ids, attribute_values_raw = record.get_attribute_data(
             project_id, attribute_name, is_delta, embedding_id
         )
+        # region agent log
+        debug_log(
+            "controller.py:run_encoding",
+            "attribute data fetched",
+            {
+                "project_id": project_id,
+                "embedding_id": embedding_id,
+                "record_count": len(record_ids),
+            },
+            "H6",
+        )
+        # endregion
         embedding.update_embedding_state_encoding(
             project_id,
             embedding_id,
@@ -445,6 +476,18 @@ def run_encoding(
             embedding.delete_tensors(embedding_id, with_commit=True)
         chunk = 0
         embedding_canceled = False
+        # region agent log
+        debug_log(
+            "controller.py:run_encoding",
+            "starting generate_batches loop",
+            {
+                "project_id": project_id,
+                "embedding_id": embedding_id,
+                "record_count": len(record_ids),
+            },
+            "H6",
+        )
+        # endregion
         for pair in generate_batches(
             project_id,
             record_ids,
@@ -454,6 +497,19 @@ def run_encoding(
             attribute_name,
             for_delta=is_delta,
         ):
+            if chunk == 0:
+                # region agent log
+                debug_log(
+                    "controller.py:run_encoding",
+                    "first encoding batch produced",
+                    {
+                        "project_id": project_id,
+                        "embedding_id": embedding_id,
+                        "batch_record_count": len(pair["record_ids"]),
+                    },
+                    "H6",
+                )
+                # endregion
             if chunk % 10 == 0:
                 session_token = general.remove_and_refresh_session(session_token, True)
 
