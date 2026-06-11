@@ -13,8 +13,18 @@ steps:
       - 'git config --global url."https://github.com/".insteadOf git@github.com:'
       - "git submodule update --recursive"
   - name: build and publish
-    image: plugins/docker
+    image: plugins/docker:21
+    environment:
+      BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
+    depends_on:
+      - submodules
     settings:
+      platform: linux/amd64
+      base_image_registry: dhi.io
+      base_image_username:
+        from_secret: dockerhub_username
+      base_image_password:
+        from_secret: dockerhub_password
       registry: registry.dev.kern.ai
       username:
         from_secret: docker_username
@@ -75,8 +85,18 @@ steps:
       - 'git config --global url."https://github.com/".insteadOf git@github.com:'
       - "git submodule update --recursive"
   - name: build and publish
-    image: plugins/docker
+    image: plugins/docker:21
+    environment:
+      BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
+    depends_on:
+      - submodules
     settings:
+      platform: linux/arm64
+      base_image_registry: dhi.io
+      base_image_username:
+        from_secret: dockerhub_username
+      base_image_password:
+        from_secret: dockerhub_password
       registry: registry.dev.kern.ai
       username:
         from_secret: docker_username
@@ -111,7 +131,9 @@ trigger:
 #       - 'git config --global url."https://github.com/".insteadOf git@github.com:'
 #       - "git submodule update --recursive"
 #   - name: build and publish
-#     image: plugins/docker
+#     image: plugins/docker:21
+#     environment:
+#       BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
 #     settings:
 #       registry: registry.dev.kern.ai
 #       username:
@@ -146,13 +168,23 @@ steps:
       - 'git config --global url."https://github.com/".insteadOf git@github.com:'
       - "git submodule update --recursive"
   - name: build and publish
-    image: plugins/docker
+    image: plugins/docker:21
+    environment:
+      BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
+    depends_on:
+      - submodules
     settings:
+      base_image_registry: dhi.io
+      base_image_username:
+        from_secret: dockerhub_username
+      base_image_password:
+        from_secret: dockerhub_password
       username:
         from_secret: dockerhub_username
       password:
         from_secret: dockerhub_password
       repo: "kernai/${DRONE_REPO_NAME}"
+      platform: linux/amd64
       tag: "${DRONE_TAG}-drone-amd64"
 
 trigger:
@@ -175,7 +207,9 @@ trigger:
 #       - 'git config --global url."https://github.com/".insteadOf git@github.com:'
 #       - "git submodule update --recursive"
 #   - name: build and publish
-#     image: plugins/docker
+#     image: plugins/docker:21
+#     environment:
+#       BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
 #     settings:
 #       username:
 #         from_secret: dockerhub_username
@@ -205,13 +239,23 @@ steps:
       - 'git config --global url."https://github.com/".insteadOf git@github.com:'
       - "git submodule update --recursive"
   - name: build and publish
-    image: plugins/docker
+    image: plugins/docker:21
+    environment:
+      BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
+    depends_on:
+      - submodules
     settings:
+      base_image_registry: dhi.io
+      base_image_username:
+        from_secret: dockerhub_username
+      base_image_password:
+        from_secret: dockerhub_password
       username:
         from_secret: dockerhub_username
       password:
         from_secret: dockerhub_password
       repo: "kernai/${DRONE_REPO_NAME}"
+      platform: linux/arm64
       tag: "${DRONE_TAG}-drone-arm64"
 
 trigger:
