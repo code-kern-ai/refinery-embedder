@@ -1,17 +1,11 @@
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, responses, status, Request
-from typing import AsyncGenerator, Union
+from typing import Union
 
-import atexit
-import faulthandler
 import logging
 import os
-import signal
-import sys
 import torch
 
 from src.util import request_util
-from src.util.debug_trace import debug_log
 from src.data import data_type
 import controller
 
@@ -23,95 +17,7 @@ OTLP_GRPC_ENDPOINT = os.getenv("OTLP_GRPC_ENDPOINT", "tempo:4317")
 
 app_name = "refinery-embedder"
 
-
-@asynccontextmanager
-async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
-    # region agent log
-    debug_log(
-        "app.py:lifespan",
-        "application startup",
-        {"pid": os.getpid()},
-        "H6",
-    )
-    # endregion
-    yield
-    # region agent log
-    debug_log(
-        "app.py:lifespan",
-        "application shutdown (uvicorn graceful stop)",
-        {"pid": os.getpid()},
-        "H6",
-    )
-    # endregion
-
-
-app = FastAPI(title=app_name, lifespan=lifespan)
-
-
-def _on_shutdown_signal(signum: int, _frame) -> None:
-    # region agent log
-    debug_log(
-        "app.py:_on_shutdown_signal",
-        "process received shutdown signal",
-        {"signum": signum, "signal_name": signal.Signals(signum).name},
-        "H1",
-    )
-    # endregion
-
-
-def _on_process_exit() -> None:
-    # region agent log
-    debug_log(
-        "app.py:_on_process_exit",
-        "process exiting via atexit",
-        {"pid": os.getpid()},
-        "H1",
-    )
-    # endregion
-
-
-signal.signal(signal.SIGTERM, _on_shutdown_signal)
-signal.signal(signal.SIGINT, _on_shutdown_signal)
-atexit.register(_on_process_exit)
-faulthandler.enable(file=sys.stderr, all_threads=True)
-
-
-def _cache_dir_writable(path: str | None) -> bool | None:
-    if not path:
-        return None
-    try:
-        os.makedirs(path, exist_ok=True)
-        test_file = os.path.join(path, ".debug_b6799e_write_test")
-        with open(test_file, "w", encoding="utf-8") as handle:
-            handle.write("ok")
-        os.remove(test_file)
-        return True
-    except OSError:
-        return False
-
-
-# region agent log
-debug_log(
-    "app.py:startup",
-    "refinery-embedder app module loaded",
-    {
-        "pid": os.getpid(),
-        "hf_home": os.getenv("HF_HOME"),
-        "hf_home_writable": _cache_dir_writable(os.getenv("HF_HOME")),
-        "transformers_cache": os.getenv("TRANSFORMERS_CACHE"),
-        "transformers_cache_writable": _cache_dir_writable(
-            os.getenv("TRANSFORMERS_CACHE")
-        ),
-        "sentence_transformers_home": os.getenv("SENTENCE_TRANSFORMERS_HOME"),
-        "sentence_transformers_home_writable": _cache_dir_writable(
-            os.getenv("SENTENCE_TRANSFORMERS_HOME")
-        ),
-        "cuda_available": torch.cuda.is_available(),
-        "torch_version": torch.__version__,
-    },
-    "H5",
-)
-# endregion
+app = FastAPI(title=app_name)
 
 if telemetry.ENABLE_TELEMETRY:
     print("WARNING:  Running telemetry.", flush=True)
@@ -257,14 +163,6 @@ def recommendations(
 
 @app.post("/embed")
 def embed(request: data_type.EmbeddingRequest) -> responses.PlainTextResponse:
-    # region agent log
-    debug_log(
-        "app.py:embed",
-        "POST /embed received",
-        {"project_id": request.project_id, "embedding_id": request.embedding_id},
-        "H2",
-    )
-    # endregion
     status_code = controller.manage_encoding_thread(
         request.project_id, request.embedding_id
     )

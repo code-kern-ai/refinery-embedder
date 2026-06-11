@@ -12,8 +12,6 @@ import os
 import tiktoken
 from transformers import AutoTokenizer
 
-from src.util.debug_trace import debug_log
-
 
 PRIVATEMODE_AI_URL = os.getenv("PRIVATEMODE_AI_URL", "http://privatemode-proxy:8080/v1")
 
@@ -29,27 +27,7 @@ class TransformerSentenceEmbedder(SentenceEmbedder):
     def __init__(self, config_string: str, batch_size: int = 128):
         super().__init__(batch_size)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # region agent log
-        debug_log(
-            "contextual.py:TransformerSentenceEmbedder.__init__",
-            "loading SentenceTransformer",
-            {
-                "config_string": config_string,
-                "device": str(self.device),
-                "cuda_available": torch.cuda.is_available(),
-            },
-            "H3",
-        )
-        # endregion
         self.model = SentenceTransformer(config_string).to(self.device)
-        # region agent log
-        debug_log(
-            "contextual.py:TransformerSentenceEmbedder.__init__",
-            "SentenceTransformer loaded",
-            {"config_string": config_string, "device": str(self.device)},
-            "H3",
-        )
-        # endregion
 
     def _encode(
         self, documents: List[Union[str, Doc]], fit_model: bool
