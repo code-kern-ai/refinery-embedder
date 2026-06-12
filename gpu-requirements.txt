@@ -97,7 +97,7 @@ googleapis-common-protos==1.75.0
     # via
     #   -r requirements/torch-cuda-requirements.txt
     #   opentelemetry-exporter-otlp-proto-grpc
-greenlet==3.5.0
+greenlet==3.5.1
     # via sqlalchemy
 grpcio==1.80.0
     # via
@@ -143,7 +143,7 @@ jinja2==3.1.6
     #   -r requirements/torch-cuda-requirements.txt
     #   spacy
     #   torch
-jiter==0.14.0
+jiter==0.15.0
     # via openai
 jmespath==1.1.0
     # via
