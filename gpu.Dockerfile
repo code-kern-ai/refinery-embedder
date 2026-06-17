@@ -1,4 +1,4 @@
-ARG PARENT_IMAGE=kernai/refinery-parent-images:v2.6.0-torch-cuda
+ARG PARENT_IMAGE=kernai/refinery-parent-images:v3.1.0-torch-cuda
 
 FROM ${PARENT_IMAGE} AS builder
 
