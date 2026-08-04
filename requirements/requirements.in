@@ -1,6 +1,6 @@
 -r torch-cpu-requirements.txt
 openai==1.97.1
 tiktoken>=0.5.0
-sentence-transformers==5.6.0
+sentence-transformers==5.6.1
 spacy==3.8.14
 torchvision==0.28.0

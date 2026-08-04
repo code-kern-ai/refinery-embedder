@@ -355,7 +355,7 @@ scipy==1.16.3
     #   scikit-learn
     #   scikit-optimize
     #   sentence-transformers
-sentence-transformers==5.6.0
+sentence-transformers==5.6.1
     # via -r requirements/requirements.in
 shellingham==1.5.4
     # via
