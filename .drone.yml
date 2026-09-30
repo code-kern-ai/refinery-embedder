@@ -39,79 +39,6 @@ steps:
 trigger:
   event:
     - push
-
----
-kind: pipeline
-type: docker
-name: arm64
-
-platform:
-  arch: arm64
-
-steps:
-  - name: submodules
-    image: alpine/git
-    commands:
-      - git submodule init
-      - 'git config --global url."https://github.com/".insteadOf git@github.com:'
-      - "git submodule update --recursive"
-  - name: build and publish
-    image: plugins/docker:21
-    environment:
-      BUILDX_NO_DEFAULT_ATTESTATIONS: "1"
-    depends_on:
-      - submodules
-    settings:
-      platform: linux/arm64
-      base_image_registry: dhi.io
-      base_image_username:
-        from_secret: dockerhub_username
-      base_image_password:
-        from_secret: dockerhub_password
-      registry: registry.dev.kern.ai
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      repo: "registry.dev.kern.ai/${DRONE_REPO}"
-      tags: ["${DRONE_COMMIT_SHA}", "${DRONE_COMMIT_BRANCH}"]
-      cache_from:
-        - "registry.dev.kern.ai/${DRONE_REPO}:dev_arm64"
-        - "registry.dev.kern.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}_arm64"
-
-trigger:
-  event:
-    - push
-
----
-kind: pipeline
-type: docker
-name: trigger update
-
-platform:
-  arch: amd64
-
-steps:
-  - name: trigger update
-    image: appleboy/drone-ssh
-    settings:
-      host: app.dev.kern.ai
-      username:
-        from_secret: dev_cognition_ssh_user
-      key:
-        from_secret: dev_cognition_ssh_key
-      script:
-        - /bin/sh ./trigger_dev_deployment.sh
-
-depends_on:
-  - amd64
-
-trigger:
-  branch:
-    - dev
-  event:
-    - push
-
 ---
 kind: pipeline
 type: docker
@@ -152,9 +79,35 @@ steps:
         - "registry.dev.kern.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}_arm64"
 
 trigger:
+  event:
+    - push
+
+---
+kind: pipeline
+type: docker
+name: trigger update
+
+platform:
+  arch: amd64
+
+steps:
+  - name: trigger update
+    image: appleboy/drone-ssh
+    settings:
+      host: app.dev.kern.ai
+      username:
+        from_secret: dev_cognition_ssh_user
+      key:
+        from_secret: dev_cognition_ssh_key
+      script:
+        - /bin/sh ./trigger_dev_deployment.sh
+
+depends_on:
+  - amd64
+
+trigger:
   branch:
     - dev
-    - release
   event:
     - push
 
