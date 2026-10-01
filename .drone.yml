@@ -39,36 +39,6 @@ steps:
 trigger:
   event:
     - push
-
----
-kind: pipeline
-type: docker
-name: trigger update
-
-platform:
-  arch: amd64
-
-steps:
-  - name: trigger update
-    image: appleboy/drone-ssh
-    settings:
-      host: app.dev.kern.ai
-      username:
-        from_secret: dev_cognition_ssh_user
-      key:
-        from_secret: dev_cognition_ssh_key
-      script:
-        - /bin/sh ./trigger_dev_deployment.sh
-
-depends_on:
-  - amd64
-
-trigger:
-  branch:
-    - dev
-  event:
-    - push
-
 ---
 kind: pipeline
 type: docker
@@ -109,9 +79,35 @@ steps:
         - "registry.dev.kern.ai/${DRONE_REPO}:${DRONE_COMMIT_BRANCH}_arm64"
 
 trigger:
+  event:
+    - push
+
+---
+kind: pipeline
+type: docker
+name: trigger update
+
+platform:
+  arch: amd64
+
+steps:
+  - name: trigger update
+    image: appleboy/drone-ssh
+    settings:
+      host: app.dev.kern.ai
+      username:
+        from_secret: dev_cognition_ssh_user
+      key:
+        from_secret: dev_cognition_ssh_key
+      script:
+        - /bin/sh ./trigger_dev_deployment.sh
+
+depends_on:
+  - amd64
+
+trigger:
   branch:
     - dev
-    - release
   event:
     - push
 
